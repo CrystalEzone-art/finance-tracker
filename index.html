@@ -427,31 +427,34 @@
                 height: 50px;
             }
 
-            #visualCalendar {
-                gap: 4px;
-            }
+            /* #visualCalendar gap will be overridden below */
 
+            /* REPLACED .calendar-day */
             .calendar-day {
-                min-height: 60px;
-                padding: 4px;
-                font-size: 11px;
+                min-height: 42px;
+                aspect-ratio: 1 / 1;
+                padding: 2px;
+                font-size: 10px;
+                border-radius: 10px;
             }
 
+            /* REPLACED .calendar-day-number */
             .calendar-day-number {
-                font-size: 12px;
+                font-size: 11px;
+                margin-bottom: 2px;
             }
 
+            /* REPLACED .calendar-sub */
             .calendar-sub {
-                font-size: 9px;
-                padding: 1px 4px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
+                display: none;
             }
 
+            /* REPLACED #calendarTitle */
             #calendarTitle {
-                font-size: 18px;
+                font-size: 20px;
                 text-align: center;
+                white-space: nowrap;
+                margin: 0;
             }
 
             canvas {
@@ -472,6 +475,19 @@
 
             .transaction-card {
                 overflow-wrap: break-word;
+            }
+
+            button[onclick*="changeCalendarMonth"] {
+                width: 42px !important;
+                height: 42px !important;
+                min-width: 42px;
+                border-radius: 12px;
+                margin-top: 0;
+                padding: 0;
+            }
+
+            #visualCalendar {
+                gap: 3px;
             }
         }
     </style>
