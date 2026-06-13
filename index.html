@@ -44,11 +44,15 @@
 
         .dashboard-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     margin-bottom: 20px;
     align-items: stretch;
     grid-auto-rows: 1fr;
+}
+
+        .two-column-row {
+    grid-template-columns: 1fr 1.6fr;
 }
 
         .card {
@@ -94,6 +98,7 @@
             animation: slideIn 0.35s ease;
             transition: transform 0.2s ease;
             will-change: transform, opacity;
+            position: relative;
         }
 
         .subscription-item {
@@ -114,30 +119,32 @@
 #visualCalendar {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
-    gap: 10px;
+    gap: 5px;
     margin-top: 15px;
 }
 
         .calendar-day {
-    min-height: 110px;
+    min-height: 55px;
     border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 8px;
+    border-radius: 10px;
+    padding: 3px;
     background: #fff;
+    overflow: hidden;
 }
 
 .calendar-day-number {
     font-weight: bold;
-    margin-bottom: 6px;
+    font-size: 12px;
+    margin-bottom: 2px;
 }
 
 .calendar-sub {
-    font-size: 11px;
-    background: #dbeafe;
-    color: #1d4ed8;
-    border-radius: 6px;
-    padding: 2px 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #2563eb;
     margin-top: 3px;
+    font-size: 0;
 }
 
         .transaction-card:hover {
@@ -229,9 +236,12 @@
     flex: 1;
     overflow-y: auto;
 }
-.dashboard-row > .form,
-.dashboard-row > .transactions {
+.dashboard-row > .form {
     height: 520px;
+}
+
+.dashboard-row > .transactions {
+    height: auto;
 }
 
         #subscriptionCalendar::-webkit-scrollbar {
@@ -297,6 +307,9 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            position: absolute;
+            right: 14px;
+            top: 14px;
         }
 
         .delete-btn svg {
@@ -513,6 +526,11 @@
                 <h3 class="stat-value">$<span id="expenses">0.00</span></h3>
             </div>
 
+            <div class="card" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);">
+                <h2>Saved Money</h2>
+                <h3 class="stat-value">$<span id="savedMoney">0.00</span></h3>
+            </div>
+
             <div class="card goal-card">
                 <h2>Savings Goal</h2>
                 <input type="number" id="savingsGoal" placeholder="Enter goal" oninput="saveGoal()">
@@ -524,7 +542,18 @@
             </div>
         </div>
 
-        <div class="dashboard-row">
+        <div class="dashboard-row two-column-row">
+            <div class="transactions">
+                <h2>🏦 Savings Vault</h2>
+
+                <div class="input-with-dollar">
+                    <span>$</span>
+                    <input type="number" id="savingsAmount" placeholder="Amount to move into savings">
+                </div>
+
+                <button class="income-btn" onclick="addSavings()">Move To Savings</button>
+            </div>
+
             <div class="form">
                 <h2>➕ Add Transaction</h2>
 
@@ -551,40 +580,39 @@
 
                 <button class="income-btn" onclick="addTransaction()">Add Transaction</button>
             </div>
-
-            <div class="transactions">
-                <h2>📆 Monthly Subscriptions</h2>
-
-                <input type="text" id="subName" placeholder="Subscription Name">
-                <div class="input-with-dollar">
-                    <span>$</span>
-                    <input type="number" id="subAmount" placeholder="Monthly Cost">
-                </div>
-                <input type="date" id="subDay">
-                <button class="income-btn" onclick="addSubscription()">Add Subscription</button>
-
-                <h3 style="margin-top:20px;margin-bottom:8px;color:#6b7280;">Monthly Cost: $<span id="subscriptionTotal">0.00</span></h3>
-
-                <div id="subscriptionCalendar"></div>
-            </div>
         </div>
 
-        <div class="transactions">
-            <h2>Transaction History</h2>
-            <ul id="transactionList"></ul>
+        <div class="dashboard-row" style="align-items:start;">
+    <div class="transactions">
+        <h2>📆 Monthly Subscriptions</h2>
+
+        <input type="text" id="subName" placeholder="Subscription Name">
+        <div class="input-with-dollar">
+            <span>$</span>
+            <input type="number" id="subAmount" placeholder="Monthly Cost">
         </div>
-        <div class="transactions">
-            <h2>Spending by Category</h2>
-            <canvas id="chart" width="900" height="300"></canvas>
+        <input type="date" id="subDay">
+        <button class="income-btn" onclick="addSubscription()">Add Subscription</button>
+
+        <h3 style="margin-top:20px;margin-bottom:8px;color:#6b7280;">Monthly Cost: $<span id="subscriptionTotal">0.00</span></h3>
+
+        <div id="subscriptionCalendar"></div>
+    </div>
+
+    <div class="transactions">
+        <h2>Transaction History</h2>
+        <ul id="transactionList"></ul>
+    </div>
+
+    <div class="transactions">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <button type="button" class="income-btn" style="width:60px;margin-top:0;" onclick="changeCalendarMonth(-1)">◀</button>
+            <h2 id="calendarTitle">📅 Calendar</h2>
+            <button type="button" class="income-btn" style="width:60px;margin-top:0;" onclick="changeCalendarMonth(1)">▶</button>
         </div>
-        <div class="transactions">
-            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-                <button type="button" class="income-btn" style="width:60px;margin-top:0;" onclick="changeCalendarMonth(-1)">◀</button>
-                <h2 id="calendarTitle">📅 Monthly Subscription Calendar</h2>
-                <button type="button" class="income-btn" style="width:60px;margin-top:0;" onclick="changeCalendarMonth(1)">▶</button>
-            </div>
-            <div id="visualCalendar"></div>
-        </div>
+        <div id="visualCalendar"></div>
+    </div>
+</div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -810,12 +838,35 @@ function renderSubscriptions() {
 
 let income = Number(localStorage.getItem('income')) || 0;
 let expenses = Number(localStorage.getItem('expenses')) || 0;
+let savedMoney = Number(localStorage.getItem('savedMoney')) || 0;
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
 
 function saveData() {
     localStorage.setItem('income', income);
     localStorage.setItem('expenses', expenses);
+    localStorage.setItem('savedMoney', savedMoney);
     localStorage.setItem('transactions', JSON.stringify(transactions));
+}
+function addSavings() {
+    const amount = Number(document.getElementById('savingsAmount').value);
+
+    if (!amount || amount <= 0) {
+        alert('Enter a valid savings amount.');
+        return;
+    }
+
+    const availableBalance = income - expenses - savedMoney;
+
+    if (amount > availableBalance) {
+        alert('You do not have enough available balance.');
+        return;
+    }
+
+    savedMoney += amount;
+    document.getElementById('savingsAmount').value = '';
+
+    saveData();
+    updateDashboard();
 }
 
 async function loadSettings() {
@@ -893,10 +944,11 @@ async function loadFromSupabase() {
 function updateDashboard() {
     document.getElementById('income').textContent = income.toFixed(2);
     document.getElementById('expenses').textContent = expenses.toFixed(2);
+    document.getElementById('savedMoney').textContent = savedMoney.toFixed(2);
 
-    const balance = income - expenses;
+    const balance = income - expenses - savedMoney;
     document.getElementById('balance').textContent = balance.toFixed(2);
-    document.getElementById('savedAmount').textContent = balance.toFixed(2);
+    document.getElementById('savedAmount').textContent = savedMoney.toFixed(2);
 
     const goal = Number(document.getElementById('savingsGoal').value) || 0;
 
@@ -918,7 +970,8 @@ function renderTransactions() {
         item.className = 'transaction-card';
 
         item.innerHTML = `
-    <strong>${t.description}</strong>
+    <strong>${t.description}</strong><br>
+    <span style="font-size:13px;color:#6b7280;">${t.category}</span><br>
     <button class="delete-btn" onclick="deleteTransaction(${index}, this)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="3 6 5 6 21 6"></polyline>
@@ -928,11 +981,9 @@ function renderTransactions() {
             <path d="M9 6V4h6v2"></path>
         </svg>
     </button><br>
-    <span>${t.category}</span><br>
     <span style="font-size:22px;font-weight:bold;${t.type === 'income' ? 'color:green' : 'color:red'}">
         ${t.type === 'income' ? '+' : '-'}$${t.amount.toFixed(2)}
-    </span><br>
-    <small>${new Date(t.created_at || Date.now()).toLocaleString()}</small>
+    </span>
 `;
 
         list.appendChild(item);
