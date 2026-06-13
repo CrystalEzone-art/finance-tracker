@@ -9,16 +9,19 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #eef2ff 0%, #f5f5f7 50%, #e0f2fe 100%);
+            background: #f4f7fc;
             margin: 0;
             padding: 30px;
             color: #1d1d1f;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: auto;
-            padding-bottom: 40px;
+            background: white;
+            border-radius: 32px;
+            padding: 40px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.08);
         }
 
         h1 {
@@ -47,19 +50,16 @@
         }
 
         .card {
-            background: rgba(255,255,255,0.8);
-            backdrop-filter: blur(20px);
-            padding: 24px;
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
-            border: 1px solid rgba(255,255,255,0.5);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-            animation: fadeUp 0.5s ease;
+            padding: 28px;
+            border-radius: 28px;
+            min-height: 180px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            transition: all 0.25s ease;
         }
 
         .card:hover {
             transform: translateY(-6px);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.18);
         }
 
         .card h2 {
@@ -68,23 +68,19 @@
         }
 
         .balance-card {
-            background: linear-gradient(135deg, #3b82f6, #60a5fa);
-            color: white;
+            background: linear-gradient(135deg,#4f8dfd,#6ea8ff);
         }
 
         .income-card {
-            background: linear-gradient(135deg, #22c55e, #4ade80);
-            color: white;
+            background: linear-gradient(135deg,#22c55e,#4ade80);
         }
 
         .expense-card {
-            background: linear-gradient(135deg, #ef4444, #f87171);
-            color: white;
+            background: linear-gradient(135deg,#ff5a5a,#ff7f7f);
         }
 
         .goal-card {
-            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
-            color: white;
+            background: linear-gradient(135deg,#8b5cf6,#a78bfa);
         }
 
         .transaction-card {
@@ -118,11 +114,11 @@
         }
 
         .form {
-            background: rgba(255,255,255,0.8);
-            backdrop-filter: blur(20px);
-            padding: 24px;
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            background: white;
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+            border: 1px solid #edf2f7;
             margin-bottom: 20px;
         }
 
@@ -138,22 +134,20 @@
         }
 
         button {
-            margin-top: 12px;
-            padding: 12px 18px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 999px;
+            border-radius: 14px;
+            font-weight: 700;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s ease;
+            transition: all .2s ease;
         }
 
         button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
         }
 
         .income-btn {
-            background: #0071e3;
+            background: #2563eb;
             color: white;
         }
 
@@ -163,11 +157,11 @@
         }
 
         .transactions {
-            background: rgba(255,255,255,0.8);
-            backdrop-filter: blur(20px);
-            padding: 24px;
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            background: white;
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+            border: 1px solid #edf2f7;
             margin-top: 20px;
         }
 
@@ -205,10 +199,14 @@
         }
 
         .delete-btn {
-            float: right;
-            background: #ef4444;
-            color: white;
-            padding: 4px 8px;
+            background: #fee2e2;
+            color: #dc2626;
+            border-radius: 12px;
+            padding: 8px 12px;
+        }
+        .transactions h2,
+        .form h2 {
+            font-size: 34px;
             margin-top: 0;
         }
 
@@ -369,7 +367,7 @@
 
         <div class="dashboard-row">
             <div class="form">
-                <h2>Add Transaction</h2>
+                <h2>➕ Add Transaction</h2>
 
                 <input type="text" id="description" placeholder="Description">
 
@@ -393,7 +391,7 @@
             </div>
 
             <div class="transactions">
-                <h2>📅 Monthly Subscriptions</h2>
+                <h2>📆 Monthly Subscriptions</h2>
 
                 <input type="text" id="subName" placeholder="Subscription Name">
                 <input type="number" id="subAmount" placeholder="Monthly Cost">
