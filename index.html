@@ -91,6 +91,21 @@
             will-change: transform, opacity;
         }
 
+        .subscription-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 12px;
+        }
+
+        .subscription-date {
+            font-weight: bold;
+            color: #0071e3;
+        }
+
         .transaction-card:hover {
             transform: scale(1.02);
         }
@@ -373,6 +388,18 @@
             <h2>Spending by Category</h2>
             <canvas id="chart" width="900" height="300"></canvas>
         </div>
+        <div class="transactions">
+            <h2>📅 Monthly Subscriptions</h2>
+
+            <input type="text" id="subName" placeholder="Subscription Name">
+            <input type="number" id="subAmount" placeholder="Monthly Cost">
+            <input type="number" id="subDay" placeholder="Billing Day (1-31)">
+            <button onclick="addSubscription()">Add Subscription</button>
+
+            <h3>Total Monthly Cost: $<span id="subscriptionTotal">0.00</span></h3>
+
+            <div id="subscriptionCalendar"></div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -386,6 +413,70 @@ const supabaseClient = window.supabase?.createClient(
     SUPABASE_URL,
     SUPABASE_ANON_KEY
 );
+
+// Subscription calendar data & rendering
+let subscriptions = JSON.parse(localStorage.getItem('subscriptions')) || [];
+
+function saveSubscriptions() {
+    localStorage.setItem('subscriptions', JSON.stringify(subscriptions));
+}
+
+function addSubscription() {
+    const name = document.getElementById('subName').value;
+    const amount = Number(document.getElementById('subAmount').value);
+    const day = Number(document.getElementById('subDay').value);
+
+    if (!name || amount <= 0 || day < 1 || day > 31) {
+        alert('Enter valid subscription information.');
+        return;
+    }
+
+    subscriptions.push({ name, amount, day });
+    saveSubscriptions();
+    renderSubscriptions();
+
+    document.getElementById('subName').value = '';
+    document.getElementById('subAmount').value = '';
+    document.getElementById('subDay').value = '';
+}
+
+function deleteSubscription(index) {
+    subscriptions.splice(index, 1);
+    saveSubscriptions();
+    renderSubscriptions();
+}
+
+function renderSubscriptions() {
+    const container = document.getElementById('subscriptionCalendar');
+    if (!container) return;
+
+    container.innerHTML = '';
+    let total = 0;
+
+    subscriptions
+        .sort((a, b) => a.day - b.day)
+        .forEach((sub, index) => {
+            total += sub.amount;
+
+            const item = document.createElement('div');
+            item.className = 'subscription-item';
+
+            item.innerHTML = `
+                <div>
+                    <strong>${sub.name}</strong><br>
+                    $${sub.amount.toFixed(2)}/month
+                </div>
+                <div>
+                    <div class="subscription-date">Day ${sub.day}</div>
+                    <button class="delete-btn" onclick="deleteSubscription(${index})">Delete</button>
+                </div>
+            `;
+
+            container.appendChild(item);
+        });
+
+    document.getElementById('subscriptionTotal').textContent = total.toFixed(2);
+}
 
 let income = Number(localStorage.getItem('income')) || 0;
 let expenses = Number(localStorage.getItem('expenses')) || 0;
@@ -622,6 +713,7 @@ loadSettings();
 loadFromSupabase();
 renderTransactions();
 updateDashboard();
+renderSubscriptions();
 
 setInterval(() => {
     loadFromSupabase();
