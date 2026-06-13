@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tyler's Finance Tracker</title>
     <meta name="theme-color" content="#22c55e">
-    <link rel="manifest" href='data:application/manifest+json,{"name":"Finance Tracker","short_name":"Finance","start_url":".","display":"standalone","background_color":"#f4f6f9","theme_color":"#22c55e"}'>
+
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
@@ -216,7 +216,18 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script>
+// SUPABASE SETUP
+// Replace the values below with your own Project URL and anon public key.
+const SUPABASE_URL = 'https://ptqdxxtvhimmbozagofp.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_hEpPK61rvIpHhbTtY4dn2g_Ee2JNVYI';
+const supabaseClient = window.supabase?.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
+
 let income = Number(localStorage.getItem('income')) || 0;
 let expenses = Number(localStorage.getItem('expenses')) || 0;
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
@@ -225,6 +236,38 @@ function saveData() {
     localStorage.setItem('income', income);
     localStorage.setItem('expenses', expenses);
     localStorage.setItem('transactions', JSON.stringify(transactions));
+}
+
+async function loadFromSupabase() {
+    if (!supabaseClient) return;
+
+    const { data, error } = await supabaseClient
+        .from('transactions')
+        .select('*')
+        .order('id', { ascending: false });
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    transactions = data.map(t => ({
+        description: t.description,
+        amount: Number(t.amount),
+        type: t.type,
+        category: t.category
+    }));
+
+    income = transactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+    expenses = transactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+    renderTransactions();
+    updateDashboard();
 }
 
 function updateDashboard() {
@@ -278,7 +321,7 @@ function deleteTransaction(index) {
     updateDashboard();
 }
 
-function addTransaction() {
+async function addTransaction() {
     const description = document.getElementById('description').value;
     const amount = Number(document.getElementById('amount').value);
     const type = document.getElementById('type').value;
@@ -296,6 +339,22 @@ function addTransaction() {
     }
 
     transactions.unshift({ description, amount, type, category });
+    if (supabaseClient) {
+        const { error } = await supabaseClient
+            .from('transactions')
+            .insert({
+                description,
+                amount,
+                type,
+                category
+            });
+
+        if (error) {
+            console.error(error);
+            alert(error.message);
+            return;
+        }
+    }
 
     saveData();
     renderTransactions();
@@ -338,33 +397,9 @@ function drawChart() {
     });
 }
 
+loadFromSupabase();
 renderTransactions();
 updateDashboard();
-
-if ('serviceWorker' in navigator) {
-    const swCode = `
-        self.addEventListener('install', event => {
-            self.skipWaiting();
-        });
-
-        self.addEventListener('fetch', event => {
-            event.respondWith(
-                caches.open('finance-tracker').then(cache => {
-                    return cache.match(event.request).then(response => {
-                        return response || fetch(event.request).then(networkResponse => {
-                            cache.put(event.request, networkResponse.clone());
-                            return networkResponse;
-                        });
-                    });
-                })
-            );
-        });
-    `;
-
-    const blob = new Blob([swCode], { type: 'text/javascript' });
-    const swUrl = URL.createObjectURL(blob);
-    navigator.serviceWorker.register(swUrl);
-}
 </script>
 </body>
 </html>
