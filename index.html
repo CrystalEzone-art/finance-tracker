@@ -139,12 +139,15 @@
 }
 
 .calendar-sub {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    background: #2563eb;
-    margin-top: 3px;
-    font-size: 0;
+    font-size: 10px;
+    padding: 2px 4px;
+    margin-top: 2px;
+    border-radius: 6px;
+    background: #dbeafe;
+    color: #1e40af;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
         .transaction-card:hover {
@@ -459,7 +462,8 @@
 
             /* REPLACED .calendar-sub */
             .calendar-sub {
-                display: none;
+                display: block;
+                font-size: 8px;
             }
 
             /* REPLACED #calendarTitle */
@@ -778,7 +782,7 @@ function renderVisualCalendar() {
 
         cell.innerHTML = `
             <div class="calendar-day-number">${day}</div>
-            ${matches.map(sub => `<div class="calendar-sub">${sub.name} ($${Number(sub.amount).toFixed(0)})</div>`).join('')}
+            ${matches.map(sub => `<div class="calendar-sub">${sub.name}</div>`).join('')}
         `;
 
         calendar.appendChild(cell);
