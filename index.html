@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tyler's Finance Tracker</title>
+    <meta name="theme-color" content="#22c55e">
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Finance Tracker","short_name":"Finance","start_url":".","display":"standalone","background_color":"#f4f6f9","theme_color":"#22c55e"}'>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            background: #f5f5f7;
+            margin: 0;
+            padding: 30px;
+            color: #1d1d1f;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 56px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(20px);
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        .form {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(20px);
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            box-sizing: border-box;
+            border-radius: 12px;
+            border: 1px solid #d2d2d7;
+            background: white;
+            font-size: 15px;
+        }
+
+        button {
+            margin-top: 12px;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.15s ease;
+        }
+
+        button:hover {
+            transform: scale(1.03);
+        }
+
+        .income-btn {
+            background: #0071e3;
+            color: white;
+        }
+
+        .expense-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .transactions {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(20px);
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .income {
+            color: green;
+        }
+
+        .expense {
+            color: red;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e5e7eb;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #22c55e;
+            transition: width 0.3s;
+        }
+
+        .delete-btn {
+            float: right;
+            background: #ef4444;
+            color: white;
+            padding: 4px 8px;
+            margin-top: 0;
+        }
+
+        canvas {
+            margin-top: 20px;
+            background: white;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Personal Finance Dashboard</h1>
+        <p style="text-align:center;color:#6e6e73;font-size:22px;margin-top:-5px;margin-bottom:30px;">Track spending, savings, and financial goals.</p>
+
+        <div class="cards">
+            <div class="card">
+                <h2>Balance</h2>
+                <h3>$<span id="balance">0.00</span></h3>
+            </div>
+
+            <div class="card">
+                <h2>Total Income</h2>
+                <h3>$<span id="income">0.00</span></h3>
+            </div>
+
+            <div class="card">
+                <h2>Total Expenses</h2>
+                <h3>$<span id="expenses">0.00</span></h3>
+            </div>
+
+            <div class="card">
+                <h2>Savings Goal</h2>
+                <input type="number" id="savingsGoal" placeholder="Enter goal">
+                <p>Progress: $<span id="savedAmount">0.00</span></p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p><span id="progressPercent">0</span>% Complete</p>
+            </div>
+        </div>
+
+        <div class="form">
+            <h2>Add Transaction</h2>
+
+            <input type="text" id="description" placeholder="Description">
+
+            <input type="number" id="amount" placeholder="Amount">
+
+            <select id="category">
+                <option value="Food">Food</option>
+                <option value="Gas">Gas</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Bills">Bills</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <select id="type">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+            </select>
+
+            <button class="income-btn" onclick="addTransaction()">Add Transaction</button>
+        </div>
+
+        <div class="transactions">
+            <h2>Transaction History</h2>
+            <ul id="transactionList"></ul>
+        </div>
+        <div class="transactions">
+            <h2>Spending by Category</h2>
+            <canvas id="chart" width="900" height="300"></canvas>
+        </div>
+    </div>
+
+    <script>
+let income = Number(localStorage.getItem('income')) || 0;
+let expenses = Number(localStorage.getItem('expenses')) || 0;
+let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+
+function saveData() {
+    localStorage.setItem('income', income);
+    localStorage.setItem('expenses', expenses);
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+}
+
+function updateDashboard() {
+    document.getElementById('income').textContent = income.toFixed(2);
+    document.getElementById('expenses').textContent = expenses.toFixed(2);
+
+    const balance = income - expenses;
+    document.getElementById('balance').textContent = balance.toFixed(2);
+    document.getElementById('savedAmount').textContent = balance.toFixed(2);
+
+    const goal = Number(document.getElementById('savingsGoal').value) || 0;
+
+    if (goal > 0) {
+        const percent = Math.min((balance / goal) * 100, 100);
+        document.getElementById('progressFill').style.width = percent + '%';
+        document.getElementById('progressPercent').textContent = percent.toFixed(0);
+    }
+
+    drawChart();
+}
+
+function renderTransactions() {
+    const list = document.getElementById('transactionList');
+    list.innerHTML = '';
+
+    transactions.forEach((t, index) => {
+        const item = document.createElement('li');
+        item.className = t.type;
+
+        item.innerHTML = `
+            ${t.type === 'income' ? '+' : '-'} $${t.amount.toFixed(2)} — ${t.description} (${t.category})
+            <button class="delete-btn" onclick="deleteTransaction(${index})">Delete</button>
+        `;
+
+        list.appendChild(item);
+    });
+}
+
+function deleteTransaction(index) {
+    const t = transactions[index];
+
+    if (t.type === 'income') {
+        income -= t.amount;
+    } else {
+        expenses -= t.amount;
+    }
+
+    transactions.splice(index, 1);
+    saveData();
+    renderTransactions();
+    updateDashboard();
+}
+
+function addTransaction() {
+    const description = document.getElementById('description').value;
+    const amount = Number(document.getElementById('amount').value);
+    const type = document.getElementById('type').value;
+    const category = document.getElementById('category').value;
+
+    if (!description || amount <= 0) {
+        alert('Please enter valid information.');
+        return;
+    }
+
+    if (type === 'income') {
+        income += amount;
+    } else {
+        expenses += amount;
+    }
+
+    transactions.unshift({ description, amount, type, category });
+
+    saveData();
+    renderTransactions();
+    updateDashboard();
+
+    document.getElementById('description').value = '';
+    document.getElementById('amount').value = '';
+}
+
+function drawChart() {
+    const canvas = document.getElementById('chart');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const categories = {};
+
+    transactions.forEach(t => {
+        if (t.type === 'expense') {
+            categories[t.category] = (categories[t.category] || 0) + t.amount;
+        }
+    });
+
+    const values = Object.values(categories);
+    const labels = Object.keys(categories);
+
+    const max = Math.max(...values, 1);
+
+    labels.forEach((label, i) => {
+        const value = values[i];
+        const height = (value / max) * 200;
+
+        ctx.fillStyle = '#3b82f6';
+        ctx.fillRect(60 + i * 120, 250 - height, 60, height);
+
+        ctx.fillStyle = '#000';
+        ctx.fillText(label, 60 + i * 120, 270);
+        ctx.fillText('$' + value.toFixed(0), 60 + i * 120, 240 - height);
+    });
+}
+
+renderTransactions();
+updateDashboard();
+
+if ('serviceWorker' in navigator) {
+    const swCode = `
+        self.addEventListener('install', event => {
+            self.skipWaiting();
+        });
+
+        self.addEventListener('fetch', event => {
+            event.respondWith(
+                caches.open('finance-tracker').then(cache => {
+                    return cache.match(event.request).then(response => {
+                        return response || fetch(event.request).then(networkResponse => {
+                            cache.put(event.request, networkResponse.clone());
+                            return networkResponse;
+                        });
+                    });
+                })
+            );
+        });
+    `;
+
+    const blob = new Blob([swCode], { type: 'text/javascript' });
+    const swUrl = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swUrl);
+}
+</script>
+</body>
+</html>
