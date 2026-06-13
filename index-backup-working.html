@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tyler's Finance Tracker</title>
+    <meta name="theme-color" content="#22c55e">
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #eef2ff 0%, #f5f5f7 50%, #e0f2fe 100%);
+            margin: 0;
+            padding: 30px;
+            color: #1d1d1f;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding-bottom: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 56px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #0071e3, #22c55e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(20px);
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            animation: fadeUp 0.5s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.18);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            color: white;
+        }
+
+        .income-card {
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+            color: white;
+        }
+
+        .expense-card {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            color: white;
+        }
+
+        .goal-card {
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            color: white;
+        }
+
+        .transaction-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            animation: slideIn 0.35s ease;
+            transition: transform 0.2s ease;
+            will-change: transform, opacity;
+        }
+
+        .transaction-card:hover {
+            transform: scale(1.02);
+        }
+
+        .form {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(20px);
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            box-sizing: border-box;
+            border-radius: 12px;
+            border: 1px solid #d2d2d7;
+            background: white;
+            font-size: 15px;
+        }
+
+        button {
+            margin-top: 12px;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .income-btn {
+            background: #0071e3;
+            color: white;
+        }
+
+        .expense-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .transactions {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(20px);
+            padding: 24px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .income {
+            color: green;
+        }
+
+        .expense {
+            color: red;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e5e7eb;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #22c55e;
+            transition: width 0.3s;
+        }
+
+        .delete-btn {
+            float: right;
+            background: #ef4444;
+            color: white;
+            padding: 4px 8px;
+            margin-top: 0;
+        }
+
+        canvas {
+            margin-top: 20px;
+            background: white;
+            border-radius: 12px;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .transaction-card.deleting {
+            animation: deleteSlide 0.4s forwards;
+        }
+
+        @keyframes deleteSlide {
+            0% {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(120px) scale(0.9);
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulseBalance {
+            0%,100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .stat-value {
+            animation: pulseBalance 3s infinite;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 34px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 18px;
+                border-radius: 30px;
+            }
+
+            .balance-card {
+                position: sticky;
+                top: 10px;
+                z-index: 100;
+            }
+
+            .stat-value {
+                font-size: 28px;
+            }
+
+            .transactions {
+                padding: 16px;
+            }
+
+            .transaction-card {
+                padding: 18px;
+                margin-bottom: 14px;
+                box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+            }
+
+            canvas {
+                width: 100%;
+                height: auto;
+            }
+
+            .delete-btn {
+                padding: 8px 12px;
+            }
+
+            input,
+            select,
+            button {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Tyler's Finance Tracker</h1>
+        <p style="text-align:center;color:#6e6e73;font-size:22px;margin-top:-5px;margin-bottom:30px;">Track spending, savings, and financial goals.</p>
+
+        <div class="cards">
+            <div class="card balance-card">
+                <h2>Balance</h2>
+                <h3 class="stat-value">$<span id="balance">0.00</span></h3>
+            </div>
+
+            <div class="card income-card">
+                <h2>Total Income</h2>
+                <h3 class="stat-value">$<span id="income">0.00</span></h3>
+            </div>
+
+            <div class="card expense-card">
+                <h2>Total Expenses</h2>
+                <h3 class="stat-value">$<span id="expenses">0.00</span></h3>
+            </div>
+
+            <div class="card goal-card">
+                <h2>Savings Goal</h2>
+                <input type="number" id="savingsGoal" placeholder="Enter goal" oninput="saveGoal()">
+                <p>Progress: $<span id="savedAmount">0.00</span></p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p><span id="progressPercent">0</span>% Complete</p>
+            </div>
+        </div>
+
+        <div class="form">
+            <h2>Add Transaction</h2>
+
+            <input type="text" id="description" placeholder="Description">
+
+            <input type="number" id="amount" placeholder="Amount">
+
+            <select id="category">
+                <option value="Food">Food</option>
+                <option value="Gas">Gas</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Bills">Bills</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <select id="type">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+            </select>
+
+            <button class="income-btn" onclick="addTransaction()">Add Transaction</button>
+        </div>
+
+        <div class="transactions">
+            <h2>Transaction History</h2>
+            <ul id="transactionList"></ul>
+        </div>
+        <div class="transactions">
+            <h2>Spending by Category</h2>
+            <canvas id="chart" width="900" height="300"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+// SUPABASE SETUP
+// Replace the values below with your own Project URL and anon public key.
+const SUPABASE_URL = 'https://ptqdxxtvhimmbozagofp.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_hEpPK61rvIpHhbTtY4dn2g_Ee2JNVYI';
+const supabaseClient = window.supabase?.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
+
+let income = Number(localStorage.getItem('income')) || 0;
+let expenses = Number(localStorage.getItem('expenses')) || 0;
+let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+
+function saveData() {
+    localStorage.setItem('income', income);
+    localStorage.setItem('expenses', expenses);
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+}
+
+async function loadSettings() {
+    if (!supabaseClient) return;
+
+    const { data, error } = await supabaseClient
+        .from('settings')
+        .select('*')
+        .eq('id', 1)
+        .single();
+
+    if (!error && data) {
+        document.getElementById('savingsGoal').value = data.savings_goal || '';
+    }
+
+    updateDashboard();
+}
+
+async function saveGoal() {
+    if (!supabaseClient) return;
+
+    const goal = Number(document.getElementById('savingsGoal').value) || 0;
+
+    const { error } = await supabaseClient
+        .from('settings')
+        .upsert({
+            id: 1,
+            savings_goal: goal
+        });
+
+    if (error) {
+        console.error(error);
+        alert('Savings goal failed to save: ' + error.message);
+        return;
+    }
+
+    console.log('Savings goal saved:', goal);
+    updateDashboard();
+}
+
+async function loadFromSupabase() {
+    if (!supabaseClient) return;
+
+    const { data, error } = await supabaseClient
+        .from('transactions')
+        .select('*')
+        .order('id', { ascending: false });
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    transactions = data.map(t => ({
+        id: t.id,
+        description: t.description,
+        amount: Number(t.amount),
+        type: t.type,
+        category: t.category,
+        created_at: t.created_at
+    }));
+
+    income = transactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+    expenses = transactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+    renderTransactions();
+    updateDashboard();
+}
+
+function updateDashboard() {
+    document.getElementById('income').textContent = income.toFixed(2);
+    document.getElementById('expenses').textContent = expenses.toFixed(2);
+
+    const balance = income - expenses;
+    document.getElementById('balance').textContent = balance.toFixed(2);
+    document.getElementById('savedAmount').textContent = balance.toFixed(2);
+
+    const goal = Number(document.getElementById('savingsGoal').value) || 0;
+
+    if (goal > 0) {
+        const percent = Math.min((balance / goal) * 100, 100);
+        document.getElementById('progressFill').style.width = percent + '%';
+        document.getElementById('progressPercent').textContent = percent.toFixed(0);
+    }
+
+    drawChart();
+}
+
+function renderTransactions() {
+    const list = document.getElementById('transactionList');
+    list.innerHTML = '';
+
+    transactions.forEach((t, index) => {
+        const item = document.createElement('li');
+        item.className = 'transaction-card';
+
+        item.innerHTML = `
+    <strong>${t.description}</strong>
+    <button class="delete-btn" onclick="deleteTransaction(${index}, this)">Delete</button><br>
+    <span>${t.category}</span><br>
+    <span style="font-size:22px;font-weight:bold;${t.type === 'income' ? 'color:green' : 'color:red'}">
+        ${t.type === 'income' ? '+' : '-'}$${t.amount.toFixed(2)}
+    </span><br>
+    <small>${new Date(t.created_at || Date.now()).toLocaleString()}</small>
+`;
+
+        list.appendChild(item);
+    });
+}
+
+async function deleteTransaction(index, buttonElement) {
+    const t = transactions[index];
+
+    const card = buttonElement?.closest('.transaction-card');
+    if (card) {
+        card.classList.add('deleting');
+        await new Promise(resolve => setTimeout(resolve, 400));
+    }
+
+    if (t.id && supabaseClient) {
+        const { error } = await supabaseClient
+            .from('transactions')
+            .delete()
+            .eq('id', t.id);
+
+        if (error) {
+            console.error(error);
+            alert('Delete failed: ' + error.message);
+            return;
+        }
+
+        await loadFromSupabase();
+        return;
+    }
+
+    transactions.splice(index, 1);
+    renderTransactions();
+    updateDashboard();
+}
+
+async function addTransaction() {
+    const description = document.getElementById('description').value;
+    const amount = Number(document.getElementById('amount').value);
+    const type = document.getElementById('type').value;
+    const category = document.getElementById('category').value;
+
+    if (!description || amount <= 0) {
+        alert('Please enter valid information.');
+        return;
+    }
+
+    if (type === 'income') {
+        income += amount;
+    } else {
+        expenses += amount;
+    }
+
+    transactions.unshift({ description, amount, type, category });
+    if (supabaseClient) {
+        const { error } = await supabaseClient
+            .from('transactions')
+            .insert({
+                description,
+                amount,
+                type,
+                category
+            });
+
+        if (error) {
+            console.error(error);
+            alert(error.message);
+            return;
+        }
+    }
+
+    await loadFromSupabase();
+
+    saveData();
+    renderTransactions();
+    updateDashboard();
+
+    document.getElementById('description').value = '';
+    document.getElementById('amount').value = '';
+}
+
+function drawChart() {
+    const canvas = document.getElementById('chart');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const categories = {};
+
+    transactions.forEach(t => {
+        if (t.type === 'expense') {
+            categories[t.category] = (categories[t.category] || 0) + t.amount;
+        }
+    });
+
+    const values = Object.values(categories);
+    const labels = Object.keys(categories);
+
+    const max = Math.max(...values, 1);
+
+    labels.forEach((label, i) => {
+        const value = values[i];
+        const height = (value / max) * 200;
+
+        ctx.fillStyle = '#3b82f6';
+        ctx.fillRect(60 + i * 120, 250 - height, 60, height);
+
+        ctx.fillStyle = '#000';
+        ctx.fillText(label, 60 + i * 120, 270);
+        ctx.fillText('$' + value.toFixed(0), 60 + i * 120, 240 - height);
+    });
+}
+
+loadSettings();
+loadFromSupabase();
+renderTransactions();
+updateDashboard();
+
+setInterval(() => {
+    loadFromSupabase();
+}, 5000);
+</script>
+</body>
+</html>
