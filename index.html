@@ -552,6 +552,7 @@
                 </div>
 
                 <button class="income-btn" onclick="addSavings()">Move To Savings</button>
+                <button class="expense-btn" onclick="withdrawSavings()">Withdraw From Savings</button>
             </div>
 
             <div class="form">
@@ -869,6 +870,26 @@ function addSavings() {
     updateDashboard();
 }
 
+function withdrawSavings() {
+    const amount = Number(document.getElementById('savingsAmount').value);
+
+    if (!amount || amount <= 0) {
+        alert('Enter a valid withdrawal amount.');
+        return;
+    }
+
+    if (amount > savedMoney) {
+        alert('You do not have that much in savings.');
+        return;
+    }
+
+    savedMoney -= amount;
+    document.getElementById('savingsAmount').value = '';
+
+    saveData();
+    updateDashboard();
+}
+
 async function loadSettings() {
     if (!supabaseClient) return;
 
@@ -953,7 +974,7 @@ function updateDashboard() {
     const goal = Number(document.getElementById('savingsGoal').value) || 0;
 
     if (goal > 0) {
-        const percent = Math.min((balance / goal) * 100, 100);
+        const percent = Math.min((savedMoney / goal) * 100, 100);
         document.getElementById('progressFill').style.width = percent + '%';
         document.getElementById('progressPercent').textContent = percent.toFixed(0);
     }
