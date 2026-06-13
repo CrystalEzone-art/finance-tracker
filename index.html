@@ -39,6 +39,13 @@
             margin-bottom: 20px;
         }
 
+        .dashboard-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
         .card {
             background: rgba(255,255,255,0.8);
             backdrop-filter: blur(20px);
@@ -282,6 +289,10 @@
                 grid-template-columns: 1fr;
             }
 
+            .dashboard-row {
+                grid-template-columns: 1fr;
+            }
+
             .card {
                 padding: 18px;
                 border-radius: 30px;
@@ -356,28 +367,43 @@
             </div>
         </div>
 
-        <div class="form">
-            <h2>Add Transaction</h2>
+        <div class="dashboard-row">
+            <div class="form">
+                <h2>Add Transaction</h2>
 
-            <input type="text" id="description" placeholder="Description">
+                <input type="text" id="description" placeholder="Description">
 
-            <input type="number" id="amount" placeholder="Amount">
+                <input type="number" id="amount" placeholder="Amount">
 
-            <select id="category">
-                <option value="Food">Food</option>
-                <option value="Gas">Gas</option>
-                <option value="Shopping">Shopping</option>
-                <option value="Entertainment">Entertainment</option>
-                <option value="Bills">Bills</option>
-                <option value="Other">Other</option>
-            </select>
+                <select id="category">
+                    <option value="Food">Food</option>
+                    <option value="Gas">Gas</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Bills">Bills</option>
+                    <option value="Other">Other</option>
+                </select>
 
-            <select id="type">
-                <option value="income">Income</option>
-                <option value="expense">Expense</option>
-            </select>
+                <select id="type">
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
 
-            <button class="income-btn" onclick="addTransaction()">Add Transaction</button>
+                <button class="income-btn" onclick="addTransaction()">Add Transaction</button>
+            </div>
+
+            <div class="transactions">
+                <h2>📅 Monthly Subscriptions</h2>
+
+                <input type="text" id="subName" placeholder="Subscription Name">
+                <input type="number" id="subAmount" placeholder="Monthly Cost">
+                <input type="number" id="subDay" placeholder="Billing Day (1-31)">
+                <button onclick="addSubscription()">Add Subscription</button>
+
+                <h3>Total Monthly Cost: $<span id="subscriptionTotal">0.00</span></h3>
+
+                <div id="subscriptionCalendar"></div>
+            </div>
         </div>
 
         <div class="transactions">
@@ -387,18 +413,6 @@
         <div class="transactions">
             <h2>Spending by Category</h2>
             <canvas id="chart" width="900" height="300"></canvas>
-        </div>
-        <div class="transactions">
-            <h2>📅 Monthly Subscriptions</h2>
-
-            <input type="text" id="subName" placeholder="Subscription Name">
-            <input type="number" id="subAmount" placeholder="Monthly Cost">
-            <input type="number" id="subDay" placeholder="Billing Day (1-31)">
-            <button onclick="addSubscription()">Add Subscription</button>
-
-            <h3>Total Monthly Cost: $<span id="subscriptionTotal">0.00</span></h3>
-
-            <div id="subscriptionCalendar"></div>
         </div>
     </div>
 
@@ -415,13 +429,26 @@ const supabaseClient = window.supabase?.createClient(
 );
 
 // Subscription calendar data & rendering
-let subscriptions = JSON.parse(localStorage.getItem('subscriptions')) || [];
+let subscriptions = [];
 
-function saveSubscriptions() {
-    localStorage.setItem('subscriptions', JSON.stringify(subscriptions));
+async function loadSubscriptions() {
+    if (!supabaseClient) return;
+
+    const { data, error } = await supabaseClient
+        .from('subscriptions')
+        .select('*')
+        .order('day', { ascending: true });
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    subscriptions = data || [];
+    renderSubscriptions();
 }
 
-function addSubscription() {
+async function addSubscription() {
     const name = document.getElementById('subName').value;
     const amount = Number(document.getElementById('subAmount').value);
     const day = Number(document.getElementById('subDay').value);
@@ -431,19 +458,36 @@ function addSubscription() {
         return;
     }
 
-    subscriptions.push({ name, amount, day });
-    saveSubscriptions();
-    renderSubscriptions();
+    const { error } = await supabaseClient
+        .from('subscriptions')
+        .insert({ name, amount, day });
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    await loadSubscriptions();
 
     document.getElementById('subName').value = '';
     document.getElementById('subAmount').value = '';
     document.getElementById('subDay').value = '';
 }
 
-function deleteSubscription(index) {
-    subscriptions.splice(index, 1);
-    saveSubscriptions();
-    renderSubscriptions();
+async function deleteSubscription(index) {
+    const sub = subscriptions[index];
+
+    const { error } = await supabaseClient
+        .from('subscriptions')
+        .delete()
+        .eq('id', sub.id);
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    await loadSubscriptions();
 }
 
 function renderSubscriptions() {
@@ -713,7 +757,7 @@ loadSettings();
 loadFromSupabase();
 renderTransactions();
 updateDashboard();
-renderSubscriptions();
+loadSubscriptions();
 
 setInterval(() => {
     loadFromSupabase();
