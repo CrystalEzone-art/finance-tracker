@@ -134,17 +134,6 @@
             background: #0071e3;
             color: white;
         }
-        .dark-mode {
-            background: #111827;
-            color: white;
-        }
-
-        .dark-mode .card,
-        .dark-mode .form,
-        .dark-mode .transactions {
-            background: rgba(30,41,59,0.9);
-            color: white;
-        }
 
         .expense-btn {
             background: #ef4444;
@@ -219,10 +208,6 @@
             margin-bottom: 20px;
         }
 
-        .dark-toggle {
-            background: #111827;
-            color: white;
-        }
         .transaction-card.deleting {
             animation: deleteSlide 0.4s forwards;
         }
@@ -328,7 +313,6 @@
     <div class="container">
         <h1>💰 Tyler's Finance Tracker</h1>
         <p style="text-align:center;color:#6e6e73;font-size:22px;margin-top:-5px;margin-bottom:30px;">Track spending, savings, and financial goals.</p>
-        <button class="dark-toggle" onclick="document.body.classList.toggle('dark-mode')">🌙 Dark Mode</button>
 
         <div class="cards">
             <div class="card balance-card">
