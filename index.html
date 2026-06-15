@@ -332,6 +332,21 @@
             padding: 0;
         }
 
+        #transactionList {
+            max-height: 330px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        #transactionList::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #transactionList::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 999px;
+        }
+
         li {
             padding: 10px;
             border-bottom: 1px solid #eee;
@@ -412,6 +427,39 @@
             background: linear-gradient(180deg,#ffffff,#f8fafc);
             border-radius: 20px;
             border: 1px solid #e5e7eb;
+        }
+
+        #pieChart {
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            aspect-ratio: 1 / 1;
+            background: linear-gradient(180deg,#ffffff,#f8fafc);
+            border-radius: 20px;
+            border: 1px solid #e5e7eb;
+            margin: 0 auto;
+        }
+
+        #pieLegend {
+            margin-top: 18px;
+            display: grid;
+            gap: 8px;
+            color: #334155;
+            font-size: 14px;
+            max-width: 500px;
+        }
+
+        #pieLegend .legend-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #pieLegend .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 999px;
+            flex-shrink: 0;
         }
         .stat-value {
             font-size: 32px;
@@ -642,7 +690,7 @@
 
     <div class="savings-activity">
         <h3 style="margin-top:24px;margin-bottom:12px;color:#334155;">Savings Activity</h3>
-        <div id="savingsList"></div>
+        <div id="savingsList" style="max-height:180px;overflow-y:auto;padding-right:4px;"></div>
     </div>
             </div>
             <div class="form">
@@ -673,42 +721,193 @@
             </div>
         </div>
 
-        <div class="dashboard-row" style="align-items:start;">
-    <div class="transactions">
-        <h2>📆 Monthly Subscriptions</h2>
-
-        <input type="text" id="subName" placeholder="Subscription Name">
-        <div class="input-with-dollar">
-            <span>$</span>
-            <input type="number" id="subAmount" placeholder="Monthly Cost">
+    <div class="dashboard-row" style="grid-template-columns:1fr 2fr;align-items:start;">
+        <div class="transactions">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <h2>Transaction History</h2>
+                <button type="button" class="income-btn" style="width:auto;height:40px;margin-top:0;padding:0 14px;" onclick="toggleSection('transactionsContent', this)">Hide</button>
+            </div>
+            <div id="transactionsContent">
+                <input type="text" id="transactionSearch" placeholder="🔍 Search transactions" oninput="renderTransactions()" style="margin-bottom:15px;">
+                <ul id="transactionList"></ul>
+            </div>
         </div>
-        <input type="date" id="subDay">
-        <button class="income-btn" onclick="addSubscription()">Add Subscription</button>
-
-        <h3 style="margin-top:20px;margin-bottom:8px;color:#6b7280;">Monthly Cost: $<span id="subscriptionTotal">0.00</span></h3>
-
-        <div id="subscriptionCalendar"></div>
-    </div>
-
-    <div class="transactions">
-        <h2>Transaction History</h2>
-        <ul id="transactionList"></ul>
-    </div>
-
-    <div class="transactions">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-            <button type="button" class="income-btn" style="width:60px;margin-top:0;" onclick="changeCalendarMonth(-1)">◀</button>
-            <h2 id="calendarTitle">📅 Calendar</h2>
-            <button type="button" class="income-btn" style="width:60px;margin-top:0;" onclick="changeCalendarMonth(1)">▶</button>
+        <div class="form" style="height:auto;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <h2>⏱ Hours Tracker</h2>
+            </div>
+            <div>
+                <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;">
+                    <select id="jobSelect" onchange="updateRateFromJob()" style="margin-top:0;flex:1;">
+                        <option value="">Select Job</option>
+                    </select>
+                    <button
+                        type="button"
+                        class="income-btn"
+                        style="width:auto;height:52px;margin-top:0;padding:0 16px;white-space:nowrap;"
+                        onclick="openSavedJobsPanel(this)">
+                        💼 Manage
+                    </button>
+                </div>
+                <div style="display:grid;grid-template-columns:1.2fr .8fr .8fr auto;gap:10px;align-items:end;">
+                    <input type="date" id="shiftDate" onfocus="setTodayDate()" style="margin-top:0;">
+                    <input type="number" id="hoursInput" placeholder="Hours" step="0.1" style="margin-top:0;">
+                    <div class="input-with-dollar" style="margin-top:0;">
+                        <span>$</span>
+                        <input type="number" id="hourlyRate" placeholder="Rate" step="0.01">
+                    </div>
+                    <button class="income-btn" style="width:auto;margin-top:0;padding:0 18px;" onclick="addShift()">Add</button>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;">
+                    <div style="background:white;border:1px solid #e5e7eb;padding:10px 14px;border-radius:18px;text-align:center;box-shadow:0 8px 20px rgba(15,23,42,.05);height:fit-content;align-self:start;">
+                        <div style="font-size:12px;color:#64748b;">THIS WEEK</div>
+                        <div style="font-size:24px;font-weight:700;color:#2563eb;" id="weekHours">0</div>
+                        <div style="font-size:12px;color:#64748b;">Hours Worked</div>
+                    </div>
+                    <div style="background:white;border:1px solid #e5e7eb;padding:12px;border-radius:18px;box-shadow:0 8px 20px rgba(15,23,42,.05);">
+                        <div style="font-size:12px;color:#64748b;text-align:center;margin-bottom:10px;">UPCOMING PAYCHECKS</div>
+                        <div id="paycheckBreakdown" style="margin-top:8px;font-size:13px;"></div>
+                        <div id="paydayCountdown" style="margin-top:10px;padding:10px;background:#f8fafc;border-radius:10px;border:1px solid #e5e7eb;font-size:13px;"></div>
+                        <div style="margin-top:12px;padding-top:10px;border-top:1px solid #e5e7eb;text-align:center;font-weight:700;font-size:18px;">
+                            Total: $<span id="nextPaycheckTotal">0.00</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin:10px 0;">
+                    <div id="shiftSummary" style="flex:1;padding:14px 16px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:14px;font-weight:600;color:#334155;">
+                        Total Career Hours: <span id="hoursWorked">0</span>
+                    </div>
+                    <button
+                        type="button"
+                        class="income-btn"
+                        style="width:auto;height:48px;margin-top:0;padding:0 16px;flex-shrink:0;"
+                        onclick="toggleSection('shiftListWrapper', this)">
+                        Hide
+                    </button>
+                </div>
+                <div id="shiftListWrapper" style="max-height:340px;overflow-y:auto;padding-right:4px;">
+                    <div id="shiftList"></div>
+                </div>
+            </div>
         </div>
-        <div id="visualCalendar"></div>
     </div>
-</div>
+
+    <div class="dashboard-row" style="grid-template-columns:1fr 1fr;align-items:start;">
+        <div class="transactions">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <h2>📆 Monthly Subscriptions</h2>
+                <button type="button" class="income-btn" style="width:auto;height:40px;margin-top:0;padding:0 14px;" onclick="toggleSection('subscriptionCalendarWrapper', this)">Hide</button>
+            </div>
+            <div>
+                <input type="text" id="subName" placeholder="Subscription Name">
+                <div class="input-with-dollar">
+                    <span>$</span>
+                    <input type="number" id="subAmount" placeholder="Monthly Cost">
+                </div>
+                <input type="date" id="subDay">
+                <button class="income-btn" onclick="addSubscription()">Add Subscription</button>
+                <h3 style="margin-top:20px;margin-bottom:8px;color:#6b7280;">Monthly Cost: $<span id="subscriptionTotal">0.00</span></h3>
+                <div id="nextBillCard" style="background:#eff6ff;border-radius:14px;padding:14px;margin-top:15px;margin-bottom:15px;">
+                    <strong>Next Bill</strong>
+                    <div id="nextBillText">No subscriptions</div>
+                </div>
+                <div id="subscriptionCalendarWrapper">
+                    <div id="subscriptionCalendar"></div>
+                </div>
+            </div>
+        </div>
+        <div class="transactions">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+                <button type="button" class="income-btn" style="width:60px;margin-top:0;" onclick="changeCalendarMonth(-1)">◀</button>
+                <h2 id="calendarTitle">📅 Calendar</h2>
+                <button type="button" class="income-btn" style="width:60px;margin-top:0;" onclick="changeCalendarMonth(1)">▶</button>
+            </div>
+            <div id="visualCalendar"></div>
+        </div>
+    </div>
+
+
+    <!-- Spending Breakdown card moved to its own row at the bottom -->
+    <div class="dashboard-row" style="grid-template-columns:1fr;align-items:start;">
+        <div class="form" style="height:auto;">
+            <h2>📊 Spending Breakdown</h2>
+            <canvas id="pieChart"></canvas>
+            <div id="pieLegend"></div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
+function toggleSection(sectionId, button) {
+    const section = document.getElementById(sectionId);
+
+    if (!section) return;
+
+    if (section.style.display === 'none') {
+        section.style.display = '';
+        button.textContent = 'Hide';
+        localStorage.setItem(`section_${sectionId}`, 'shown');
+    } else {
+        section.style.display = 'none';
+        button.textContent = 'Show';
+        localStorage.setItem(`section_${sectionId}`, 'hidden');
+    }
+}
+
+function openSavedJobsPanel(button) {
+    const panel = document.getElementById('savedJobsPanel');
+    const content = document.getElementById('savedJobsPanelContent');
+
+    if (!panel || !content || !button) return;
+
+    const rect = button.getBoundingClientRect();
+
+    panel.style.display = 'block';
+
+    content.style.position = 'absolute';
+    content.style.visibility = 'hidden';
+    content.style.display = 'block';
+
+    const scrollTop = window.scrollY;
+    const scrollLeft = window.scrollX;
+
+    const contentRect = content.getBoundingClientRect();
+
+    let top = scrollTop + ((window.innerHeight - contentRect.height) / 2);
+    let left = scrollLeft + ((window.innerWidth - contentRect.width) / 2);
+
+    // Add scroll-follow logic
+    window.savedJobsScrollHandler = () => {
+        const currentTop = window.scrollY + ((window.innerHeight - content.offsetHeight) / 2);
+        content.style.top = `${Math.max(window.scrollY + 20, currentTop)}px`;
+    };
+
+    window.removeEventListener('scroll', window.savedJobsScrollHandler);
+    window.addEventListener('scroll', window.savedJobsScrollHandler);
+
+    if (top < scrollTop + 20) {
+        top = scrollTop + 20;
+    }
+
+    content.style.top = `${top}px`;
+    content.style.left = `${Math.max(20, left)}px`;
+    content.style.visibility = 'visible';
+}
+
+function restoreSectionState(sectionId, buttonSelector) {
+    const section = document.getElementById(sectionId);
+    const button = document.querySelector(buttonSelector);
+
+    if (!section || !button) return;
+
+    const state = localStorage.getItem(`section_${sectionId}`);
+
+    if (state === 'hidden') {
+        section.style.display = 'none';
+        button.textContent = 'Show';
+    }
+}
 // SUPABASE SETUP
 // Replace the values below with your own Project URL and anon public key.
 const SUPABASE_URL = 'https://ptqdxxtvhimmbozagofp.supabase.co';
@@ -748,8 +947,9 @@ async function loadSubscriptions() {
     }
 
     subscriptions = data || [];
-    saveSubscriptions();
+    localStorage.setItem('subscriptions', JSON.stringify(subscriptions));
     renderSubscriptions();
+    renderVisualCalendar();
 }
 
 async function addSubscription() {
@@ -775,11 +975,13 @@ async function addSubscription() {
         }
 
         await loadSubscriptions();
+        renderVisualCalendar();
     } else {
         const sub = { id: Date.now(), name, amount, day };
         subscriptions.push(sub);
         saveSubscriptions();
         renderSubscriptions();
+        renderVisualCalendar();
     }
 
     document.getElementById('subName').value = '';
@@ -803,12 +1005,14 @@ async function deleteSubscription(index) {
         }
 
         await loadSubscriptions();
+        renderVisualCalendar();
         return;
     }
 
     subscriptions.splice(index, 1);
     saveSubscriptions();
     renderSubscriptions();
+    renderVisualCalendar();
 }
 
 
@@ -874,7 +1078,7 @@ function renderVisualCalendar() {
             cell.style.background = '#eff6ff';
         }
 
-        const matches = subscriptions.filter(sub => sub.day === day);
+        const matches = (subscriptions || []).filter(sub => Number(sub.day) === day);
 
         const nearestDaysLeft = matches.length
             ? Math.min(...matches.map(sub => {
@@ -951,6 +1155,30 @@ function renderSubscriptions() {
             container.appendChild(item);
         });
 
+    // --- Next Bill Panel logic ---
+    const nextBillText = document.getElementById('nextBillText');
+    if (nextBillText) {
+        if (subscriptions.length === 0) {
+            nextBillText.textContent = 'No subscriptions';
+        } else {
+            const today = new Date().getDate();
+            const sorted = [...subscriptions].sort((a,b) => {
+                let da = a.day - today;
+                let db = b.day - today;
+                if (da < 0) da += 31;
+                if (db < 0) db += 31;
+                return da - db;
+            });
+
+            const next = sorted[0];
+            let daysLeft = next.day - today;
+            if (daysLeft < 0) daysLeft += 31;
+
+            nextBillText.textContent = `${next.name} • $${next.amount.toFixed(2)} • ${daysLeft === 0 ? 'Due Today' : daysLeft + ' days'}`;
+        }
+    }
+    // --- End Next Bill Panel logic ---
+
     document.getElementById('subscriptionTotal').textContent = total.toFixed(2);
     renderVisualCalendar();
 }
@@ -960,6 +1188,9 @@ let expenses = Number(localStorage.getItem('expenses')) || 0;
 let savedMoney = Number(localStorage.getItem('savedMoney')) || 0;
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
 let savingsTransactions = JSON.parse(localStorage.getItem('savingsTransactions')) || [];
+let shifts = JSON.parse(localStorage.getItem('shifts')) || [];
+let jobs = JSON.parse(localStorage.getItem('jobs')) || [];
+let lastSelectedJobId = Number(localStorage.getItem('lastSelectedJobId')) || null;
 
 function saveData() {
     localStorage.setItem('income', income);
@@ -967,6 +1198,326 @@ function saveData() {
     localStorage.setItem('savedMoney', savedMoney);
     localStorage.setItem('transactions', JSON.stringify(transactions));
     localStorage.setItem('savingsTransactions', JSON.stringify(savingsTransactions));
+    localStorage.setItem('shifts', JSON.stringify(shifts));
+    localStorage.setItem('jobs', JSON.stringify(jobs));
+}
+function addJob() {
+    const name = document.getElementById('jobName').value.trim();
+    const rate = Number(document.getElementById('jobRate').value);
+    const payDate = document.getElementById('jobPayDate').value;
+
+    if (!name || rate <= 0 || !payDate) {
+        alert('Enter a job name, hourly rate, and last paycheck date.');
+        return;
+    }
+
+    jobs.push({
+        id: Date.now(),
+        name,
+        rate,
+        payDate,
+        cutoffDays: name.toLowerCase().includes('community pool') ? 6 : 0
+    });
+
+    saveData();
+    renderJobs();
+
+    document.getElementById('jobName').value = '';
+    document.getElementById('jobRate').value = '';
+    document.getElementById('jobPayDate').value = '';
+
+}
+
+function deleteJob(jobId) {
+    jobs = jobs.filter(job => job.id !== jobId);
+
+    saveData();
+    renderJobs();
+}
+
+function renderJobs() {
+    const select = document.getElementById('jobSelect');
+    if (!select) return;
+
+    select.innerHTML = '<option value="">Select Job</option>';
+
+    const savedJobsList = document.getElementById('savedJobsList');
+    if (savedJobsList) {
+        savedJobsList.innerHTML = '';
+    }
+
+    jobs.forEach(job => {
+        const option = document.createElement('option');
+        option.value = job.id;
+        option.textContent = `${job.name} ($${job.rate}/hr)`;
+        if (job.id === lastSelectedJobId) {
+            option.selected = true;
+        }
+        select.appendChild(option);
+
+        if (savedJobsList) {
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.justifyContent = 'space-between';
+            row.style.alignItems = 'center';
+            row.style.padding = '10px 12px';
+            row.style.border = '1px solid #e5e7eb';
+            row.style.borderRadius = '12px';
+            row.style.background = '#ffffff';
+
+            row.innerHTML = `
+<div>
+    <div style="font-weight:600;">${job.name}</div>
+    <div style="font-size:12px;color:#64748b;">$${job.rate}/hr</div>
+</div>
+<button class="delete-btn" onclick="deleteJob(${job.id})">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"></polyline>
+        <path d="M19 6l-1 14H6L5 6"></path>
+        <path d="M10 11v6"></path>
+        <path d="M14 11v6"></path>
+        <path d="M9 6V4h6v2"></path>
+    </svg>
+</button>
+`;
+
+            savedJobsList.appendChild(row);
+        }
+    });
+
+    const selectedJob = jobs.find(j => j.id === lastSelectedJobId);
+
+    if (selectedJob) {
+        document.getElementById('hourlyRate').value = selectedJob.rate;
+    }
+}
+
+function updateRateFromJob() {
+    const selectedId = Number(document.getElementById('jobSelect').value);
+
+    lastSelectedJobId = selectedId;
+    localStorage.setItem('lastSelectedJobId', selectedId);
+
+    const job = jobs.find(j => j.id === selectedId);
+
+    if (job) {
+        document.getElementById('hourlyRate').value = job.rate;
+    }
+}
+
+function addShift() {
+    const date = document.getElementById('shiftDate').value;
+    const hours = Number(document.getElementById('hoursInput').value);
+    const rate = Number(document.getElementById('hourlyRate').value);
+
+    if (!date || hours <= 0 || rate <= 0) {
+        alert('Enter valid shift information.');
+        return;
+    }
+
+    const selectedId = Number(document.getElementById('jobSelect').value);
+    const selectedJob = jobs.find(j => j.id === selectedId);
+
+    shifts.unshift({
+        id: Date.now(),
+        date,
+        hours,
+        rate,
+        job: selectedJob ? selectedJob.name : 'Unknown Job',
+        pay: hours * rate
+    });
+
+    saveData();
+    renderShifts();
+
+    document.getElementById('hoursInput').value = '';
+
+    const currentJobId = Number(document.getElementById('jobSelect').value);
+    lastSelectedJobId = currentJobId;
+    localStorage.setItem('lastSelectedJobId', currentJobId);
+
+    const currentJob = jobs.find(j => j.id === currentJobId);
+
+    if (currentJob) {
+        document.getElementById('hourlyRate').value = currentJob.rate;
+    }
+}
+
+function deleteShift(id) {
+    shifts = shifts.filter(shift => shift.id !== id);
+    saveData();
+    renderShifts();
+}
+
+function renderShifts() {
+    const list = document.getElementById('shiftList');
+    if (!list) return;
+
+    list.innerHTML = '';
+
+    let totalHours = 0;
+    let totalPay = 0;
+    let takeHomePay = 0;
+    let weekHours = 0;
+    let biWeeklyPay = 0;
+    const paycheckTotals = {};
+
+    [...shifts]
+        .sort((a, b) => new Date(b.date + 'T12:00:00') - new Date(a.date + 'T12:00:00'))
+        .forEach(shift => {
+        totalHours += shift.hours;
+        totalPay += shift.pay;
+        takeHomePay += shift.pay * 0.85;
+        const shiftDate = new Date(shift.date + 'T12:00:00');
+        const now = new Date();
+        const weekAgo = new Date();
+        weekAgo.setDate(now.getDate() - 7);
+
+        if (shiftDate >= weekAgo) {
+            weekHours += shift.hours;
+        }
+
+        // --- NEW LOGIC FOR NEXT PAYCHECK BASED ON JOB PAYDATE ---
+        const jobInfo = jobs.find(j =>
+            String(j.name).trim() === String(shift.job).trim()
+        );
+
+        if (jobInfo?.payDate) {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+
+            let nextPayDate = new Date(jobInfo.payDate + 'T12:00:00');
+            const cutoffDays = Number(jobInfo.cutoffDays || 0);
+
+            // Find the paycheck that this shift belongs to
+            while (true) {
+                const testPeriodEnd = new Date(nextPayDate);
+                testPeriodEnd.setDate(testPeriodEnd.getDate() - cutoffDays);
+                testPeriodEnd.setHours(23, 59, 59, 999);
+
+                const testPeriodStart = new Date(testPeriodEnd);
+                testPeriodStart.setDate(testPeriodStart.getDate() - 13);
+                testPeriodStart.setHours(0, 0, 0, 0);
+
+                // Normalize shift date so the entire selected day counts
+                shiftDate.setHours(12, 0, 0, 0);
+
+                if (shiftDate >= testPeriodStart && shiftDate <= testPeriodEnd) {
+                    break;
+                }
+
+                nextPayDate.setDate(nextPayDate.getDate() + 14);
+
+                if (nextPayDate.getFullYear() > today.getFullYear() + 2) {
+                    break;
+                }
+            }
+
+            const periodEnd = new Date(nextPayDate);
+            periodEnd.setDate(periodEnd.getDate() - cutoffDays);
+            periodEnd.setHours(23, 59, 59, 999);
+
+            const periodStart = new Date(periodEnd);
+            periodStart.setDate(periodStart.getDate() - 13);
+            periodStart.setHours(0, 0, 0, 0);
+
+            // Normalize shift date so the entire selected day counts
+            shiftDate.setHours(12, 0, 0, 0);
+            console.log('PAYCHECK CHECK', {
+                job: shift.job,
+                shiftDate,
+                periodStart,
+                periodEnd,
+                nextPayDate
+            });
+            if (shiftDate >= periodStart && shiftDate <= periodEnd && nextPayDate >= today) {
+                biWeeklyPay += shift.pay;
+
+                if (!paycheckTotals[jobInfo.name]) {
+                    paycheckTotals[jobInfo.name] = {
+                        amount: 0,
+                        payDate: new Date(nextPayDate),
+                        cutoffDate: new Date(periodEnd)
+                    };
+                }
+
+                paycheckTotals[jobInfo.name].amount += shift.pay;
+            }
+        }
+        // --- END NEW LOGIC ---
+
+        const card = document.createElement('div');
+        card.className = 'transaction-card';
+
+        card.innerHTML = `
+            <div class="transaction-card-content">
+                <strong>${shift.job || 'Job'}</strong>
+                <span class="transaction-date">${new Date(shift.date + 'T12:00:00').toLocaleDateString()}</span>
+                <span class="transaction-meta">${shift.hours} hrs • $${shift.rate}/hr</span>
+            </div>
+            <span class="transaction-amount" style="color:green;">$${shift.pay.toFixed(2)}</span>
+            <button class="delete-btn" onclick="deleteShift(${shift.id})">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6l-1 14H6L5 6"></path>
+                    <path d="M10 11v6"></path>
+                    <path d="M14 11v6"></path>
+                    <path d="M9 6V4h6v2"></path>
+                </svg>
+            </button>
+        `;
+
+        list.appendChild(card);
+    });
+
+    document.getElementById('hoursWorked').textContent = totalHours.toFixed(1);
+    document.getElementById('weekHours').textContent = weekHours.toFixed(1);
+    const biWeeklyPayElement = document.getElementById('nextPaycheckTotal');
+    const paycheckBreakdown = document.getElementById('paycheckBreakdown');
+
+    if (paycheckBreakdown) {
+        paycheckBreakdown.innerHTML = '';
+
+        Object.entries(paycheckTotals).forEach(([jobName, data]) => {
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.justifyContent = 'space-between';
+            row.style.marginBottom = '6px';
+
+            row.innerHTML = `
+                <span>${jobName}</span>
+                <span>$${data.amount.toFixed(2)}<br><small>${data.payDate.toLocaleDateString()}</small></span>
+            `;
+
+            paycheckBreakdown.appendChild(row);
+        });
+    }
+
+    // --- Payday Countdown ---
+    const paydayCountdown = document.getElementById('paydayCountdown');
+
+    if (paydayCountdown) {
+        const nextPay = Object.values(paycheckTotals)
+            .sort((a,b) => a.payDate - b.payDate)[0];
+
+        if (nextPay) {
+            const today = new Date();
+            const days = Math.ceil((nextPay.payDate - today) / (1000 * 60 * 60 * 24));
+
+            paydayCountdown.innerHTML = `
+                <strong>Next Payday</strong><br>
+                ${nextPay.payDate.toLocaleDateString()}<br>
+                ${Math.max(0, days)} day(s) away
+            `;
+        } else {
+            paydayCountdown.innerHTML = 'No upcoming paychecks';
+        }
+    }
+    // --- End Payday Countdown ---
+
+    if (biWeeklyPayElement) {
+        biWeeklyPayElement.textContent = biWeeklyPay.toFixed(2);
+    }
 }
 function addSavings() {
     const amount = Number(document.getElementById('savingsAmount').value);
@@ -995,9 +1546,19 @@ function addSavings() {
     };
     savingsTransactions.unshift(transaction);
 
+    // Add to transaction history as expense
+    transactions.unshift({
+        description: 'Transfer to Savings',
+        amount,
+        type: 'expense',
+        category: 'Savings',
+        created_at: new Date().toISOString()
+    });
+
     saveData();
     updateDashboard();
     renderSavingsTransactions();
+    renderTransactions();
 }
 
 function withdrawSavings() {
@@ -1023,11 +1584,21 @@ function withdrawSavings() {
     };
     savingsTransactions.unshift(transaction);
 
+    // Add to transaction history as income
+    transactions.unshift({
+        description: 'Transfer from Savings',
+        amount,
+        type: 'income',
+        category: 'Savings',
+        created_at: new Date().toISOString()
+    });
+
     document.getElementById('savingsAmount').value = '';
 
     saveData();
     updateDashboard();
     renderSavingsTransactions();
+    renderTransactions();
 }
 
 function renderSavingsTransactions() {
@@ -1041,22 +1612,26 @@ function renderSavingsTransactions() {
         return;
     }
 
-    savingsTransactions.forEach((t, index) => {
-        const card = document.createElement('div');
-        card.className = 'transaction-card';
-        card.innerHTML = `
-            <div class="transaction-card-content">
-                <div>
-                    <strong>${t.description}</strong><br>
-                    <span class="transaction-meta">${new Date(t.created_at).toLocaleDateString()}</span>
+    savingsTransactions
+        .slice(0)
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .forEach((t, index) => {
+            const card = document.createElement('div');
+            card.className = 'transaction-card';
+            card.style.marginBottom = '8px';
+            card.innerHTML = `
+                <div class="transaction-card-content">
+                    <div>
+                        <strong>${t.description}</strong><br>
+                        <span class="transaction-meta">${new Date(t.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <span class="transaction-amount" style="color:${t.type === 'deposit' ? 'green' : '#ef4444'}">
+                        ${t.type === 'deposit' ? '+' : '-'}$${t.amount.toFixed(2)}
+                    </span>
                 </div>
-                <span class="transaction-amount" style="color:${t.type === 'deposit' ? 'green' : '#ef4444'}">
-                    ${t.type === 'deposit' ? '+' : '-'}$${t.amount.toFixed(2)}
-                </span>
-            </div>
-        `;
-        list.appendChild(card);
-    });
+            `;
+            list.appendChild(card);
+        });
 }
 
 async function loadSettings() {
@@ -1172,7 +1747,15 @@ function renderTransactions() {
     const list = document.getElementById('transactionList');
     list.innerHTML = '';
 
-    transactions.forEach((t, index) => {
+    const search = (document.getElementById('transactionSearch')?.value || '').toLowerCase();
+
+    transactions.slice(0).forEach((t, index) => {
+        const matchesSearch = !search ||
+            t.description.toLowerCase().includes(search) ||
+            (t.category || '').toLowerCase().includes(search);
+
+        if (!matchesSearch) return;
+
         const item = document.createElement('li');
         item.className = 'transaction-card';
 
@@ -1231,6 +1814,7 @@ async function deleteTransaction(index, buttonElement) {
     }
 
     transactions.splice(index, 1);
+    saveData();
     renderTransactions();
     updateDashboard();
 }
@@ -1283,92 +1867,163 @@ async function addTransaction() {
 }
 
 function drawChart() {
-    const canvas = document.getElementById('chart');
-    if (!canvas) return;
+    const pieCanvas = document.getElementById('pieChart');
+    const pieLegend = document.getElementById('pieLegend');
+    if (!pieCanvas) return;
+    if (pieLegend) pieLegend.innerHTML = '';
 
-    const ctx = canvas.getContext('2d');
+    const pieCtx = pieCanvas.getContext('2d');
+    const rect = pieCanvas.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
 
-    canvas.width = rect.width * dpr;
-    canvas.height = 300 * dpr;
-
-    ctx.scale(dpr, dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, rect.width, 300);
+    pieCanvas.width = rect.width * dpr;
+    pieCanvas.height = rect.height * dpr;
+    pieCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    pieCtx.clearRect(0, 0, rect.width, rect.height);
 
     const categories = {};
 
     transactions.forEach(t => {
         if (t.type === 'expense') {
-            categories[t.category] = (categories[t.category] || 0) + t.amount;
+            categories[t.category] = (categories[t.category] || 0) + Number(t.amount);
         }
     });
 
     const values = Object.values(categories);
     const labels = Object.keys(categories);
 
-    const max = Math.max(...values, 1);
+    const totalExpenses = values.reduce((a, b) => a + b, 0);
 
-    if (labels.length === 0) {
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, rect.width, 300);
-
-        ctx.strokeStyle = '#e5e7eb';
-        ctx.lineWidth = 1;
-
-        for (let i = 0; i < 5; i++) {
-            const y = 40 + (i * 50);
-            ctx.beginPath();
-            ctx.moveTo(50, y);
-            ctx.lineTo(850, y);
-            ctx.stroke();
-        }
-
-        const demoBars = [120, 180, 90, 220, 140];
-        const demoLabels = ['Food', 'Gas', 'Bills', 'Shopping', 'Other'];
-
-        ctx.globalAlpha = 0.35;
-
-        for (let i = 0; i < demoBars.length; i++) {
-            const h = demoBars[i];
-
-            ctx.fillStyle = '#3b82f6';
-            ctx.fillRect(80 + i * 140, 250 - h, 80, h);
-
-            ctx.fillStyle = '#6b7280';
-            ctx.font = '14px sans-serif';
-            ctx.fillText(demoLabels[i], 85 + i * 140, 280);
-        }
-
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = '#6b7280';
-        ctx.font = '18px sans-serif';
-        ctx.fillText('Add expenses to generate your chart', 300, 40);
-
+    if (totalExpenses <= 0) {
+        pieCtx.font = '16px sans-serif';
+        pieCtx.fillStyle = '#6b7280';
+        pieCtx.textAlign = 'center';
+        pieCtx.fillText('Add expenses to generate chart', rect.width / 2, rect.height / 2);
         return;
     }
 
-    labels.forEach((label, i) => {
-        const value = values[i];
-        const height = (value / max) * 200;
+    let startAngle = -Math.PI / 2;
+    const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const radius = Math.min(rect.width, rect.height) / 2 - 24;
 
-        ctx.fillStyle = '#3b82f6';
-        ctx.fillRect(60 + i * 120, 250 - height, 60, height);
+    values.forEach((value, i) => {
+        const slice = (value / totalExpenses) * Math.PI * 2;
+        const color = colors[i % colors.length];
 
-        ctx.fillStyle = '#000';
-        ctx.fillText(label, 60 + i * 120, 270);
-        ctx.fillText('$' + value.toFixed(0), 60 + i * 120, 240 - height);
+        pieCtx.beginPath();
+        pieCtx.moveTo(centerX, centerY);
+        pieCtx.arc(centerX, centerY, radius, startAngle, startAngle + slice);
+        pieCtx.closePath();
+        pieCtx.fillStyle = color;
+        pieCtx.fill();
+
+        const midAngle = startAngle + slice / 2;
+        const labelX = centerX + Math.cos(midAngle) * (radius * 0.65);
+        const labelY = centerY + Math.sin(midAngle) * (radius * 0.65);
+        const percent = (value / totalExpenses) * 100;
+
+        if (percent >= 6) {
+            pieCtx.fillStyle = '#fff';
+            pieCtx.font = 'bold 12px sans-serif';
+            pieCtx.textAlign = 'center';
+            pieCtx.textBaseline = 'middle';
+            pieCtx.fillText(`${labels[i]} ${percent.toFixed(0)}%`, labelX, labelY);
+        }
+
+        if (pieLegend) {
+            const row = document.createElement('div');
+            row.className = 'legend-row';
+            row.innerHTML = `<span class="legend-color" style="background:${color}"></span> ${labels[i]} — ${percent.toFixed(0)}% ($${value.toFixed(2)})`;
+            pieLegend.appendChild(row);
+        }
+
+        startAngle += slice;
     });
 }
 
-loadSettings();
-loadFromSupabase();
-renderTransactions();
+function setTodayDate() {
+    const dateInput = document.getElementById('shiftDate');
+
+    if (dateInput && !dateInput.value) {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+
+        dateInput.value = `${year}-${month}-${day}`;
+    }
+}
+
+async function initializeApp() {
+    await loadSettings();
+    await loadFromSupabase();
+    await loadSubscriptions();
+
+    setTodayDate();
+    renderJobs();
+    renderTransactions();
     renderSavingsTransactions();
+    renderShifts();
+    renderVisualCalendar();
+    updateDashboard();
+
+    const subscriptionButton = document.querySelector('button[onclick="toggleSection(\'subscriptionCalendarWrapper\', this)"]');
+    if (subscriptionButton) {
+        restoreSectionState('subscriptionCalendarWrapper', 'button[onclick="toggleSection(\'subscriptionCalendarWrapper\', this)"]');
+    }
+    const subState = localStorage.getItem('section_subscriptionCalendarWrapper');
+    if (subState === 'hidden') {
+        document.getElementById('subscriptionCalendarWrapper').style.display = 'none';
+    }
+
+    restoreSectionState(
+        'transactionsContent',
+        'button[onclick*="transactionsContent"]'
+    );
+
+    restoreSectionState(
+        'shiftListWrapper',
+        'button[onclick*="shiftListWrapper"]'
+    );
+}
+
+initializeApp();
+
 setInterval(() => {
     loadFromSupabase();
+    loadSubscriptions();
 }, 5000);
 </script>
+<div id="savedJobsPanel" onclick="if (event.target === this){ this.style.display='none'; if(window.savedJobsScrollHandler){ window.removeEventListener('scroll', window.savedJobsScrollHandler); } }" style="display:none;position:absolute;top:0;left:0;right:0;min-height:100%;background:rgba(0,0,0,.25);z-index:9999;">
+    <div id="savedJobsPanelContent" style="position:absolute;max-width:600px;width:min(600px,calc(100vw - 40px));max-height:85vh;overflow-y:auto;background:white;border-radius:24px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.2);border:1px solid #e5e7eb;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h2 style="margin:0;font-size:28px;">💼 Saved Jobs</h2>
+            <button
+                type="button"
+                class="expense-btn"
+                style="width:auto;height:40px;margin-top:0;padding:0 14px;"
+                onclick="document.getElementById('savedJobsPanel').style.display='none'; if(window.savedJobsScrollHandler){ window.removeEventListener('scroll', window.savedJobsScrollHandler); }">
+                Close
+            </button>
+        </div>
+
+        <div id="savedJobsList" style="display:grid;gap:8px;margin-bottom:16px;"></div>
+
+        <div style="border-top:1px solid #e5e7eb;padding-top:16px;">
+            <input type="text" id="jobName" placeholder="Job Name">
+
+            <div class="input-with-dollar">
+                <span>$</span>
+                <input type="number" id="jobRate" placeholder="Hourly Rate" step="0.01">
+            </div>
+
+            <input type="date" id="jobPayDate" title="Last Paycheck Date">
+
+            <button class="income-btn" onclick="addJob()">Save Job</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
