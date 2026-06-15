@@ -1596,7 +1596,7 @@ function renderShifts() {
         biWeeklyPayElement.textContent = biWeeklyPay.toFixed(2);
     }
 }
-function addSavings() {
+async function addSavings() {
     const amount = Number(document.getElementById('savingsAmount').value);
 
     if (!amount || amount <= 0) {
@@ -1612,6 +1612,7 @@ function addSavings() {
     }
 
     savedMoney += amount;
+    await saveSavingsToSupabase();
     document.getElementById('savingsAmount').value = '';
 
     const transaction = {
@@ -1638,7 +1639,7 @@ function addSavings() {
     renderTransactions();
 }
 
-function withdrawSavings() {
+async function withdrawSavings() {
     const amount = Number(document.getElementById('savingsAmount').value);
 
     if (!amount || amount <= 0) {
@@ -1652,6 +1653,7 @@ function withdrawSavings() {
     }
 
     savedMoney -= amount;
+    await saveSavingsToSupabase();
     const transaction = {
         id: Date.now(),
         description: 'Withdrew savings',
@@ -1676,6 +1678,21 @@ function withdrawSavings() {
     updateDashboard();
     renderSavingsTransactions();
     renderTransactions();
+}
+
+async function saveSavingsToSupabase() {
+    if (!supabaseClient) return;
+
+    const { error } = await supabaseClient
+        .from('settings')
+        .upsert({
+            id: 1,
+            saved_money: savedMoney
+        });
+
+    if (error) {
+        console.error(error);
+    }
 }
 
 function renderSavingsTransactions() {
@@ -1722,6 +1739,7 @@ async function loadSettings() {
 
     if (!error && data) {
         document.getElementById('savingsGoal').value = data.savings_goal || '';
+        savedMoney = Number(data.saved_money || 0);
     }
 
     updateDashboard();
