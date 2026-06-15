@@ -1264,6 +1264,9 @@ let income = Number(localStorage.getItem('income')) || 0;
 let expenses = Number(localStorage.getItem('expenses')) || 0;
 let savedMoney = Number(localStorage.getItem('savedMoney')) || 0;
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+// Savings activity is currently stored only in localStorage.
+// To sync across devices, create a Supabase table named:
+// savings_activity(id bigint identity primary key, description text, amount numeric, type text, created_at timestamptz)
 let savingsTransactions = JSON.parse(localStorage.getItem('savingsTransactions')) || [];
 let shifts = JSON.parse(localStorage.getItem('shifts')) || [];
 let jobs = JSON.parse(localStorage.getItem('jobs')) || [];
@@ -1623,6 +1626,16 @@ async function addSavings() {
         created_at: new Date().toISOString()
     };
     savingsTransactions.unshift(transaction);
+    if (supabaseClient) {
+        const { error } = await supabaseClient
+            .from('savings_activity')
+            .insert(transaction);
+
+        if (error) {
+            console.error('Savings activity insert failed:', error);
+            alert('Savings activity sync failed: ' + error.message);
+        }
+    }
 
     // Add to transaction history as expense
     transactions.unshift({
@@ -1662,6 +1675,16 @@ async function withdrawSavings() {
         created_at: new Date().toISOString()
     };
     savingsTransactions.unshift(transaction);
+    if (supabaseClient) {
+        const { error } = await supabaseClient
+            .from('savings_activity')
+            .insert(transaction);
+
+        if (error) {
+            console.error('Savings activity insert failed:', error);
+            alert('Savings activity sync failed: ' + error.message);
+        }
+    }
 
     // Add to transaction history as income
     transactions.unshift({
@@ -1697,6 +1720,25 @@ async function saveSavingsToSupabase() {
     }
 
     console.log('Savings synced:', savedMoney);
+}
+
+async function loadSavingsActivity() {
+    if (!supabaseClient) return;
+
+    const { data, error } = await supabaseClient
+        .from('savings_activity')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Savings activity load failed:', error);
+        return;
+    }
+
+    if (data) {
+        savingsTransactions = data;
+        renderSavingsTransactions();
+    }
 }
 
 function renderSavingsTransactions() {
@@ -2057,6 +2099,7 @@ function setTodayDate() {
 
 async function initializeApp() {
     await loadSettings();
+    await loadSavingsActivity();
     await loadFromSupabase();
     await loadSubscriptions();
 
@@ -2094,6 +2137,7 @@ setInterval(() => {
     loadFromSupabase();
     loadSubscriptions();
     loadSettings();
+    loadSavingsActivity();
 }, 5000);
 </script>
 <div id="savedJobsPanel" onclick="if (event.target === this){ this.style.display='none'; if(window.savedJobsScrollHandler){ window.removeEventListener('scroll', window.savedJobsScrollHandler); } }" style="display:none;position:absolute;top:0;left:0;right:0;min-height:100%;background:rgba(0,0,0,.25);z-index:9999;">
