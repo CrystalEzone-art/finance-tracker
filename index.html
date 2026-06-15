@@ -532,13 +532,14 @@
             }
 
             .container {
-                padding: 18px;
-                border-radius: 20px;
+                padding: 10px;
+                border-radius: 0;
             }
 
             h1 {
-                font-size: 32px;
+                font-size: 24px;
                 line-height: 1.1;
+                margin-bottom: 6px;
             }
 
             .cards,
@@ -645,10 +646,14 @@
             .cards {
                 gap: 10px;
             }
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
 
             .card {
-                padding: 16px;
+                padding: 14px;
                 min-height: auto;
+                border-radius: 16px;
             }
 
             .card h2 {
@@ -663,7 +668,8 @@
 
             .form,
             .transactions {
-                padding: 14px;
+                padding: 12px;
+                border-radius: 16px;
             }
 
             .transactions h2,
@@ -2177,3 +2183,38 @@ setInterval(() => {
 </div>
 </body>
 </html>
+            .goal-card {
+                grid-column: 1 / -1;
+            }
+
+            .goal-card > div {
+                grid-template-columns: 1fr !important;
+                gap: 10px !important;
+            }
+
+            .goal-card input {
+                margin-top: 0;
+            }
+
+            #savedMoney,
+            #balance,
+            #income,
+            #expenses {
+                font-size: 28px;
+            }
+
+            #transactionList,
+            #shiftListWrapper,
+            #subscriptionCalendar,
+            #savingsList {
+                max-height: 180px !important;
+            }
+
+            button {
+                border-radius: 12px;
+            }
+
+            input,
+            select {
+                border-radius: 12px;
+            }
