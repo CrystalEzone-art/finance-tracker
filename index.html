@@ -91,6 +91,7 @@
 
         .goal-card {
             background: linear-gradient(135deg,#8b5cf6,#a78bfa);
+            padding-bottom: 30px;
         }
 
         .transaction-card {
@@ -608,19 +609,22 @@
                 <h3 class="stat-value">$<span id="expenses">0.00</span></h3>
             </div>
 
-            <div class="card" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);">
-                <h2>Saved Money</h2>
-                <h3 class="stat-value">$<span id="savedMoney">0.00</span></h3>
-            </div>
-
             <div class="card goal-card">
-                <h2>Savings Goal</h2>
-                <input type="number" id="savingsGoal" placeholder="Enter goal" oninput="saveGoal()">
-                <p>Progress: $<span id="savedAmount">0.00</span></p>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
+                <h2>Savings</h2>
+                <div style="display:grid;gap:22px;grid-template-columns:1fr 1.3fr;align-items:start;">
+                    <div>
+                        <p style="margin:0 0 10px;font-size:16px;opacity:.9;">Saved Money</p>
+                        <h3 class="stat-value">$<span id="savedMoney">0.00</span></h3>
+                    </div>
+                    <div>
+                        <input type="number" id="savingsGoal" placeholder="Enter goal" oninput="saveGoal()">
+                        <p style="margin-top:18px;margin-bottom:8px;">Progress: $<span id="savedAmount">0.00</span></p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <p><span id="progressPercent">0</span>% Complete</p>
+                    </div>
                 </div>
-                <p><span id="progressPercent">0</span>% Complete</p>
             </div>
         </div>
 
@@ -635,8 +639,12 @@
 
                 <button class="income-btn" onclick="addSavings()">Move To Savings</button>
                 <button class="expense-btn" onclick="withdrawSavings()">Withdraw From Savings</button>
-            </div>
 
+    <div class="savings-activity">
+        <h3 style="margin-top:24px;margin-bottom:12px;color:#334155;">Savings Activity</h3>
+        <div id="savingsList"></div>
+    </div>
+            </div>
             <div class="form">
                 <h2>➕ Add Transaction</h2>
 
@@ -951,12 +959,14 @@ let income = Number(localStorage.getItem('income')) || 0;
 let expenses = Number(localStorage.getItem('expenses')) || 0;
 let savedMoney = Number(localStorage.getItem('savedMoney')) || 0;
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+let savingsTransactions = JSON.parse(localStorage.getItem('savingsTransactions')) || [];
 
 function saveData() {
     localStorage.setItem('income', income);
     localStorage.setItem('expenses', expenses);
     localStorage.setItem('savedMoney', savedMoney);
     localStorage.setItem('transactions', JSON.stringify(transactions));
+    localStorage.setItem('savingsTransactions', JSON.stringify(savingsTransactions));
 }
 function addSavings() {
     const amount = Number(document.getElementById('savingsAmount').value);
@@ -976,8 +986,18 @@ function addSavings() {
     savedMoney += amount;
     document.getElementById('savingsAmount').value = '';
 
+    const transaction = {
+        id: Date.now(),
+        description: 'Saved money',
+        amount,
+        type: 'deposit',
+        created_at: new Date().toISOString()
+    };
+    savingsTransactions.unshift(transaction);
+
     saveData();
     updateDashboard();
+    renderSavingsTransactions();
 }
 
 function withdrawSavings() {
@@ -994,10 +1014,49 @@ function withdrawSavings() {
     }
 
     savedMoney -= amount;
+    const transaction = {
+        id: Date.now(),
+        description: 'Withdrew savings',
+        amount,
+        type: 'withdraw',
+        created_at: new Date().toISOString()
+    };
+    savingsTransactions.unshift(transaction);
+
     document.getElementById('savingsAmount').value = '';
 
     saveData();
     updateDashboard();
+    renderSavingsTransactions();
+}
+
+function renderSavingsTransactions() {
+    const list = document.getElementById('savingsList');
+    if (!list) return;
+
+    list.innerHTML = '';
+
+    if (savingsTransactions.length === 0) {
+        list.innerHTML = '<p style="color:#64748b;margin:0;">No savings activity yet.</p>';
+        return;
+    }
+
+    savingsTransactions.forEach((t, index) => {
+        const card = document.createElement('div');
+        card.className = 'transaction-card';
+        card.innerHTML = `
+            <div class="transaction-card-content">
+                <div>
+                    <strong>${t.description}</strong><br>
+                    <span class="transaction-meta">${new Date(t.created_at).toLocaleDateString()}</span>
+                </div>
+                <span class="transaction-amount" style="color:${t.type === 'deposit' ? 'green' : '#ef4444'}">
+                    ${t.type === 'deposit' ? '+' : '-'}$${t.amount.toFixed(2)}
+                </span>
+            </div>
+        `;
+        list.appendChild(card);
+    });
 }
 
 async function loadSettings() {
@@ -1306,9 +1365,7 @@ function drawChart() {
 loadSettings();
 loadFromSupabase();
 renderTransactions();
-updateDashboard();
-loadSubscriptions();
-
+    renderSavingsTransactions();
 setInterval(() => {
     loadFromSupabase();
 }, 5000);
