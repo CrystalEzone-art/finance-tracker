@@ -748,6 +748,36 @@
             #paycheckBreakdown {
                 font-size: 12px;
             }
+
+            /* Hours Tracker mobile fix */
+            .form div[style*="grid-template-columns:1.2fr .8fr .8fr auto"] {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+
+            .form div[style*="grid-template-columns:1fr 1fr"] {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 10px !important;
+            }
+
+            #shiftSummary {
+                width: 100% !important;
+            }
+
+            #shiftSummary + button {
+                width: 100% !important;
+                margin-top: 8px !important;
+            }
+
+            #paycheckBreakdown {
+                font-size: 13px !important;
+            }
+
+            #shiftListWrapper {
+                max-height: 220px !important;
+            }
         }
     </style>
 </head>
@@ -1308,7 +1338,26 @@ let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
 let savingsTransactions = JSON.parse(localStorage.getItem('savingsTransactions')) || [];
 let shifts = JSON.parse(localStorage.getItem('shifts')) || [];
 let jobs = JSON.parse(localStorage.getItem('jobs')) || [];
+
 let lastSelectedJobId = Number(localStorage.getItem('lastSelectedJobId')) || null;
+
+async function loadJobsFromSupabase() {
+    if (!supabaseClient) return;
+    const { data } = await supabaseClient.from('jobs').select('*');
+    if (data) {
+        jobs = data;
+        renderJobs();
+    }
+}
+
+async function loadShiftsFromSupabase() {
+    if (!supabaseClient) return;
+    const { data } = await supabaseClient.from('shifts').select('*').order('date', { ascending: false });
+    if (data) {
+        shifts = data;
+        renderShifts();
+    }
+}
 
 function saveData() {
     localStorage.setItem('income', income);
@@ -1319,7 +1368,7 @@ function saveData() {
     localStorage.setItem('shifts', JSON.stringify(shifts));
     localStorage.setItem('jobs', JSON.stringify(jobs));
 }
-function addJob() {
+async function addJob() {
     const name = document.getElementById('jobName').value.trim();
     const rate = Number(document.getElementById('jobRate').value);
     const payDate = document.getElementById('jobPayDate').value;
@@ -1328,27 +1377,42 @@ function addJob() {
         alert('Enter a job name, hourly rate, and last paycheck date.');
         return;
     }
-
-    jobs.push({
-        id: Date.now(),
+    const jobData = {
         name,
         rate,
-        payDate,
-        cutoffDays: name.toLowerCase().includes('community pool') ? 6 : 0
-    });
+        pay_date: payDate,
+        cutoff_days: name.toLowerCase().includes('community pool') ? 6 : 0
+    };
 
-    saveData();
-    renderJobs();
+    if (supabaseClient) {
+        const { error } = await supabaseClient.from('jobs').insert(jobData);
+        if (error) {
+            alert(error.message);
+            return;
+        }
+        await loadJobsFromSupabase();
+    } else {
+        jobs.push({ id: Date.now(), ...jobData });
+        saveData();
+        renderJobs();
+    }
 
     document.getElementById('jobName').value = '';
     document.getElementById('jobRate').value = '';
     document.getElementById('jobPayDate').value = '';
-
 }
 
-function deleteJob(jobId) {
+async function deleteJob(jobId) {
+    if (supabaseClient) {
+        const { error } = await supabaseClient.from('jobs').delete().eq('id', jobId);
+        if (error) {
+            alert(error.message);
+            return;
+        }
+        await loadJobsFromSupabase();
+        return;
+    }
     jobs = jobs.filter(job => job.id !== jobId);
-
     saveData();
     renderJobs();
 }
@@ -1423,7 +1487,7 @@ function updateRateFromJob() {
     }
 }
 
-function addShift() {
+async function addShift() {
     const date = document.getElementById('shiftDate').value;
     const hours = Number(document.getElementById('hoursInput').value);
     const rate = Number(document.getElementById('hourlyRate').value);
@@ -1435,18 +1499,33 @@ function addShift() {
 
     const selectedId = Number(document.getElementById('jobSelect').value);
     const selectedJob = jobs.find(j => j.id === selectedId);
+    if (supabaseClient) {
+        const { error } = await supabaseClient.from('shifts').insert({
+            date,
+            hours,
+            rate,
+            job: selectedJob ? selectedJob.name : 'Unknown Job',
+            pay: hours * rate
+        });
 
-    shifts.unshift({
-        id: Date.now(),
-        date,
-        hours,
-        rate,
-        job: selectedJob ? selectedJob.name : 'Unknown Job',
-        pay: hours * rate
-    });
+        if (error) {
+            alert(error.message);
+            return;
+        }
 
-    saveData();
-    renderShifts();
+        await loadShiftsFromSupabase();
+    } else {
+        shifts.unshift({
+            id: Date.now(),
+            date,
+            hours,
+            rate,
+            job: selectedJob ? selectedJob.name : 'Unknown Job',
+            pay: hours * rate
+        });
+        saveData();
+        renderShifts();
+    }
 
     document.getElementById('hoursInput').value = '';
 
@@ -1461,7 +1540,16 @@ function addShift() {
     }
 }
 
-function deleteShift(id) {
+async function deleteShift(id) {
+    if (supabaseClient) {
+        const { error } = await supabaseClient.from('shifts').delete().eq('id', id);
+        if (error) {
+            alert(error.message);
+            return;
+        }
+        await loadShiftsFromSupabase();
+        return;
+    }
     shifts = shifts.filter(shift => shift.id !== id);
     saveData();
     renderShifts();
@@ -2140,6 +2228,8 @@ async function initializeApp() {
     await loadSavingsActivity();
     await loadFromSupabase();
     await loadSubscriptions();
+    await loadJobsFromSupabase();
+    await loadShiftsFromSupabase();
 
     setTodayDate();
     renderJobs();
@@ -2174,6 +2264,8 @@ initializeApp();
 setInterval(() => {
     loadFromSupabase();
     loadSubscriptions();
+    loadJobsFromSupabase();
+    loadShiftsFromSupabase();
     loadSettings();
     loadSavingsActivity();
 }, 5000);
