@@ -542,10 +542,18 @@
                 margin-bottom: 6px;
             }
 
-            .cards,
-            .dashboard-row {
-                grid-template-columns: 1fr;
+            .cards {
                 gap: 14px;
+            }
+
+            .dashboard-row {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 12px !important;
+            }
+
+            .dashboard-row > * {
+                width: 100% !important;
             }
 
             .dashboard-row > .form,
@@ -721,6 +729,24 @@
 
             #savedJobsPanelContent h2 {
                 font-size: 22px !important;
+            }
+
+            #visualCalendar {
+                grid-template-columns: repeat(7, 1fr);
+                gap: 2px;
+            }
+
+            .calendar-day {
+                min-height: 50px;
+                aspect-ratio: auto;
+            }
+
+            #shiftListWrapper {
+                max-height: 260px !important;
+            }
+
+            #paycheckBreakdown {
+                font-size: 12px;
             }
         }
     </style>
@@ -2183,38 +2209,3 @@ setInterval(() => {
 </div>
 </body>
 </html>
-            .goal-card {
-                grid-column: 1 / -1;
-            }
-
-            .goal-card > div {
-                grid-template-columns: 1fr !important;
-                gap: 10px !important;
-            }
-
-            .goal-card input {
-                margin-top: 0;
-            }
-
-            #savedMoney,
-            #balance,
-            #income,
-            #expenses {
-                font-size: 28px;
-            }
-
-            #transactionList,
-            #shiftListWrapper,
-            #subscriptionCalendar,
-            #savingsList {
-                max-height: 180px !important;
-            }
-
-            button {
-                border-radius: 12px;
-            }
-
-            input,
-            select {
-                border-radius: 12px;
-            }
