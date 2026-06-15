@@ -762,14 +762,6 @@
                 gap: 10px !important;
             }
 
-            #shiftSummary {
-                width: 100% !important;
-            }
-
-            #shiftSummary + button {
-                width: 100% !important;
-                margin-top: 8px !important;
-            }
 
             #paycheckBreakdown {
                 font-size: 13px !important;
@@ -780,18 +772,34 @@
             }
 
             /* Hours Tracker mobile layout */
-            .form div[style*="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap"] {
-                flex-direction: column !important;
-            }
-
-            .form div[style*="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap"] > div {
-                flex: none !important;
-                width: 100% !important;
-            }
 
             #paycheckBreakdown {
                 max-height: 160px;
                 overflow-y: auto;
+            }
+
+            .form div[style*="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap"] {
+                flex-direction: row !important;
+                flex-wrap: nowrap !important;
+                align-items: stretch !important;
+            }
+
+            .form div[style*="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap"] > div:first-child {
+                flex: 1 !important;
+                min-width: 95px !important;
+            }
+
+            .form div[style*="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap"] > div:last-child {
+                flex: 3 !important;
+            }
+
+            #shiftSummary {
+                flex: 1 !important;
+            }
+
+            #shiftSummary + button {
+                width: 90px !important;
+                flex-shrink: 0 !important;
             }
         }
     </style>
@@ -919,14 +927,14 @@
                     <button class="income-btn" style="width:auto;margin-top:0;padding:0 18px;" onclick="addShift()">Add</button>
                 </div>
                 <div style="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap;">
-                    <div style="flex:1;background:white;border:1px solid #e5e7eb;padding:12px 14px;border-radius:18px;box-shadow:0 8px 20px rgba(15,23,42,.05);display:flex;justify-content:center;align-items:center;">
+                    <div style="flex:.8;background:white;border:1px solid #e5e7eb;padding:12px 14px;border-radius:18px;box-shadow:0 8px 20px rgba(15,23,42,.05);display:flex;justify-content:center;align-items:center;">
                         <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;">
                             <div style="font-size:12px;color:#64748b;">THIS WEEK</div>
                             <div style="font-size:24px;font-weight:700;color:#2563eb;" id="weekHours">0</div>
                             <div style="font-size:12px;color:#64748b;">Hours Worked</div>
                         </div>
                     </div>
-                    <div style="flex:3;background:white;border:1px solid #e5e7eb;padding:12px;border-radius:18px;box-shadow:0 8px 20px rgba(15,23,42,.05);">
+                    <div style="flex:3.2;background:white;border:1px solid #e5e7eb;padding:12px;border-radius:18px;box-shadow:0 8px 20px rgba(15,23,42,.05);">
                         <div style="font-size:12px;color:#64748b;text-align:center;margin-bottom:10px;">UPCOMING PAYCHECKS</div>
                         <div id="paycheckBreakdown" style="margin-top:8px;font-size:13px;"></div>
                         <div id="paydayCountdown" style="margin-top:10px;padding:10px;background:#f8fafc;border-radius:10px;border:1px solid #e5e7eb;font-size:13px;"></div>
