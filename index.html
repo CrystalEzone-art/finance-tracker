@@ -1251,6 +1251,31 @@ function renderVisualCalendar() {
 
         const matches = (subscriptions || []).filter(sub => Number(sub.day) === day);
 
+        const paydays = (jobs || []).filter(job => {
+            if (!job.pay_date) return false;
+
+            let payday = new Date(job.pay_date + 'T12:00:00');
+
+            while (
+                payday.getMonth() < month ||
+                payday.getFullYear() < year
+            ) {
+                payday.setDate(payday.getDate() + 14);
+            }
+
+            while (
+                payday.getMonth() === month &&
+                payday.getFullYear() === year
+            ) {
+                if (payday.getDate() === day) {
+                    return true;
+                }
+                payday.setDate(payday.getDate() + 14);
+            }
+
+            return false;
+        });
+
         const nearestDaysLeft = matches.length
             ? Math.min(...matches.map(sub => {
                 let diff = sub.day - today.getDate();
@@ -1272,6 +1297,7 @@ function renderVisualCalendar() {
         cell.innerHTML = `
             <div class="calendar-day-number">${day}</div>
             ${matches.map(sub => `<div class="calendar-sub">${sub.name}</div>`).join('')}
+            ${paydays.map(job => `<div class="calendar-sub" style="background:#f3e8ff;color:#7c3aed;">💰 ${job.name}</div>`).join('')}
         `;
 
         calendar.appendChild(cell);
@@ -2327,3 +2353,4 @@ setInterval(() => {
 </div>
 </body>
 </html>
+
