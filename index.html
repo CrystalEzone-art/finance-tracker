@@ -35,6 +35,7 @@
             margin-bottom: 10px;
             background: linear-gradient(90deg, #0071e3, #22c55e);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -111,12 +112,90 @@
             position: relative;
         }
 
+        .transaction-history {
+            min-height: 0;
+        }
+
+        .transaction-filters {
+            display: grid;
+            grid-template-columns: minmax(180px, 1fr) repeat(4, minmax(112px, auto));
+            gap: 8px;
+            margin-bottom: 14px;
+            align-items: center;
+        }
+
+        .transaction-filters input,
+        .transaction-filters select {
+            margin-top: 0;
+            min-width: 0;
+        }
+
+        .transaction-card.transaction-history-card {
+            align-items: center;
+            padding: 14px;
+            border-radius: 18px;
+            animation: transactionFadeIn 0.32s ease both;
+        }
+
         .transaction-card-content {
             display: flex;
             flex-direction: column;
             gap: 8px;
             min-width: 0;
             flex: 1;
+        }
+
+        .transaction-main {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .transaction-main > div:first-child {
+            min-width: 0;
+        }
+
+        .transaction-title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .transaction-title-row strong {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .transaction-type-pill {
+            flex-shrink: 0;
+            border-radius: 999px;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1;
+            text-transform: uppercase;
+            letter-spacing: .2px;
+        }
+
+        .transaction-type-pill.income {
+            color: #047857;
+            background: #d1fae5;
+        }
+
+        .transaction-type-pill.expense {
+            color: #b91c1c;
+            background: #fee2e2;
+        }
+
+        .transaction-info-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .transaction-card .transaction-meta {
@@ -134,6 +213,183 @@
             font-weight: bold;
         }
 
+        .transaction-amount-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            flex-shrink: 0;
+            text-align: right;
+        }
+
+        .transaction-empty-state {
+            border: 1px dashed #dbe3ef;
+            border-radius: 16px;
+            color: #64748b;
+            padding: 18px;
+            text-align: center;
+            background: rgba(248,250,252,0.8);
+        }
+
+        .insight-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin: 0 0 20px;
+        }
+
+        .insight-card,
+        .mini-card {
+            background: rgba(255,255,255,0.9);
+            border: 1px solid #e8eef7;
+            border-radius: 18px;
+            padding: 14px;
+            box-shadow: 0 12px 28px rgba(15,23,42,0.07);
+        }
+
+        .insight-label {
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .insight-value {
+            margin-top: 6px;
+            color: #0f172a;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .section-toolbar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .compact-action {
+            width: auto;
+            height: 40px;
+            margin-top: 0;
+            padding: 0 14px;
+            white-space: nowrap;
+        }
+
+        .secondary-btn {
+            background: #eef2f7;
+            color: #334155;
+        }
+
+        .hours-grid,
+        .subscription-form-grid {
+            display: grid;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .hours-grid {
+            grid-template-columns: 1fr 1fr 1fr auto auto;
+        }
+
+        .subscription-form-grid {
+            grid-template-columns: 1fr 1fr 1fr auto;
+        }
+
+        .job-row,
+        .subscription-row,
+        .savings-row,
+        .paycheck-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .calendar-day {
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .calendar-day:not([style*="hidden"]):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(15,23,42,0.1);
+        }
+
+        .calendar-day.has-events {
+            border-color: #93c5fd;
+        }
+
+        .calendar-dot-row {
+            display: flex;
+            gap: 3px;
+            margin-top: 4px;
+        }
+
+        .calendar-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: #3b82f6;
+        }
+
+        .calendar-dot.payday {
+            background: #8b5cf6;
+        }
+
+        #calendarDayDetails {
+            margin-top: 12px;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            background: #f8fafc;
+            color: #334155;
+        }
+
+        #pieChart {
+            cursor: pointer;
+        }
+
+        #chartTooltip {
+            position: fixed;
+            display: none;
+            pointer-events: none;
+            z-index: 10000;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(15,23,42,0.92);
+            color: white;
+            font-size: 12px;
+            box-shadow: 0 10px 24px rgba(15,23,42,0.24);
+        }
+
+        .progress-fill {
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.22), 0 8px 18px rgba(34,197,94,.24);
+        }
+
+        .modal-panel {
+            max-width: 600px;
+            width: min(600px,calc(100vw - 40px));
+            max-height: 85vh;
+            overflow-y: auto;
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,.2);
+            border: 1px solid #e5e7eb;
+        }
+
         .transaction-card > .delete-btn {
             margin-left: auto;
             align-self: start;
@@ -145,10 +401,11 @@
             justify-content: space-between;
             align-items: center;
             gap: 12px;
-            padding: 14px;
-            margin-bottom: 10px;
+            padding: 14px 0;
+            margin-bottom: 0;
             background: rgba(255,255,255,0.92);
-            border-radius: 16px;
+            border-bottom: 1px solid #eef2f7;
+            border-radius: 0;
             box-shadow: 0 10px 26px rgba(15,23,42,0.06);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             animation: fadeUp 0.35s ease both;
@@ -199,8 +456,8 @@
 }
 
         .transaction-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 16px 36px rgba(15,23,42,0.14);
+            transform: translateY(-3px);
+            box-shadow: 0 18px 42px rgba(15,23,42,0.14);
         }
 
         .form {
@@ -321,13 +578,6 @@
             border-radius: 999px;
         }
 
-        .subscription-item {
-            border-bottom: 1px solid #eef2f7;
-            border-radius: 0;
-            padding: 14px 0;
-            margin-bottom: 0;
-        }
-
         .subscription-item:last-child {
             border-bottom: none;
         }
@@ -380,6 +630,41 @@
             transition: width 0.3s;
         }
 
+        .transaction-card-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+            align-self: flex-start;
+            flex-shrink: 0;
+        }
+
+        .edit-btn {
+            background: #dbeafe;
+            color: #2563eb;
+            border-radius: 14px;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 1px solid rgba(37,99,235,0.18);
+            transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .edit-btn:hover {
+            background: #cfe1ff;
+            transform: scale(1.03);
+            box-shadow: 0 8px 16px rgba(37,99,235,0.16);
+        }
+
+        .edit-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
         .delete-btn {
             background: #fee2e2;
             color: #dc2626;
@@ -390,7 +675,6 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin-left: 10px;
             flex-shrink: 0;
             border: 1px solid rgba(220,38,38,0.18);
             transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
@@ -471,6 +755,7 @@
             font-weight: 700;
             margin-top: 10px;
             letter-spacing: -1px;
+            animation: pulseBalance 3s infinite;
         }
 
         .header-bar {
@@ -481,7 +766,8 @@
         }
 
         .transaction-card.deleting {
-            animation: deleteSlide 0.4s forwards;
+            pointer-events: none;
+            animation: deleteSlide 0.36s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
         @keyframes deleteSlide {
@@ -506,6 +792,17 @@
             }
         }
 
+        @keyframes transactionFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px) scale(0.99);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -520,10 +817,6 @@
         @keyframes pulseBalance {
             0%,100% { transform: scale(1); }
             50% { transform: scale(1.05); }
-        }
-
-        .stat-value {
-            animation: pulseBalance 3s infinite;
         }
 
         @media (max-width: 768px) {
@@ -542,10 +835,6 @@
                 margin-bottom: 6px;
             }
 
-            .cards {
-                gap: 14px;
-            }
-
             .dashboard-row {
                 display: flex !important;
                 flex-direction: column !important;
@@ -562,53 +851,22 @@
                 min-height: 0;
             }
 
-            .card,
-            .form,
-            .transactions {
-                padding: 18px;
-                border-radius: 18px;
-            }
-
-            .transactions h2,
-            .form h2 {
-                font-size: 24px;
-            }
-
-            .stat-value {
-                font-size: 26px;
-            }
-
-            input,
-            select,
-            button {
-                font-size: 16px;
-                height: 50px;
-            }
-
-            /* #visualCalendar gap will be overridden below */
-
-            /* REPLACED .calendar-day */
             .calendar-day {
-                min-height: 42px;
-                aspect-ratio: 1 / 1;
                 padding: 2px;
                 font-size: 10px;
                 border-radius: 10px;
             }
 
-            /* REPLACED .calendar-day-number */
             .calendar-day-number {
                 font-size: 11px;
                 margin-bottom: 2px;
             }
 
-            /* REPLACED .calendar-sub */
             .calendar-sub {
                 display: block;
                 font-size: 8px;
             }
 
-            /* REPLACED #calendarTitle */
             #calendarTitle {
                 font-size: 20px;
                 text-align: center;
@@ -636,6 +894,14 @@
                 overflow-wrap: break-word;
             }
 
+            .transaction-filters {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .transaction-filters input {
+                grid-column: 1 / -1;
+            }
+
             button[onclick*="changeCalendarMonth"] {
                 width: 42px !important;
                 height: 42px !important;
@@ -645,16 +911,8 @@
                 padding: 0;
             }
 
-            #visualCalendar {
-                gap: 3px;
-            }
-
-            /* Compact mobile mode */
-
             .cards {
                 gap: 10px;
-            }
-            .cards {
                 grid-template-columns: repeat(2, 1fr);
             }
 
@@ -698,12 +956,27 @@
                 padding: 10px;
             }
 
-            .transaction-card .transaction-amount {
-                font-size: 18px;
+            .transaction-card.transaction-history-card {
+                align-items: stretch;
+                gap: 10px;
             }
 
-            .dashboard-row {
-                gap: 10px;
+            .transaction-main {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .transaction-title-row {
+                align-items: flex-start;
+            }
+
+            .transaction-amount-wrap {
+                align-items: flex-start;
+                text-align: left;
+            }
+
+            .transaction-card .transaction-amount {
+                font-size: 18px;
             }
 
             #transactionList {
@@ -741,19 +1014,28 @@
                 aspect-ratio: auto;
             }
 
-            #shiftListWrapper {
-                max-height: 260px !important;
-            }
-
-            #paycheckBreakdown {
-                font-size: 12px;
-            }
-
-            /* Hours Tracker mobile fix */
             .form div[style*="grid-template-columns:1.2fr .8fr .8fr auto"] {
                 display: flex !important;
                 flex-direction: column !important;
                 gap: 10px !important;
+            }
+
+            .hours-grid,
+            .subscription-form-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .row-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .job-row,
+            .subscription-row,
+            .savings-row,
+            .paycheck-row {
+                align-items: flex-start;
+                flex-direction: column;
             }
 
             .form div[style*="grid-template-columns:1fr 1fr"] {
@@ -765,15 +1047,6 @@
 
             #paycheckBreakdown {
                 font-size: 13px !important;
-            }
-
-            #shiftListWrapper {
-                max-height: 220px !important;
-            }
-
-            /* Hours Tracker mobile layout */
-
-            #paycheckBreakdown {
                 max-height: 160px;
                 overflow-y: auto;
             }
@@ -803,6 +1076,66 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="modern.css">
+    <script>
+        const categoryIcons = {
+            // Income
+            'Paycheck': '💼',
+            'Bonus': '🎉',
+            'Refund': '↩️',
+            'Gift': '🎁',
+            'Interest': '💰',
+            'Investment': '📈',
+            'Side Hustle': '🛠️',
+            'Selling Items': '📦',
+            'Cash': '💵',
+            'Other Income': '🔸',
+            // Food
+            'Groceries': '🛒',
+            'Restaurants': '🍔',
+            'Fast Food': '🍟',
+            'Coffee': '☕',
+            // Transportation
+            'Gas': '⛽',
+            'Parking': '🅿️',
+            'Toll': '🛣️',
+            'Uber/Lyft': '🚕',
+            'Car Maintenance': '🔧',
+            // Housing
+            'Phone': '📱',
+            // Shopping
+            'Clothing': '👕',
+            'Electronics': '🔌',
+            'Amazon': '🛍️',
+            'Home Goods': '🧺',
+            'Gifts': '🎁',
+            // Entertainment
+            'Movies': '🎬',
+            'Games': '🎮',
+            'Music': '🎵',
+            'Streaming': '📺',
+            'Hobbies': '🎨',
+            // Health
+            'Doctor': '🩺',
+            'Dentist': '🦷',
+            'Pharmacy': '💊',
+            'Gym': '🏋️‍♂️',
+            // Education
+            'Books': '📚',
+            'School': '🏫',
+            // Financial
+            'Savings Transfer': '🏦',
+            // Misc
+            'Pets': '🐶',
+            'Other': '🔸'
+        };
+
+        function getCategoryLabel(cat) {
+            if (!cat) return '';
+            const icon = categoryIcons[cat] || '';
+            return icon ? `${icon} ${cat}` : cat;
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -844,6 +1177,21 @@
             </div>
         </div>
 
+        <div class="insight-strip" id="dashboardInsights">
+            <div class="insight-card">
+                <div class="insight-label">Savings Rate</div>
+                <div class="insight-value" id="savingsRateInsight">0%</div>
+            </div>
+            <div class="insight-card">
+                <div class="insight-label">Largest Expense</div>
+                <div class="insight-value" id="largestExpenseInsight">$0.00</div>
+            </div>
+            <div class="insight-card">
+                <div class="insight-label">Next Payday</div>
+                <div class="insight-value" id="nextPaydayInsight">No date</div>
+            </div>
+        </div>
+
         <div class="dashboard-row two-column-row">
             <div class="transactions">
                 <h2>🏦 Savings Vault</h2>
@@ -872,12 +1220,49 @@
                 </div>
 
                 <select id="category">
-                    <option value="Food">Food</option>
-                    <option value="Gas">Gas</option>
-                    <option value="Shopping">Shopping</option>
-                    <option value="Entertainment">Entertainment</option>
-                    <option value="Bills">Bills</option>
-                    <option value="Other">Other</option>
+                    <optgroup label="Income">
+                        <option value="Paycheck">💼 Paycheck</option>
+                        <option value="Bonus">🎉 Bonus</option>
+                        <option value="Refund">↩️ Refund</option>
+                        <option value="Gift">🎁 Gift</option>
+                        <option value="Interest">💰 Interest</option>
+                        <option value="Investment">📈 Investment</option>
+                        <option value="Side Hustle">🛠️ Side Hustle</option>
+                        <option value="Selling Items">📦 Selling Items</option>
+                        <option value="Cash">💵 Cash</option>
+                        <option value="Other Income">🔸 Other Income</option>
+                    </optgroup>
+                    <optgroup label="Expenses">
+                        <option value="Groceries">🛒 Groceries</option>
+                        <option value="Restaurants">🍔 Restaurants</option>
+                        <option value="Fast Food">🍟 Fast Food</option>
+                        <option value="Coffee">☕ Coffee</option>
+                        <option value="Gas">⛽ Gas</option>
+                        <option value="Parking">🅿️ Parking</option>
+                        <option value="Toll">🛣️ Toll</option>
+                        <option value="Uber/Lyft">🚕 Uber/Lyft</option>
+                        <option value="Car Maintenance">🔧 Car Maintenance</option>
+                        <option value="Phone">📱 Phone</option>
+                        <option value="Clothing">👕 Clothing</option>
+                        <option value="Electronics">🔌 Electronics</option>
+                        <option value="Amazon">🛍️ Amazon</option>
+                        <option value="Home Goods">🧺 Home Goods</option>
+                        <option value="Gifts">🎁 Gifts</option>
+                        <option value="Movies">🎬 Movies</option>
+                        <option value="Games">🎮 Games</option>
+                        <option value="Music">🎵 Music</option>
+                        <option value="Streaming">📺 Streaming</option>
+                        <option value="Hobbies">🎨 Hobbies</option>
+                        <option value="Doctor">🩺 Doctor</option>
+                        <option value="Dentist">🦷 Dentist</option>
+                        <option value="Pharmacy">💊 Pharmacy</option>
+                        <option value="Gym">🏋️‍♂️ Gym</option>
+                        <option value="Books">📚 Books</option>
+                        <option value="School">🏫 School</option>
+                        <option value="Savings Transfer">🏦 Savings Transfer</option>
+                        <option value="Pets">🐶 Pets</option>
+                        <option value="Other">🔸 Other</option>
+                    </optgroup>
                 </select>
 
                 <select id="type">
@@ -890,13 +1275,29 @@
         </div>
 
     <div class="dashboard-row" style="grid-template-columns:1fr 2fr;align-items:start;">
-        <div class="transactions">
+        <div class="transactions transaction-history">
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <h2>Transaction History</h2>
                 <button type="button" class="income-btn" style="width:auto;height:40px;margin-top:0;padding:0 14px;" onclick="toggleSection('transactionsContent', this)">Hide</button>
             </div>
             <div id="transactionsContent">
-                <input type="text" id="transactionSearch" placeholder="🔍 Search transactions" oninput="renderTransactions()" style="margin-bottom:15px;">
+                <div id="transactionFilters" class="transaction-filters">
+                    <input type="text" id="transactionSearch" placeholder="🔍 Search transactions" oninput="debouncedRenderTransactions()">
+                    <select id="filterMonth" onchange="handleTransactionFilterChange()">
+                        <option value="">All Months</option>
+                    </select>
+                    <select id="filterYear" onchange="handleTransactionFilterChange()">
+                        <option value="">All Years</option>
+                    </select>
+                    <select id="filterType" onchange="handleTransactionFilterChange()">
+                        <option value="">All</option>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                    <select id="filterCategory" onchange="handleTransactionFilterChange()">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
                 <ul id="transactionList"></ul>
             </div>
         </div>
@@ -917,14 +1318,15 @@
                         💼 Manage
                     </button>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end;">
+                <div class="hours-grid">
                     <input type="date" id="shiftDate" onfocus="setTodayDate()" style="margin-top:0;">
                     <input type="number" id="hoursInput" placeholder="Hours" step="0.1" style="margin-top:0;">
                     <div class="input-with-dollar" style="margin-top:0;">
                         <span>$</span>
                         <input type="number" id="hourlyRate" placeholder="Rate" step="0.01">
                     </div>
-                    <button class="income-btn" style="width:100px;margin-top:0;padding:0 18px;" onclick="addShift()">Add</button>
+                    <button id="shiftSubmitButton" class="income-btn" style="width:100px;margin-top:0;padding:0 18px;" onclick="addShift()">Add</button>
+                    <button id="cancelShiftEditButton" type="button" class="secondary-btn" style="display:none;width:auto;margin-top:0;padding:0 14px;" onclick="cancelShiftEdit()">Cancel</button>
                 </div>
                 <div style="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap;">
                     <div style="flex:.8;background:white;border:1px solid #e5e7eb;padding:12px 14px;border-radius:18px;box-shadow:0 8px 20px rgba(15,23,42,.05);display:flex;justify-content:center;align-items:center;">
@@ -970,13 +1372,17 @@
                 <button type="button" class="income-btn" style="width:auto;height:40px;margin-top:0;padding:0 14px;" onclick="toggleSection('subscriptionCalendarWrapper', this)">Hide</button>
             </div>
             <div>
-                <input type="text" id="subName" placeholder="Subscription Name">
-                <div class="input-with-dollar">
-                    <span>$</span>
-                    <input type="number" id="subAmount" placeholder="Monthly Cost">
+                <input type="hidden" id="editingSubscriptionId">
+                <div class="subscription-form-grid">
+                    <input type="text" id="subName" placeholder="Subscription Name" style="margin-top:0;">
+                    <div class="input-with-dollar" style="margin-top:0;">
+                        <span>$</span>
+                        <input type="number" id="subAmount" placeholder="Monthly Cost">
+                    </div>
+                    <input type="date" id="subDay" style="margin-top:0;">
+                    <button id="subscriptionSubmitButton" class="income-btn" onclick="addSubscription()" style="margin-top:0;">Add</button>
                 </div>
-                <input type="date" id="subDay">
-                <button class="income-btn" onclick="addSubscription()">Add Subscription</button>
+                <button id="cancelSubscriptionEditButton" type="button" class="secondary-btn" style="display:none;" onclick="cancelSubscriptionEdit()">Cancel Edit</button>
                 <h3 style="margin-top:20px;margin-bottom:8px;color:#6b7280;">Monthly Cost: $<span id="subscriptionTotal">0.00</span></h3>
                 <div id="nextBillCard" style="background:#eff6ff;border-radius:14px;padding:14px;margin-top:15px;margin-bottom:15px;">
                     <strong>Next Bill</strong>
@@ -994,6 +1400,7 @@
                 <button type="button" class="income-btn" style="width:60px;margin-top:0;" onclick="changeCalendarMonth(1)">▶</button>
             </div>
             <div id="visualCalendar"></div>
+            <div id="calendarDayDetails">Select a day to view events.</div>
         </div>
     </div>
 
@@ -1003,6 +1410,7 @@
         <div class="form" style="height:auto;">
             <h2>📊 Spending Breakdown</h2>
             <canvas id="pieChart"></canvas>
+            <div id="chartTooltip"></div>
             <div id="pieLegend"></div>
         </div>
     </div>
@@ -1030,40 +1438,21 @@ function openSavedJobsPanel(button) {
     const panel = document.getElementById('savedJobsPanel');
     const content = document.getElementById('savedJobsPanelContent');
 
-    if (!panel || !content || !button) return;
+    if (!panel || !content) return;
 
-    const rect = button.getBoundingClientRect();
+    panel.style.display = 'flex';
+    panel.style.visibility = 'visible';
+    panel.style.opacity = '1';
+    panel.style.pointerEvents = 'auto';
+    panel.style.justifyContent = 'center';
+    panel.style.alignItems = 'center';
 
-    panel.style.display = 'block';
-
-    content.style.position = 'absolute';
-    content.style.visibility = 'hidden';
-    content.style.display = 'block';
-
-    const scrollTop = window.scrollY;
-    const scrollLeft = window.scrollX;
-
-    const contentRect = content.getBoundingClientRect();
-
-    let top = scrollTop + ((window.innerHeight - contentRect.height) / 2);
-    let left = scrollLeft + ((window.innerWidth - contentRect.width) / 2);
-
-    // Add scroll-follow logic
-    window.savedJobsScrollHandler = () => {
-        const currentTop = window.scrollY + ((window.innerHeight - content.offsetHeight) / 2);
-        content.style.top = `${Math.max(window.scrollY + 20, currentTop)}px`;
-    };
-
-    window.removeEventListener('scroll', window.savedJobsScrollHandler);
-    window.addEventListener('scroll', window.savedJobsScrollHandler);
-
-    if (top < scrollTop + 20) {
-        top = scrollTop + 20;
-    }
-
-    content.style.top = `${top}px`;
-    content.style.left = `${Math.max(20, left)}px`;
+    content.style.position = 'relative';
+    content.style.top = '';
+    content.style.left = '';
+    content.style.margin = '0';
     content.style.visibility = 'visible';
+    content.style.display = 'block';
 }
 
 function restoreSectionState(sectionId, buttonSelector) {
@@ -1091,6 +1480,7 @@ const supabaseClient = window.supabase?.createClient(
 // Subscription calendar data & rendering
 let subscriptions = [];
 let calendarDate = new Date();
+let selectedCalendarDay = null;
 
 function saveSubscriptions() {
     localStorage.setItem('subscriptions', JSON.stringify(subscriptions));
@@ -1124,6 +1514,7 @@ async function loadSubscriptions() {
 }
 
 async function addSubscription() {
+    const editingId = document.getElementById('editingSubscriptionId')?.value || '';
     const name = document.getElementById('subName').value;
     const amount = Number(document.getElementById('subAmount').value);
     const selectedDate = document.getElementById('subDay').value;
@@ -1134,11 +1525,14 @@ async function addSubscription() {
     }
 
     const day = new Date(selectedDate).getDate();
+    const payload = { name, amount, day };
 
     if (supabaseClient) {
-        const { error } = await supabaseClient
-            .from('subscriptions')
-            .insert({ name, amount, day });
+        const query = editingId
+            ? supabaseClient.from('subscriptions').update(payload).eq('id', editingId)
+            : supabaseClient.from('subscriptions').insert(payload);
+
+        const { error } = await query;
 
         if (error) {
             alert(error.message);
@@ -1148,23 +1542,24 @@ async function addSubscription() {
         await loadSubscriptions();
         renderVisualCalendar();
     } else {
-        const sub = { id: Date.now(), name, amount, day };
-        subscriptions.push(sub);
+        if (editingId) {
+            subscriptions = subscriptions.map(sub => String(sub.id) === String(editingId) ? { ...sub, ...payload } : sub);
+        } else {
+            subscriptions.push({ id: createLocalId('sub'), ...payload });
+        }
         saveSubscriptions();
         renderSubscriptions();
         renderVisualCalendar();
     }
 
-    document.getElementById('subName').value = '';
-    document.getElementById('subAmount').value = '';
-    document.getElementById('subDay').value = '';
+    cancelSubscriptionEdit();
 }
 
 async function deleteSubscription(index) {
     const sub = subscriptions[index];
     if (!sub) return;
 
-    if (supabaseClient && sub.id) {
+    if (supabaseClient && sub.id && /^\d+$/.test(String(sub.id))) {
         const { error } = await supabaseClient
             .from('subscriptions')
             .delete()
@@ -1184,6 +1579,29 @@ async function deleteSubscription(index) {
     saveSubscriptions();
     renderSubscriptions();
     renderVisualCalendar();
+}
+
+function editSubscription(index) {
+    const sub = subscriptions[index];
+    if (!sub) return;
+
+    document.getElementById('editingSubscriptionId').value = sub.id || '';
+    document.getElementById('subName').value = sub.name || '';
+    document.getElementById('subAmount').value = Number(sub.amount || 0);
+    const date = new Date();
+    date.setDate(Number(sub.day || 1));
+    document.getElementById('subDay').value = toInputDate(date);
+    document.getElementById('subscriptionSubmitButton').textContent = 'Save';
+    document.getElementById('cancelSubscriptionEditButton').style.display = '';
+}
+
+function cancelSubscriptionEdit() {
+    document.getElementById('editingSubscriptionId').value = '';
+    document.getElementById('subName').value = '';
+    document.getElementById('subAmount').value = '';
+    document.getElementById('subDay').value = '';
+    document.getElementById('subscriptionSubmitButton').textContent = 'Add';
+    document.getElementById('cancelSubscriptionEditButton').style.display = 'none';
 }
 
 
@@ -1249,32 +1667,7 @@ function renderVisualCalendar() {
             cell.style.background = '#eff6ff';
         }
 
-        const matches = (subscriptions || []).filter(sub => Number(sub.day) === day);
-
-        const paydays = (jobs || []).filter(job => {
-            if (!job.pay_date) return false;
-
-            let payday = new Date(job.pay_date + 'T12:00:00');
-
-            while (
-                payday.getMonth() < month ||
-                payday.getFullYear() < year
-            ) {
-                payday.setDate(payday.getDate() + 14);
-            }
-
-            while (
-                payday.getMonth() === month &&
-                payday.getFullYear() === year
-            ) {
-                if (payday.getDate() === day) {
-                    return true;
-                }
-                payday.setDate(payday.getDate() + 14);
-            }
-
-            return false;
-        });
+        const { subscriptions: matches, paydays } = getCalendarEventsForDay(year, month, day);
 
         const nearestDaysLeft = matches.length
             ? Math.min(...matches.map(sub => {
@@ -1294,14 +1687,71 @@ function renderVisualCalendar() {
             }
         }
 
+        if (matches.length || paydays.length) {
+            cell.classList.add('has-events');
+        }
+
+        cell.onclick = () => showCalendarDayDetails(year, month, day);
+
         cell.innerHTML = `
             <div class="calendar-day-number">${day}</div>
             ${matches.map(sub => `<div class="calendar-sub">${sub.name}</div>`).join('')}
             ${paydays.map(job => `<div class="calendar-sub" style="background:#f3e8ff;color:#7c3aed;">💰 ${job.name}</div>`).join('')}
+            <div class="calendar-dot-row">
+                ${matches.map(() => '<span class="calendar-dot"></span>').join('')}
+                ${paydays.map(() => '<span class="calendar-dot payday"></span>').join('')}
+            </div>
         `;
 
         calendar.appendChild(cell);
     }
+
+    if (selectedCalendarDay) {
+        showCalendarDayDetails(selectedCalendarDay.year, selectedCalendarDay.month, selectedCalendarDay.day, false);
+    }
+}
+
+function getCalendarEventsForDay(year, month, day) {
+    const subscriptionEvents = (subscriptions || []).filter(sub => Number(sub.day) === day);
+    const paydayEvents = (jobs || []).filter(job => {
+        if (!job.pay_date) return false;
+
+        let payday = new Date(job.pay_date + 'T12:00:00');
+
+        while (payday.getMonth() < month || payday.getFullYear() < year) {
+            payday.setDate(payday.getDate() + 14);
+        }
+
+        while (payday.getMonth() === month && payday.getFullYear() === year) {
+            if (payday.getDate() === day) return true;
+            payday.setDate(payday.getDate() + 14);
+        }
+
+        return false;
+    });
+
+    return { subscriptions: subscriptionEvents, paydays: paydayEvents };
+}
+
+function showCalendarDayDetails(year, month, day, remember = true) {
+    const details = document.getElementById('calendarDayDetails');
+    if (!details) return;
+
+    if (remember) selectedCalendarDay = { year, month, day };
+
+    const date = new Date(year, month, day);
+    const events = getCalendarEventsForDay(year, month, day);
+    const lines = [
+        ...events.subscriptions.map(sub => `<div class="mini-card"><strong>${sub.name}</strong><br>$${Number(sub.amount || 0).toFixed(2)} subscription</div>`),
+        ...events.paydays.map(job => `<div class="mini-card"><strong>${job.name}</strong><br>Payday</div>`)
+    ];
+
+    details.innerHTML = `
+        <strong>${date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</strong>
+        <div style="display:grid;gap:8px;margin-top:10px;">
+            ${lines.length ? lines.join('') : '<span style="color:#64748b;">No events for this day.</span>'}
+        </div>
+    `;
 }
 
 function renderSubscriptions() {
@@ -1327,7 +1777,7 @@ function renderSubscriptions() {
             }
 
             const item = document.createElement('div');
-            item.className = 'subscription-item';
+            item.className = 'subscription-item subscription-row';
 
             item.innerHTML = `
                 <div class="subscription-meta">
@@ -1338,15 +1788,23 @@ function renderSubscriptions() {
                     <div class="subscription-date">${sub.day}${sub.day === 1 ? 'st' : sub.day === 2 ? 'nd' : sub.day === 3 ? 'rd' : 'th'} of each month</div>
                     <div style="font-size:12px;color:#6b7280;">${daysLeft === 0 ? 'Due Today' : daysLeft + ' day' + (daysLeft === 1 ? '' : 's') + ' left'}</div>
                 </div>
-                <button class="delete-btn" onclick="deleteSubscription(${index})">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6l-1 14H6L5 6"></path>
-                        <path d="M10 11v6"></path>
-                        <path d="M14 11v6"></path>
-                        <path d="M9 6V4h6v2"></path>
-                    </svg>
-                </button>
+                <div class="row-actions">
+                    <button class="edit-btn" onclick="editSubscription(${index})" title="Edit subscription">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+                        </svg>
+                    </button>
+                    <button class="delete-btn" onclick="deleteSubscription(${index})">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6l-1 14H6L5 6"></path>
+                            <path d="M10 11v6"></path>
+                            <path d="M14 11v6"></path>
+                            <path d="M9 6V4h6v2"></path>
+                        </svg>
+                    </button>
+                </div>
             `;
 
             container.appendChild(item);
@@ -1371,7 +1829,15 @@ function renderSubscriptions() {
             let daysLeft = next.day - today;
             if (daysLeft < 0) daysLeft += 31;
 
-            nextBillText.textContent = `${next.name} • $${next.amount.toFixed(2)} • ${daysLeft === 0 ? 'Due Today' : daysLeft + ' days'}`;
+            const upcomingTotal = sorted
+                .filter(sub => {
+                    let delta = sub.day - today;
+                    if (delta < 0) delta += 31;
+                    return delta <= 7;
+                })
+                .reduce((sum, sub) => sum + Number(sub.amount || 0), 0);
+
+            nextBillText.textContent = `${next.name} • $${next.amount.toFixed(2)} • ${daysLeft === 0 ? 'Due Today' : daysLeft + ' days'} • $${upcomingTotal.toFixed(2)} due within 7 days`;
         }
     }
     // --- End Next Bill Panel logic ---
@@ -1390,8 +1856,14 @@ let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
 let savingsTransactions = JSON.parse(localStorage.getItem('savingsTransactions')) || [];
 let shifts = JSON.parse(localStorage.getItem('shifts')) || [];
 let jobs = JSON.parse(localStorage.getItem('jobs')) || [];
+let transactionFilterSignature = '';
+let editingShiftId = null;
+let editingJobId = null;
+let latestPaycheckTotals = {};
+let chartSlices = [];
+let editTransactionScrollPosition = { x: 0, y: 0 };
 
-let lastSelectedJobId = Number(localStorage.getItem('lastSelectedJobId')) || null;
+let lastSelectedJobId = localStorage.getItem('lastSelectedJobId') || null;
 
 async function loadJobsFromSupabase() {
     if (!supabaseClient) return;
@@ -1437,25 +1909,30 @@ async function addJob() {
     };
 
     if (supabaseClient) {
-        const { error } = await supabaseClient.from('jobs').insert(jobData);
+        const query = editingJobId && /^\d+$/.test(String(editingJobId))
+            ? supabaseClient.from('jobs').update(jobData).eq('id', editingJobId)
+            : supabaseClient.from('jobs').insert(jobData);
+        const { error } = await query;
         if (error) {
             alert(error.message);
             return;
         }
         await loadJobsFromSupabase();
     } else {
-        jobs.push({ id: Date.now(), ...jobData });
+        if (editingJobId) {
+            jobs = jobs.map(job => String(job.id) === String(editingJobId) ? { ...job, ...jobData } : job);
+        } else {
+            jobs.push({ id: createLocalId('job'), ...jobData });
+        }
         saveData();
         renderJobs();
     }
 
-    document.getElementById('jobName').value = '';
-    document.getElementById('jobRate').value = '';
-    document.getElementById('jobPayDate').value = '';
+    cancelJobEdit();
 }
 
 async function deleteJob(jobId) {
-    if (supabaseClient) {
+    if (supabaseClient && /^\d+$/.test(String(jobId))) {
         const { error } = await supabaseClient.from('jobs').delete().eq('id', jobId);
         if (error) {
             alert(error.message);
@@ -1467,6 +1944,23 @@ async function deleteJob(jobId) {
     jobs = jobs.filter(job => job.id !== jobId);
     saveData();
     renderJobs();
+}
+
+function editJob(jobId) {
+    const job = jobs.find(item => String(item.id) === String(jobId));
+    if (!job) return;
+
+    editingJobId = job.id;
+    document.getElementById('jobName').value = job.name || '';
+    document.getElementById('jobRate').value = Number(job.rate || 0);
+    document.getElementById('jobPayDate').value = job.pay_date || '';
+}
+
+function cancelJobEdit() {
+    editingJobId = null;
+    document.getElementById('jobName').value = '';
+    document.getElementById('jobRate').value = '';
+    document.getElementById('jobPayDate').value = '';
 }
 
 function renderJobs() {
@@ -1484,35 +1978,37 @@ function renderJobs() {
         const option = document.createElement('option');
         option.value = job.id;
         option.textContent = `${job.name} ($${job.rate}/hr)`;
-        if (job.id === lastSelectedJobId) {
+        if (String(job.id) === String(lastSelectedJobId)) {
             option.selected = true;
         }
         select.appendChild(option);
 
         if (savedJobsList) {
             const row = document.createElement('div');
-            row.style.display = 'flex';
-            row.style.justifyContent = 'space-between';
-            row.style.alignItems = 'center';
-            row.style.padding = '10px 12px';
-            row.style.border = '1px solid #e5e7eb';
-            row.style.borderRadius = '12px';
-            row.style.background = '#ffffff';
+            row.className = 'job-row';
 
             row.innerHTML = `
 <div>
     <div style="font-weight:600;">${job.name}</div>
-    <div style="font-size:12px;color:#64748b;">$${job.rate}/hr</div>
+    <div style="font-size:12px;color:#64748b;">$${job.rate}/hr • Pay cycle starts ${job.pay_date || 'unset'}</div>
 </div>
-<button class="delete-btn" onclick="deleteJob(${job.id})">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="3 6 5 6 21 6"></polyline>
-        <path d="M19 6l-1 14H6L5 6"></path>
-        <path d="M10 11v6"></path>
-        <path d="M14 11v6"></path>
-        <path d="M9 6V4h6v2"></path>
-    </svg>
-</button>
+<div class="row-actions">
+    <button class="edit-btn" onclick="editJob('${job.id}')" title="Edit job">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+        </svg>
+    </button>
+    <button class="delete-btn" onclick="deleteJob('${job.id}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6l-1 14H6L5 6"></path>
+            <path d="M10 11v6"></path>
+            <path d="M14 11v6"></path>
+            <path d="M9 6V4h6v2"></path>
+        </svg>
+    </button>
+</div>
 `;
 
             savedJobsList.appendChild(row);
@@ -1527,12 +2023,12 @@ function renderJobs() {
 }
 
 function updateRateFromJob() {
-    const selectedId = Number(document.getElementById('jobSelect').value);
+    const selectedId = document.getElementById('jobSelect').value;
 
     lastSelectedJobId = selectedId;
     localStorage.setItem('lastSelectedJobId', selectedId);
 
-    const job = jobs.find(j => j.id === selectedId);
+    const job = jobs.find(j => String(j.id) === String(selectedId));
 
     if (job) {
         document.getElementById('hourlyRate').value = job.rate;
@@ -1549,16 +2045,20 @@ async function addShift() {
         return;
     }
 
-    const selectedId = Number(document.getElementById('jobSelect').value);
-    const selectedJob = jobs.find(j => j.id === selectedId);
+    const selectedId = document.getElementById('jobSelect').value;
+    const selectedJob = jobs.find(j => String(j.id) === String(selectedId));
     if (supabaseClient) {
-        const { error } = await supabaseClient.from('shifts').insert({
+        const shiftPayload = {
             date,
             hours,
             rate,
             job: selectedJob ? selectedJob.name : 'Unknown Job',
             pay: hours * rate
-        });
+        };
+        const query = editingShiftId && /^\d+$/.test(String(editingShiftId))
+            ? supabaseClient.from('shifts').update(shiftPayload).eq('id', editingShiftId)
+            : supabaseClient.from('shifts').insert(shiftPayload);
+        const { error } = await query;
 
         if (error) {
             alert(error.message);
@@ -1567,25 +2067,30 @@ async function addShift() {
 
         await loadShiftsFromSupabase();
     } else {
-        shifts.unshift({
-            id: Date.now(),
+        const shiftPayload = {
+            id: editingShiftId || createLocalId('shift'),
             date,
             hours,
             rate,
             job: selectedJob ? selectedJob.name : 'Unknown Job',
             pay: hours * rate
-        });
+        };
+        if (editingShiftId) {
+            shifts = shifts.map(shift => String(shift.id) === String(editingShiftId) ? shiftPayload : shift);
+        } else {
+            shifts.unshift(shiftPayload);
+        }
         saveData();
         renderShifts();
     }
 
-    document.getElementById('hoursInput').value = '';
+    cancelShiftEdit();
 
-    const currentJobId = Number(document.getElementById('jobSelect').value);
+    const currentJobId = document.getElementById('jobSelect').value;
     lastSelectedJobId = currentJobId;
     localStorage.setItem('lastSelectedJobId', currentJobId);
 
-    const currentJob = jobs.find(j => j.id === currentJobId);
+    const currentJob = jobs.find(j => String(j.id) === String(currentJobId));
 
     if (currentJob) {
         document.getElementById('hourlyRate').value = currentJob.rate;
@@ -1593,7 +2098,7 @@ async function addShift() {
 }
 
 async function deleteShift(id) {
-    if (supabaseClient) {
+    if (supabaseClient && /^\d+$/.test(String(id))) {
         const { error } = await supabaseClient.from('shifts').delete().eq('id', id);
         if (error) {
             alert(error.message);
@@ -1605,6 +2110,31 @@ async function deleteShift(id) {
     shifts = shifts.filter(shift => shift.id !== id);
     saveData();
     renderShifts();
+}
+
+function editShift(id) {
+    const shift = shifts.find(item => String(item.id) === String(id));
+    if (!shift) return;
+
+    editingShiftId = shift.id;
+    document.getElementById('shiftDate').value = shift.date || '';
+    document.getElementById('hoursInput').value = Number(shift.hours || 0);
+    document.getElementById('hourlyRate').value = Number(shift.rate || 0);
+    const job = jobs.find(item => String(item.name).trim() === String(shift.job).trim());
+    if (job) {
+        document.getElementById('jobSelect').value = job.id;
+        lastSelectedJobId = job.id;
+        localStorage.setItem('lastSelectedJobId', job.id);
+    }
+    document.getElementById('shiftSubmitButton').textContent = 'Save';
+    document.getElementById('cancelShiftEditButton').style.display = '';
+}
+
+function cancelShiftEdit() {
+    editingShiftId = null;
+    document.getElementById('hoursInput').value = '';
+    document.getElementById('shiftSubmitButton').textContent = 'Add';
+    document.getElementById('cancelShiftEditButton').style.display = 'none';
 }
 
 function renderShifts() {
@@ -1681,25 +2211,20 @@ function renderShifts() {
 
             // Normalize shift date so the entire selected day counts
             shiftDate.setHours(12, 0, 0, 0);
-            console.log('PAYCHECK CHECK', {
-                job: shift.job,
-                shiftDate,
-                periodStart,
-                periodEnd,
-                nextPayDate
-            });
             if (shiftDate >= periodStart && shiftDate <= periodEnd && nextPayDate >= today) {
                 biWeeklyPay += shift.pay;
 
                 if (!paycheckTotals[jobInfo.name]) {
                     paycheckTotals[jobInfo.name] = {
                         amount: 0,
+                        takeHome: 0,
                         payDate: new Date(nextPayDate),
                         cutoffDate: new Date(periodEnd)
                     };
                 }
 
                 paycheckTotals[jobInfo.name].amount += shift.pay;
+                paycheckTotals[jobInfo.name].takeHome += shift.pay * 0.85;
             }
         }
         // --- END NEW LOGIC ---
@@ -1714,15 +2239,23 @@ function renderShifts() {
                 <span class="transaction-meta">${shift.hours} hrs • $${shift.rate}/hr</span>
             </div>
             <span class="transaction-amount" style="color:green;">$${shift.pay.toFixed(2)}</span>
-            <button class="delete-btn" onclick="deleteShift(${shift.id})">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6l-1 14H6L5 6"></path>
-                    <path d="M10 11v6"></path>
-                    <path d="M14 11v6"></path>
-                    <path d="M9 6V4h6v2"></path>
-                </svg>
-            </button>
+            <div class="row-actions">
+                <button class="edit-btn" onclick="editShift('${shift.id}')" title="Edit shift">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"></path>
+                        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+                    </svg>
+                </button>
+                <button class="delete-btn" onclick="deleteShift('${shift.id}')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6l-1 14H6L5 6"></path>
+                        <path d="M10 11v6"></path>
+                        <path d="M14 11v6"></path>
+                        <path d="M9 6V4h6v2"></path>
+                    </svg>
+                </button>
+            </div>
         `;
 
         list.appendChild(card);
@@ -1741,10 +2274,11 @@ function renderShifts() {
             row.style.display = 'flex';
             row.style.justifyContent = 'space-between';
             row.style.marginBottom = '6px';
+            row.className = 'paycheck-row';
 
             row.innerHTML = `
-                <span>${jobName}</span>
-                <span>$${data.amount.toFixed(2)}<br><small>${data.payDate.toLocaleDateString()}</small></span>
+                <span>${jobName}<br><small>Gross $${data.amount.toFixed(2)} • Est. take-home $${data.takeHome.toFixed(2)}</small></span>
+                <span><strong>${data.payDate.toLocaleDateString()}</strong><br><small>Cutoff ${data.cutoffDate.toLocaleDateString()}</small></span>
             `;
 
             paycheckBreakdown.appendChild(row);
@@ -1776,6 +2310,8 @@ function renderShifts() {
     if (biWeeklyPayElement) {
         biWeeklyPayElement.textContent = biWeeklyPay.toFixed(2);
     }
+    latestPaycheckTotals = paycheckTotals;
+    updateDashboardInsights();
 }
 async function addSavings() {
     const amount = Number(document.getElementById('savingsAmount').value);
@@ -1792,31 +2328,44 @@ async function addSavings() {
         return;
     }
 
-    savedMoney += amount;
-    await saveSavingsToSupabase();
-    document.getElementById('savingsAmount').value = '';
-
     const transaction = {
-        id: Date.now(),
+        id: createLocalId('save'),
         description: 'Saved money',
         amount,
         type: 'deposit',
         created_at: new Date().toISOString()
     };
-    savingsTransactions.unshift(transaction);
+
     if (supabaseClient) {
-        const { error } = await supabaseClient
+        const { data, error } = await supabaseClient
             .from('savings_activity')
-            .insert(transaction);
+            .insert({
+                description: transaction.description,
+                amount: transaction.amount,
+                type: transaction.type,
+                created_at: transaction.created_at
+            })
+            .select()
+            .single();
 
         if (error) {
             console.error('Savings activity insert failed:', error);
             alert('Savings activity sync failed: ' + error.message);
+            return;
         }
+
+        savingsTransactions.unshift(data || transaction);
+    } else {
+        savingsTransactions.unshift(transaction);
     }
+
+    savedMoney += amount;
+    if (!(await saveSavingsToSupabase())) return;
+    document.getElementById('savingsAmount').value = '';
 
     // Add to transaction history as expense
     transactions.unshift({
+        id: createLocalId('tx'),
         description: 'Transfer to Savings',
         amount,
         type: 'expense',
@@ -1827,7 +2376,7 @@ async function addSavings() {
     saveData();
     updateDashboard();
     renderSavingsTransactions();
-    renderTransactions();
+    renderTransactions({ refreshFilters: true });
 }
 
 async function withdrawSavings() {
@@ -1843,29 +2392,43 @@ async function withdrawSavings() {
         return;
     }
 
-    savedMoney -= amount;
-    await saveSavingsToSupabase();
     const transaction = {
-        id: Date.now(),
+        id: createLocalId('save'),
         description: 'Withdrew savings',
         amount,
         type: 'withdraw',
         created_at: new Date().toISOString()
     };
-    savingsTransactions.unshift(transaction);
+
     if (supabaseClient) {
-        const { error } = await supabaseClient
+        const { data, error } = await supabaseClient
             .from('savings_activity')
-            .insert(transaction);
+            .insert({
+                description: transaction.description,
+                amount: transaction.amount,
+                type: transaction.type,
+                created_at: transaction.created_at
+            })
+            .select()
+            .single();
 
         if (error) {
             console.error('Savings activity insert failed:', error);
             alert('Savings activity sync failed: ' + error.message);
+            return;
         }
+
+        savingsTransactions.unshift(data || transaction);
+    } else {
+        savingsTransactions.unshift(transaction);
     }
+
+    savedMoney -= amount;
+    if (!(await saveSavingsToSupabase())) return;
 
     // Add to transaction history as income
     transactions.unshift({
+        id: createLocalId('tx'),
         description: 'Transfer from Savings',
         amount,
         type: 'income',
@@ -1878,11 +2441,11 @@ async function withdrawSavings() {
     saveData();
     updateDashboard();
     renderSavingsTransactions();
-    renderTransactions();
+    renderTransactions({ refreshFilters: true });
 }
 
 async function saveSavingsToSupabase() {
-    if (!supabaseClient) return;
+    if (!supabaseClient) return true;
 
     const { error } = await supabaseClient
         .from('settings')
@@ -1894,10 +2457,10 @@ async function saveSavingsToSupabase() {
     if (error) {
         console.error('Savings sync failed:', error);
         alert('Savings failed to sync. Check the browser console.');
-        return;
+        return false;
     }
 
-    console.log('Savings synced:', savedMoney);
+    return true;
 }
 
 async function loadSavingsActivity() {
@@ -1913,8 +2476,11 @@ async function loadSavingsActivity() {
         return;
     }
 
+    console.log('Loaded savings activity from Supabase:', data);
     if (data) {
         savingsTransactions = data;
+        console.log('Savings IDs:', savingsTransactions.map(t => t.id));
+        await reconcileSavingsFromActivity();
         renderSavingsTransactions();
     }
 }
@@ -1931,12 +2497,13 @@ function renderSavingsTransactions() {
     }
 
     savingsTransactions
-        .slice(0)
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-        .forEach((t, index) => {
+        .map((transaction, index) => ({ transaction, index }))
+        .sort((a, b) => new Date(b.transaction.created_at) - new Date(a.transaction.created_at))
+        .forEach(({ transaction: t, index }) => {
             const card = document.createElement('div');
-            card.className = 'transaction-card';
+            card.className = 'transaction-card savings-row';
             card.style.marginBottom = '8px';
+            const amount = Number(t.amount || 0);
             card.innerHTML = `
                 <div class="transaction-card-content">
                     <div>
@@ -1944,12 +2511,166 @@ function renderSavingsTransactions() {
                         <span class="transaction-meta">${new Date(t.created_at).toLocaleDateString()}</span>
                     </div>
                     <span class="transaction-amount" style="color:${t.type === 'deposit' ? 'green' : '#ef4444'}">
-                        ${t.type === 'deposit' ? '+' : '-'}$${t.amount.toFixed(2)}
+                        ${t.type === 'deposit' ? '+' : '-'}$${amount.toFixed(2)}
                     </span>
+                </div>
+                <div class="row-actions">
+                    <button class="edit-btn" onclick="editSavingsTransaction(${index})" title="Edit savings activity">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+                        </svg>
+                    </button>
+                    <button class="delete-btn" onclick="deleteSavingsTransaction(${index})" title="Delete savings activity">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6l-1 14H6L5 6"></path>
+                            <path d="M10 11v6"></path>
+                            <path d="M14 11v6"></path>
+                            <path d="M9 6V4h6v2"></path>
+                        </svg>
+                    </button>
                 </div>
             `;
             list.appendChild(card);
         });
+}
+
+function savingsDelta(transaction) {
+    const amount = Number(transaction?.amount || 0);
+    return transaction?.type === 'deposit' ? amount : -amount;
+}
+
+async function reconcileSavingsFromActivity() {
+    if (!savingsTransactions.length) return;
+
+    const reconciledSavedMoney = savingsTransactions
+        .reduce((sum, transaction) => sum + savingsDelta(transaction), 0);
+
+    if (Math.abs(Number(savedMoney || 0) - reconciledSavedMoney) < 0.01) return;
+
+    savedMoney = Math.max(0, reconciledSavedMoney);
+    await saveSavingsToSupabase();
+    saveData();
+    updateDashboard();
+}
+
+async function editSavingsTransaction(index) {
+    const transaction = savingsTransactions[index];
+    if (!transaction) return;
+
+    const nextAmount = Number(prompt('Update savings activity amount', Number(transaction.amount || 0)));
+    if (!nextAmount || nextAmount <= 0) return;
+
+    const oldDelta = savingsDelta(transaction);
+    const updatedTransaction = { ...transaction, amount: nextAmount };
+    const newDelta = savingsDelta(updatedTransaction);
+    const nextSavedMoney = savedMoney + (newDelta - oldDelta);
+
+    if (supabaseClient) {
+        const { error } = await updateSavingsActivityRemote(transaction, { amount: nextAmount });
+        if (error) {
+            alert(error.message);
+            return;
+        }
+    }
+
+    savedMoney = nextSavedMoney;
+    if (!(await saveSavingsToSupabase())) {
+        savedMoney -= newDelta - oldDelta;
+        return;
+    }
+
+    transaction.amount = nextAmount;
+    saveData();
+    renderSavingsTransactions();
+    updateDashboard();
+}
+
+async function deleteSavingsTransaction(index) {
+    const transaction = savingsTransactions[index];
+    if (!transaction || !confirm('Delete this savings activity?')) return;
+
+    const delta = savingsDelta(transaction);
+    const nextSavedMoney = savedMoney - delta;
+
+    if (supabaseClient) {
+        const { error } = await deleteSavingsActivityRemote(transaction);
+        if (error) {
+            alert(error.message);
+            return;
+        }
+    }
+
+    savedMoney = nextSavedMoney;
+    if (!(await saveSavingsToSupabase())) {
+        savedMoney += delta;
+        return;
+    }
+
+    savingsTransactions.splice(index, 1);
+    saveData();
+    renderSavingsTransactions();
+    updateDashboard();
+}
+
+async function updateSavingsActivityRemote(transaction, changes) {
+    if (transaction.id) {
+        const result = await supabaseClient
+            .from('savings_activity')
+            .update(changes)
+            .eq('id', transaction.id);
+        if (result.error) return result;
+    }
+
+    return supabaseClient
+        .from('savings_activity')
+        .update(changes)
+        .eq('created_at', transaction.created_at)
+        .eq('type', transaction.type)
+        .eq('description', transaction.description)
+        .eq('amount', Number(transaction.amount || 0));
+}
+
+async function deleteSavingsActivityRemote(transaction) {
+    if (!supabaseClient) return { error: null };
+
+    console.log("Attempting to delete:", transaction);
+
+    // Try deleting by ID first.
+    if (transaction.id) {
+        const { data, error } = await supabaseClient
+            .from('savings_activity')
+            .delete()
+            .eq('id', transaction.id)
+            .select();
+
+        console.log("Delete by ID:", {
+            id: transaction.id,
+            data,
+            error
+        });
+
+        if (error) return { error };
+
+        if (data && data.length > 0) {
+            return { error: null };
+        }
+    }
+
+    // Fallback delete.
+    const result = await supabaseClient
+        .from('savings_activity')
+        .delete()
+        .eq('created_at', transaction.created_at)
+        .eq('type', transaction.type)
+        .eq('description', transaction.description)
+        .eq('amount', Number(transaction.amount || 0))
+        .select();
+
+    console.log("Fallback delete:", result);
+
+    return result;
 }
 
 async function loadSettings() {
@@ -1987,7 +2708,6 @@ async function saveGoal() {
         return;
     }
 
-    console.log('Savings goal saved:', goal);
     updateDashboard();
 }
 
@@ -2013,23 +2733,25 @@ async function loadFromSupabase() {
         created_at: t.created_at
     }));
 
-    income = transactions
-        .filter(t => t.type === 'income')
-        .reduce((sum, t) => sum + t.amount, 0);
-
-    expenses = transactions
-        .filter(t => t.type === 'expense')
-        .reduce((sum, t) => sum + t.amount, 0);
-
-    renderTransactions();
+    syncTransactionTotals();
+    saveData();
+    renderTransactions({ refreshFilters: true });
     updateDashboard();
 }
 
 function updateDashboard() {
-    document.getElementById('income').textContent = income.toFixed(2);
+    // If filters are active, compute totals from filtered transactions for dashboard
+    const activeFilters = (document.getElementById('filterMonth')?.value || '') || (document.getElementById('filterYear')?.value || '') || (document.getElementById('filterType')?.value || '') || (document.getElementById('filterCategory')?.value || '');
+    let displayIncome = income;
+    if (activeFilters) {
+        const vis = getFilteredTransactions();
+        displayIncome = vis.filter(t=>t.type==='income').reduce((s,t)=>s+Number(t.amount||0),0);
+    }
+    animateValue('income', Number(document.getElementById('income').textContent || 0), displayIncome);
     // Calculate monthly expenses
     const now = new Date();
-    const monthlyExpenses = transactions
+    const sourceTx = (activeFilters ? getFilteredTransactions() : transactions);
+    const monthlyExpenses = sourceTx
         .filter(t => {
             if (t.type !== 'expense') return false;
 
@@ -2044,12 +2766,13 @@ function updateDashboard() {
         })
         .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
-    document.getElementById('expenses').textContent = monthlyExpenses.toFixed(2);
-    document.getElementById('savedMoney').textContent = savedMoney.toFixed(2);
+    animateValue('expenses', Number(document.getElementById('expenses').textContent || 0), monthlyExpenses);
+    // savedMoney remains overall
+    animateValue('savedMoney', Number(document.getElementById('savedMoney').textContent || 0), savedMoney);
 
-    const balance = income - monthlyExpenses - savedMoney;
-    document.getElementById('balance').textContent = balance.toFixed(2);
-    document.getElementById('savedAmount').textContent = savedMoney.toFixed(2);
+    const balance = displayIncome - monthlyExpenses - savedMoney;
+    animateValue('balance', Number(document.getElementById('balance').textContent || 0), balance);
+    animateValue('savedAmount', Number(document.getElementById('savedAmount').textContent || 0), savedMoney);
 
     const goal = Number(document.getElementById('savingsGoal').value) || 0;
 
@@ -2059,56 +2782,390 @@ function updateDashboard() {
         document.getElementById('progressPercent').textContent = percent.toFixed(0);
     }
 
+    updateDashboardInsights();
     drawChart();
 }
 
-function renderTransactions() {
+function updateDashboardInsights() {
+    const savingsRateEl = document.getElementById('savingsRateInsight');
+    const largestExpenseEl = document.getElementById('largestExpenseInsight');
+    const nextPaydayEl = document.getElementById('nextPaydayInsight');
+    if (!savingsRateEl || !largestExpenseEl || !nextPaydayEl) return;
+
+    const totalIncome = transactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const savingsRate = totalIncome > 0 ? Math.max(0, (savedMoney / totalIncome) * 100) : 0;
+    savingsRateEl.textContent = `${savingsRate.toFixed(0)}%`;
+
+    const largestExpense = transactions
+        .filter(t => t.type === 'expense')
+        .sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0];
+    largestExpenseEl.textContent = largestExpense
+        ? `${largestExpense.category || 'Expense'} $${Number(largestExpense.amount || 0).toFixed(2)}`
+        : '$0.00';
+
+    const nextPaycheck = Object.values(latestPaycheckTotals || {})
+        .sort((a, b) => a.payDate - b.payDate)[0];
+    nextPaydayEl.textContent = nextPaycheck ? nextPaycheck.payDate.toLocaleDateString() : 'No date';
+}
+
+function animateValue(elementId, start, end, duration = 600) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    const startTime = performance.now();
+    const initial = start;
+    const diff = end - initial;
+    function step(now) {
+        const t = Math.min(1, (now - startTime) / duration);
+        const v = initial + diff * easeOutCubic(t);
+        el.textContent = Number(v).toFixed(2);
+        if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+}
+
+function easeOutCubic(t){return 1 - Math.pow(1 - t, 3)}
+
+function debounce(fn, wait=150){let t; return (...args)=>{clearTimeout(t); t=setTimeout(()=>fn(...args), wait)}}
+
+function createLocalId(prefix = 'local') {
+    return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function toInputDate(date) {
+    const value = new Date(date);
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function ensureTransactionIds() {
+    let changed = false;
+    transactions.forEach(transaction => {
+        if (!transaction.id) {
+            transaction.id = createLocalId('tx');
+            changed = true;
+        }
+    });
+    return changed;
+}
+
+function syncTransactionTotals() {
+    income = transactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+    expenses = transactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+}
+
+function closeEditTransactionPanel() {
+    const panel = document.getElementById('editTransactionPanel');
+    const content = document.getElementById('editTransactionPanelContent');
+    if (panel) {
+        panel.style.display = 'none';
+        panel.style.visibility = 'hidden';
+        panel.style.opacity = '0';
+        panel.style.pointerEvents = 'none';
+        panel.style.justifyContent = 'center';
+        panel.style.alignItems = 'center';
+    }
+    if (content) {
+        content.style.position = '';
+        content.style.top = '';
+        content.style.left = '';
+        content.style.margin = '';
+        content.style.visibility = '';
+    }
+    const saveButton = document.getElementById('saveTransactionEditButton');
+    if (saveButton) {
+        saveButton.disabled = false;
+        saveButton.textContent = 'Save Changes';
+    }
+
+    // Ensure any body-level dimming/overflow is restored
+    try {
+        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open', 'overlay-active', 'popup-open', 'blurred', 'dimmed');
+    } catch (e) {
+        console.error('Error restoring body state:', e);
+    }
+
+    requestAnimationFrame(() => {
+        window.scrollTo(editTransactionScrollPosition.x, editTransactionScrollPosition.y);
+    });
+}
+
+function closeSavedJobsPanel() {
+    const panel = document.getElementById('savedJobsPanel');
+    if (panel) {
+        panel.style.display = 'none';
+        panel.style.visibility = 'hidden';
+        panel.style.opacity = '0';
+        panel.style.pointerEvents = 'none';
+    }
+    if (window.savedJobsScrollHandler) {
+        window.removeEventListener('scroll', window.savedJobsScrollHandler);
+        delete window.savedJobsScrollHandler;
+    }
+    try {
+        document.body.style.overflow = '';
+        document.body.classList.remove('modal-open', 'overlay-active', 'popup-open', 'blurred', 'dimmed');
+    } catch (e) {
+        console.error('Error restoring body state:', e);
+    }
+}
+
+function openEditTransactionPanel(transactionId, triggerElement) {
+    const transaction = transactions.find((item) => String(item.id || '') === String(transactionId || ''));
+    if (!transaction) return;
+
+    const panel = document.getElementById('editTransactionPanel');
+    const content = document.getElementById('editTransactionPanelContent');
+    if (!panel) return;
+
+    editTransactionScrollPosition = {
+        x: window.scrollX,
+        y: window.scrollY
+    };
+
+    document.getElementById('editTransactionId').value = transaction.id || '';
+    document.getElementById('editTransactionDescription').value = transaction.description || '';
+    document.getElementById('editTransactionAmount').value = Number(transaction.amount || 0);
+    document.getElementById('editTransactionCategory').value = transaction.category || 'Other';
+    document.getElementById('editTransactionType').value = transaction.type || 'expense';
+
+    // Show the panel and ensure all overlay properties are set
+    panel.style.display = 'flex';
+    panel.style.visibility = 'visible';
+    panel.style.opacity = '1';
+    panel.style.pointerEvents = 'auto';
+    panel.style.justifyContent = 'flex-start';
+    panel.style.alignItems = 'flex-start';
+
+    if (content) {
+        content.style.position = 'fixed';
+        content.style.visibility = 'hidden';
+        content.style.margin = '0';
+        content.style.display = 'block';
+
+        const rect = triggerElement?.getBoundingClientRect();
+        const contentRect = content.getBoundingClientRect();
+        const margin = 18;
+        const fallbackTop = (window.innerHeight - contentRect.height) / 2;
+        const fallbackLeft = (window.innerWidth - contentRect.width) / 2;
+        const preferredTop = rect ? rect.top - 18 : fallbackTop;
+        const preferredLeft = rect ? rect.left - contentRect.width + rect.width : fallbackLeft;
+        const maxTop = Math.max(margin, window.innerHeight - contentRect.height - margin);
+        const maxLeft = Math.max(margin, window.innerWidth - contentRect.width - margin);
+
+        content.style.top = `${Math.min(Math.max(margin, preferredTop), maxTop)}px`;
+        content.style.left = `${Math.min(Math.max(margin, preferredLeft), maxLeft)}px`;
+        content.style.visibility = 'visible';
+    }
+
+    try { document.body.style.overflow = 'hidden'; document.body.classList.add('modal-open'); } catch (e) {}
+    document.getElementById('editTransactionDescription')?.focus();
+}
+
+async function saveTransactionEdit() {
+    const transactionId = document.getElementById('editTransactionId').value;
+    const description = document.getElementById('editTransactionDescription').value.trim();
+    const amount = Number(document.getElementById('editTransactionAmount').value);
+    const category = document.getElementById('editTransactionCategory').value;
+    const type = document.getElementById('editTransactionType').value;
+
+    if (!description || amount <= 0) {
+        alert('Please enter valid transaction information.');
+        return;
+    }
+
+    const existingTransaction = transactions.find((item) => String(item.id || '') === String(transactionId || ''));
+    if (!existingTransaction) {
+        alert('Transaction not found.');
+        return;
+    }
+
+    const isSupabaseId = /^\d+$/.test(String(transactionId));
+    const saveButton = document.getElementById('saveTransactionEditButton');
+
+    if (saveButton) {
+        saveButton.disabled = true;
+        saveButton.textContent = 'Saving...';
+    }
+
+    if (supabaseClient && isSupabaseId) {
+        const { data, error } = await supabaseClient
+            .from('transactions')
+            .update({ description, amount, type, category })
+            .eq('id', transactionId)
+            .select();
+
+        if (error) {
+            if (saveButton) {
+                saveButton.disabled = false;
+                saveButton.textContent = 'Save Changes';
+            }
+            alert(error.message);
+            return;
+        }
+
+        await loadFromSupabase();
+        saveData();
+        renderTransactions();
+        updateDashboard();
+        closeEditTransactionPanel();
+        return;
+    }
+
+    const updatedTransaction = {
+        ...existingTransaction,
+        id: existingTransaction.id || createLocalId('tx'),
+        description,
+        amount,
+        category,
+        type,
+        created_at: existingTransaction.created_at || new Date().toISOString()
+    };
+
+    transactions = transactions.map((item) => (String(item.id || '') === String(transactionId || '') ? updatedTransaction : item));
+    syncTransactionTotals();
+    saveData();
+    renderTransactions({ refreshFilters: true });
+    updateDashboard();
+    closeEditTransactionPanel();
+
+    if (saveButton) {
+        saveButton.disabled = false;
+        saveButton.textContent = 'Save Changes';
+    }
+}
+
+function renderTransactions(options = {}) {
     const list = document.getElementById('transactionList');
+    if (!list) return;
+
+    if (ensureTransactionIds()) {
+        saveData();
+    }
+
     list.innerHTML = '';
+    populateTransactionFilters({ force: Boolean(options.refreshFilters) });
 
-    const search = (document.getElementById('transactionSearch')?.value || '').toLowerCase();
+    const visible = getFilteredTransactions();
+    const fragment = document.createDocumentFragment();
 
-    transactions.slice(0).forEach((t, index) => {
-        const matchesSearch = !search ||
-            t.description.toLowerCase().includes(search) ||
-            (t.category || '').toLowerCase().includes(search);
+    if (visible.length === 0) {
+        const empty = document.createElement('li');
+        empty.className = 'transaction-empty-state';
+        empty.textContent = 'No matching transactions';
+        list.appendChild(empty);
+        return;
+    }
 
-        if (!matchesSearch) return;
-
+    visible.forEach((t, index) => {
         const item = document.createElement('li');
-        item.className = 'transaction-card';
+        item.className = 'transaction-card transaction-history-card';
+        item.style.animationDelay = `${Math.min(index * 25, 180)}ms`;
 
         const transactionDate = t.created_at
             ? new Date(t.created_at).toLocaleDateString()
             : 'No Date';
         item.innerHTML = `
     <div class="transaction-card-content">
-        <div>
-            <strong>${t.description}</strong><br>
-            <span class="transaction-meta">${t.category}</span><br>
-            <span class="transaction-date">${transactionDate}</span>
+        <div class="transaction-main">
+            <div>
+                <div class="transaction-title-row">
+                    <strong>${t.description}</strong>
+                    <span class="transaction-type-pill ${t.type}">${t.type === 'income' ? 'Income' : 'Expense'}</span>
+                </div>
+                <div class="transaction-info-row">
+                    <span class="transaction-meta category-badge">${getCategoryLabel(t.category)}</span>
+                    <span class="transaction-date">${transactionDate}</span>
+                </div>
+            </div>
+            <div class="transaction-amount-wrap">
+                <span class="transaction-amount" style="${t.type === 'income' ? 'color:green' : 'color:red'}">
+                    ${t.type === 'income' ? '+' : '-'}$${Number(t.amount || 0).toFixed(2)}
+                </span>
+            </div>
         </div>
-        <span class="transaction-amount" style="${t.type === 'income' ? 'color:green' : 'color:red'}">
-            ${t.type === 'income' ? '+' : '-'}$${t.amount.toFixed(2)}
-        </span>
     </div>
-    <button class="delete-btn" onclick="deleteTransaction(${index}, this)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="3 6 5 6 21 6"></polyline>
-            <path d="M19 6l-1 14H6L5 6"></path>
-            <path d="M10 11v6"></path>
-            <path d="M14 11v6"></path>
-            <path d="M9 6V4h6v2"></path>
-        </svg>
-    </button>
+    <div class="transaction-card-actions">
+        <button class="edit-btn" onclick="openEditTransactionPanel('${t.id}', this)" title="Edit transaction">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+            </svg>
+        </button>
+        <button class="delete-btn" onclick="deleteTransaction('${t.id}', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6l-1 14H6L5 6"></path>
+                <path d="M10 11v6"></path>
+                <path d="M14 11v6"></path>
+                <path d="M9 6V4h6v2"></path>
+            </svg>
+        </button>
+    </div>
 `;
 
-        list.appendChild(item);
+        fragment.appendChild(item);
+    });
+
+    list.appendChild(fragment);
+}
+
+function getFilteredTransactions(){
+    const search = (document.getElementById('transactionSearch')?.value || '').toLowerCase();
+    const filterMonth = document.getElementById('filterMonth')?.value || '';
+    const filterYear = document.getElementById('filterYear')?.value || '';
+    const filterType = document.getElementById('filterType')?.value || '';
+    const filterCategory = document.getElementById('filterCategory')?.value || '';
+
+    return transactions.slice(0).filter(t => {
+        const matchesSearch = !search || t.description.toLowerCase().includes(search) || (t.category || '').toLowerCase().includes(search);
+        if (!matchesSearch) return false;
+        if (filterType && t.type !== filterType) return false;
+        if (filterCategory && t.category !== filterCategory) return false;
+        if ((filterMonth || filterYear) && t.created_at) {
+            const d = new Date(t.created_at);
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const y = String(d.getFullYear());
+            if (filterMonth && filterMonth !== m) return false;
+            if (filterYear && filterYear !== y) return false;
+        }
+        return true;
     });
 }
 
-async function deleteTransaction(index, buttonElement) {
-    const t = transactions[index];
+const debouncedRenderTransactions = debounce(renderTransactions, 150);
+
+function handleTransactionFilterChange() {
+    renderTransactions();
+    updateDashboard();
+}
+
+function handleEditTransactionKeydown(event) {
+    if (event.key === 'Escape') {
+        event.stopPropagation();
+        closeEditTransactionPanel();
+        return;
+    }
+
+    if (event.key === 'Enter' && event.target?.tagName !== 'SELECT') {
+        event.preventDefault();
+        event.stopPropagation();
+        saveTransactionEdit();
+    }
+}
+
+async function deleteTransaction(transactionId, buttonElement) {
+    const t = transactions.find((item) => String(item.id || '') === String(transactionId || ''));
+    if (!t) return;
 
     const card = buttonElement?.closest('.transaction-card');
     if (card) {
@@ -2116,7 +3173,7 @@ async function deleteTransaction(index, buttonElement) {
         await new Promise(resolve => setTimeout(resolve, 400));
     }
 
-    if (t.id && supabaseClient) {
+    if (t.id && supabaseClient && /^\d+$/.test(String(t.id))) {
         const { error } = await supabaseClient
             .from('transactions')
             .delete()
@@ -2132,7 +3189,8 @@ async function deleteTransaction(index, buttonElement) {
         return;
     }
 
-    transactions.splice(index, 1);
+    transactions = transactions.filter((item) => String(item.id || '') !== String(transactionId || ''));
+    syncTransactionTotals();
     saveData();
     renderTransactions();
     updateDashboard();
@@ -2156,7 +3214,7 @@ async function addTransaction() {
     }
 
     const created_at = new Date().toISOString();
-    transactions.unshift({ description, amount, type, category, created_at });
+
     if (supabaseClient) {
         const { error } = await supabaseClient
             .from('transactions')
@@ -2173,13 +3231,15 @@ async function addTransaction() {
             alert(error.message);
             return;
         }
+
+        await loadFromSupabase();
+    } else {
+        transactions.unshift({ id: createLocalId('tx'), description, amount, type, category, created_at });
+        syncTransactionTotals();
+        saveData();
+        renderTransactions({ refreshFilters: true });
+        updateDashboard();
     }
-
-    await loadFromSupabase();
-
-    saveData();
-    renderTransactions();
-    updateDashboard();
 
     document.getElementById('description').value = '';
     document.getElementById('amount').value = '';
@@ -2201,8 +3261,8 @@ function drawChart() {
     pieCtx.clearRect(0, 0, rect.width, rect.height);
 
     const categories = {};
-
-    transactions.forEach(t => {
+    const sourceTx = getFilteredTransactions();
+    sourceTx.forEach(t => {
         if (t.type === 'expense') {
             categories[t.category] = (categories[t.category] || 0) + Number(t.amount);
         }
@@ -2212,6 +3272,7 @@ function drawChart() {
     const labels = Object.keys(categories);
 
     const totalExpenses = values.reduce((a, b) => a + b, 0);
+    chartSlices = [];
 
     if (totalExpenses <= 0) {
         pieCtx.font = '16px sans-serif';
@@ -2222,7 +3283,7 @@ function drawChart() {
     }
 
     let startAngle = -Math.PI / 2;
-    const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+    const colors = ['#2563eb', '#16a34a', '#f59e0b', '#ef4444', '#7c3aed', '#0891b2', '#db2777', '#475569'];
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
     const radius = Math.min(rect.width, rect.height) / 2 - 24;
@@ -2230,10 +3291,11 @@ function drawChart() {
     values.forEach((value, i) => {
         const slice = (value / totalExpenses) * Math.PI * 2;
         const color = colors[i % colors.length];
+        const endAngle = startAngle + slice;
 
         pieCtx.beginPath();
         pieCtx.moveTo(centerX, centerY);
-        pieCtx.arc(centerX, centerY, radius, startAngle, startAngle + slice);
+        pieCtx.arc(centerX, centerY, radius, startAngle, endAngle);
         pieCtx.closePath();
         pieCtx.fillStyle = color;
         pieCtx.fill();
@@ -2258,9 +3320,68 @@ function drawChart() {
             pieLegend.appendChild(row);
         }
 
-        startAngle += slice;
+        chartSlices.push({
+            label: labels[i],
+            value,
+            percent,
+            color,
+            startAngle,
+            endAngle,
+            centerX,
+            centerY,
+            radius
+        });
+
+        startAngle = endAngle;
+    });
+
+        // Simple visual kick-in animation class
+        try { pieCanvas.classList.add('chart-animate'); setTimeout(()=>pieCanvas.classList.remove('chart-animate'),500); } catch(e){}
+}
+
+function setupChartInteractions() {
+    const canvas = document.getElementById('pieChart');
+    const tooltip = document.getElementById('chartTooltip');
+    if (!canvas || !tooltip || canvas.dataset.bound === 'true') return;
+
+    canvas.dataset.bound = 'true';
+    canvas.addEventListener('mousemove', event => {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const slice = getChartSliceAtPoint(x, y);
+
+        if (!slice) {
+            tooltip.style.display = 'none';
+            return;
+        }
+
+        tooltip.style.display = 'block';
+        tooltip.style.left = `${event.clientX + 12}px`;
+        tooltip.style.top = `${event.clientY + 12}px`;
+        tooltip.innerHTML = `<strong>${slice.label}</strong><br>$${slice.value.toFixed(2)} • ${slice.percent.toFixed(1)}%`;
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+        tooltip.style.display = 'none';
     });
 }
+
+function getChartSliceAtPoint(x, y) {
+    return chartSlices.find(slice => {
+        const dx = x - slice.centerX;
+        const dy = y - slice.centerY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance > slice.radius) return false;
+
+        let angle = Math.atan2(dy, dx);
+        if (angle < -Math.PI / 2) angle += Math.PI * 2;
+        return angle >= slice.startAngle && angle <= slice.endAngle;
+    });
+}
+
+    // Redraw charts on resize but debounce
+    window.addEventListener('resize', debounce(()=>{ drawChart(); populateTransactionFilters(); }));
 
 function setTodayDate() {
     const dateInput = document.getElementById('shiftDate');
@@ -2273,6 +3394,58 @@ function setTodayDate() {
 
         dateInput.value = `${year}-${month}-${day}`;
     }
+}
+
+function populateTransactionFilters(options = {}) {
+    const monthSelect = document.getElementById('filterMonth');
+    const yearSelect = document.getElementById('filterYear');
+    const catSelect = document.getElementById('filterCategory');
+    if (!monthSelect || !yearSelect || !catSelect) return;
+
+    const nextSignature = transactions
+        .map(t => `${t.created_at || ''}|${t.category || ''}`)
+        .join('||');
+
+    if (!options.force && nextSignature === transactionFilterSignature) return;
+
+    transactionFilterSignature = nextSignature;
+
+    const selectedMonth = monthSelect.value;
+    const selectedYear = yearSelect.value;
+    const selectedCategory = catSelect.value;
+    const months = {};
+    const years = {};
+    const categories = {};
+
+    transactions.forEach(t => {
+        if (t.created_at) {
+            const d = new Date(t.created_at);
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const y = String(d.getFullYear());
+            months[m] = true;
+            years[y] = true;
+        }
+        if (t.category) categories[t.category] = true;
+    });
+
+    // clear then add
+    monthSelect.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
+    yearSelect.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
+    catSelect.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
+
+    Object.keys(months).sort().forEach(m => {
+        const opt = document.createElement('option'); opt.value = m; opt.textContent = m; monthSelect.appendChild(opt);
+    });
+    Object.keys(years).sort().forEach(y => {
+        const opt = document.createElement('option'); opt.value = y; opt.textContent = y; yearSelect.appendChild(opt);
+    });
+    Object.keys(categories).sort().forEach(c => {
+        const opt = document.createElement('option'); opt.value = c; opt.textContent = getCategoryLabel(c); catSelect.appendChild(opt);
+    });
+
+    monthSelect.value = months[selectedMonth] ? selectedMonth : '';
+    yearSelect.value = years[selectedYear] ? selectedYear : '';
+    catSelect.value = categories[selectedCategory] ? selectedCategory : '';
 }
 
 async function initializeApp() {
@@ -2289,7 +3462,11 @@ async function initializeApp() {
     renderSavingsTransactions();
     renderShifts();
     renderVisualCalendar();
+    setupChartInteractions();
     updateDashboard();
+
+    // populate filter selects
+    populateTransactionFilters();
 
     const subscriptionButton = document.querySelector('button[onclick="toggleSection(\'subscriptionCalendarWrapper\', this)"]');
     if (subscriptionButton) {
@@ -2313,16 +3490,30 @@ async function initializeApp() {
 
 initializeApp();
 
-setInterval(() => {
-    loadFromSupabase();
-    loadSubscriptions();
-    loadJobsFromSupabase();
-    loadShiftsFromSupabase();
-    loadSettings();
-    loadSavingsActivity();
-}, 5000);
+let refreshInProgress = false;
+async function refreshAppData() {
+    if (refreshInProgress || document.hidden) return;
+    refreshInProgress = true;
+    try {
+        await Promise.all([
+            loadFromSupabase(),
+            loadSubscriptions(),
+            loadJobsFromSupabase(),
+            loadShiftsFromSupabase(),
+            loadSettings(),
+            loadSavingsActivity()
+        ]);
+    } finally {
+        refreshInProgress = false;
+    }
+}
+
+setInterval(refreshAppData, 15000);
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) refreshAppData();
+});
 </script>
-<div id="savedJobsPanel" onclick="if (event.target === this){ this.style.display='none'; if(window.savedJobsScrollHandler){ window.removeEventListener('scroll', window.savedJobsScrollHandler); } }" style="display:none;position:absolute;top:0;left:0;right:0;min-height:100%;background:rgba(0,0,0,.25);z-index:9999;">
+<div id="savedJobsPanel" onclick="if (event.target === this){ closeSavedJobsPanel(); }" style="display:none;visibility:hidden;opacity:0;pointer-events:none;position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:9999;">
     <div id="savedJobsPanelContent" style="position:absolute;max-width:600px;width:min(600px,calc(100vw - 40px));max-height:85vh;overflow-y:auto;background:white;border-radius:24px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.2);border:1px solid #e5e7eb;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
             <h2 style="margin:0;font-size:28px;">💼 Saved Jobs</h2>
@@ -2330,7 +3521,7 @@ setInterval(() => {
                 type="button"
                 class="expense-btn"
                 style="width:auto;height:40px;margin-top:0;padding:0 14px;"
-                onclick="document.getElementById('savedJobsPanel').style.display='none'; if(window.savedJobsScrollHandler){ window.removeEventListener('scroll', window.savedJobsScrollHandler); }">
+                onclick="closeSavedJobsPanel()">
                 Close
             </button>
         </div>
@@ -2348,9 +3539,116 @@ setInterval(() => {
             <input type="date" id="jobPayDate" title="Last Paycheck Date">
 
             <button class="income-btn" onclick="addJob()">Save Job</button>
+            <button type="button" class="secondary-btn" onclick="cancelJobEdit()">Cancel Edit</button>
         </div>
     </div>
 </div>
+<div id="editTransactionPanel" onclick="if (event.target === this){ closeEditTransactionPanel(); }" onkeydown="handleEditTransactionKeydown(event)" style="display:none;visibility:hidden;opacity:0;pointer-events:none;position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:9999;justify-content:center;align-items:center;">
+    <div id="editTransactionPanelContent" style="max-width:600px;width:min(600px,calc(100vw - 40px));max-height:85vh;overflow-y:auto;background:white;border-radius:24px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.2);border:1px solid #e5e7eb;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h2 style="margin:0;font-size:28px;">✏️ Edit Transaction</h2>
+            <button
+                type="button"
+                class="expense-btn"
+                style="width:auto;height:40px;margin-top:0;padding:0 14px;"
+                onclick="closeEditTransactionPanel()">
+                Close
+            </button>
+        </div>
+
+        <input type="hidden" id="editTransactionIndex">
+        <input type="hidden" id="editTransactionId">
+        <input type="text" id="editTransactionDescription" placeholder="Description" onkeydown="handleEditTransactionKeydown(event)">
+
+        <div class="input-with-dollar">
+            <span>$</span>
+            <input type="number" id="editTransactionAmount" placeholder="Amount" step="0.01" onkeydown="handleEditTransactionKeydown(event)">
+        </div>
+
+        <select id="editTransactionCategory" onkeydown="handleEditTransactionKeydown(event)">
+            <optgroup label="Income">
+                <option value="Paycheck">💼 Paycheck</option>
+                <option value="Bonus">🎉 Bonus</option>
+                <option value="Refund">↩️ Refund</option>
+                <option value="Gift">🎁 Gift</option>
+                <option value="Interest">💰 Interest</option>
+                <option value="Investment">📈 Investment</option>
+                <option value="Side Hustle">🛠️ Side Hustle</option>
+                <option value="Selling Items">📦 Selling Items</option>
+                <option value="Cash">💵 Cash</option>
+                <option value="Other Income">🔸 Other Income</option>
+            </optgroup>
+            <optgroup label="Expenses">
+                <option value="Groceries">🛒 Groceries</option>
+                <option value="Restaurants">🍔 Restaurants</option>
+                <option value="Fast Food">🍟 Fast Food</option>
+                <option value="Coffee">☕ Coffee</option>
+                <option value="Gas">⛽ Gas</option>
+                <option value="Parking">🅿️ Parking</option>
+                <option value="Toll">🛣️ Toll</option>
+                <option value="Uber/Lyft">🚕 Uber/Lyft</option>
+                <option value="Car Maintenance">🔧 Car Maintenance</option>
+                <option value="Phone">📱 Phone</option>
+                <option value="Clothing">👕 Clothing</option>
+                <option value="Electronics">🔌 Electronics</option>
+                <option value="Amazon">🛍️ Amazon</option>
+                <option value="Home Goods">🧺 Home Goods</option>
+                <option value="Gifts">🎁 Gifts</option>
+                <option value="Movies">🎬 Movies</option>
+                <option value="Games">🎮 Games</option>
+                <option value="Music">🎵 Music</option>
+                <option value="Streaming">📺 Streaming</option>
+                <option value="Hobbies">🎨 Hobbies</option>
+                <option value="Doctor">🩺 Doctor</option>
+                <option value="Dentist">🦷 Dentist</option>
+                <option value="Pharmacy">💊 Pharmacy</option>
+                <option value="Gym">🏋️‍♂️ Gym</option>
+                <option value="Books">📚 Books</option>
+                <option value="School">🏫 School</option>
+                <option value="Savings Transfer">🏦 Savings Transfer</option>
+                <option value="Pets">🐶 Pets</option>
+                <option value="Other">🔸 Other</option>
+            </optgroup>
+        </select>
+
+        <select id="editTransactionType" onkeydown="handleEditTransactionKeydown(event)">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+        </select>
+
+        <button id="saveTransactionEditButton" class="income-btn" onclick="saveTransactionEdit()">Save Changes</button>
+    </div>
+</div>
+    <script>
+    // Ensure all popups/overlays are hidden on initial load
+    window.addEventListener("load", () => {
+        document.querySelectorAll(
+            ".modal,.popup,.overlay,.backdrop,#editTransactionPanel,#savedJobsPanel,#editTransactionOverlay"
+        ).forEach(el => {
+            try {
+                el.style.display = 'none';
+                el.style.visibility = 'hidden';
+                el.style.opacity = '0';
+                el.style.pointerEvents = 'none';
+            } catch (e) {
+                // ignore
+            }
+        });
+
+        // restore body state
+        try {
+            document.body.style.overflow = '';
+            document.body.classList.remove(
+                'modal-open',
+                'overlay-active',
+                'popup-open',
+                'blurred',
+                'dimmed'
+            );
+        } catch (e) {
+            // ignore
+        }
+    });
+    </script>
 </body>
 </html>
-
