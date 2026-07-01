@@ -562,7 +562,7 @@
     overflow-y: auto;
 }
 .dashboard-row > .form {
-    height: 520px;
+    min-height: 0;
 }
 
 .dashboard-row > .transactions {
@@ -995,15 +995,6 @@
                 max-width: 240px;
             }
 
-            #savedJobsPanelContent {
-                width: calc(100vw - 24px) !important;
-                padding: 16px !important;
-            }
-
-            #savedJobsPanelContent h2 {
-                font-size: 22px !important;
-            }
-
             #visualCalendar {
                 grid-template-columns: repeat(7, 1fr);
                 gap: 2px;
@@ -1075,6 +1066,107 @@
                 flex-shrink: 0 !important;
             }
         }
+
+        #toastContainer {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            display: grid;
+            gap: 10px;
+            z-index: 12000;
+            pointer-events: none;
+        }
+
+        .toast {
+            min-width: min(340px, calc(100vw - 32px));
+            padding: 13px 16px;
+            border-radius: 16px;
+            color: #0f172a;
+            background: rgba(255,255,255,.96);
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 18px 45px rgba(15,23,42,.18);
+            font-weight: 700;
+            transform: translateY(10px);
+            opacity: 0;
+            animation: toastIn .22s ease forwards;
+        }
+
+        .toast.success { border-left: 5px solid #16a34a; }
+        .toast.error { border-left: 5px solid #dc2626; }
+        .toast.info { border-left: 5px solid #2563eb; }
+
+        @keyframes toastIn {
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes toastOut {
+            to { transform: translateY(10px); opacity: 0; }
+        }
+
+        .empty-state {
+            margin: 0;
+            padding: 14px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 14px;
+            background: #f8fafc;
+            color: #64748b;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .skeleton-card {
+            height: 64px;
+            margin-bottom: 8px;
+            border-radius: 14px;
+            background: linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 37%,#f1f5f9 63%);
+            background-size: 400% 100%;
+            animation: skeletonLoad 1.15s ease infinite;
+        }
+
+        @keyframes skeletonLoad {
+            0% { background-position: 100% 0; }
+            100% { background-position: 0 0; }
+        }
+
+        .polish-pulse {
+            animation: polishPulse .8s ease;
+        }
+
+        @keyframes polishPulse {
+            0% { box-shadow: 0 0 0 0 rgba(37,99,235,.32); transform: scale(1); }
+            45% { box-shadow: 0 0 0 10px rgba(37,99,235,.08); transform: scale(1.01); }
+            100% { box-shadow: inherit; transform: scale(1); }
+        }
+
+        #contextMenu {
+            position: fixed;
+            display: none;
+            min-width: 190px;
+            padding: 6px;
+            background: rgba(255,255,255,.98);
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            box-shadow: 0 18px 45px rgba(15,23,42,.18);
+            z-index: 12001;
+        }
+
+        #contextMenu button {
+            width: 100%;
+            min-height: 38px;
+            margin: 0;
+            padding: 9px 10px;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: #0f172a;
+            text-align: left;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        #contextMenu button:hover {
+            background: #f1f5f9;
+        }
     </style>
     <link rel="stylesheet" href="modern.css">
     <script>
@@ -1091,6 +1183,7 @@
             'Cash': '💵',
             'Other Income': '🔸',
             // Food
+            'Food': '🍽️',
             'Groceries': '🛒',
             'Restaurants': '🍔',
             'Fast Food': '🍟',
@@ -1114,6 +1207,7 @@
             'Games': '🎮',
             'Music': '🎵',
             'Streaming': '📺',
+            'Subscriptions': '🔁',
             'Hobbies': '🎨',
             // Health
             'Doctor': '🩺',
@@ -1135,9 +1229,21 @@
             const icon = categoryIcons[cat] || '';
             return icon ? `${icon} ${cat}` : cat;
         }
+
+        function escapeHTML(value) {
+            return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
     </script>
 </head>
 <body>
+    <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+    <div id="contextMenu"></div>
     <div class="container">
         <h1>💰 Tyler's Finance Tracker</h1>
         <p style="text-align:center;color:#6e6e73;font-size:22px;margin-top:-5px;margin-bottom:30px;">Track spending, savings, and financial goals.</p>
@@ -1193,7 +1299,7 @@
         </div>
 
         <div class="dashboard-row two-column-row">
-            <div class="transactions">
+            <div class="transactions" id="savingsCard">
                 <h2>🏦 Savings Vault</h2>
 
                 <div class="input-with-dollar">
@@ -1233,6 +1339,7 @@
                         <option value="Other Income">🔸 Other Income</option>
                     </optgroup>
                     <optgroup label="Expenses">
+                        <option value="Food">🍽️ Food</option>
                         <option value="Groceries">🛒 Groceries</option>
                         <option value="Restaurants">🍔 Restaurants</option>
                         <option value="Fast Food">🍟 Fast Food</option>
@@ -1252,6 +1359,7 @@
                         <option value="Games">🎮 Games</option>
                         <option value="Music">🎵 Music</option>
                         <option value="Streaming">📺 Streaming</option>
+                        <option value="Subscriptions">🔁 Subscriptions</option>
                         <option value="Hobbies">🎨 Hobbies</option>
                         <option value="Doctor">🩺 Doctor</option>
                         <option value="Dentist">🦷 Dentist</option>
@@ -1275,7 +1383,7 @@
         </div>
 
     <div class="dashboard-row" style="grid-template-columns:1fr 2fr;align-items:start;">
-        <div class="transactions transaction-history">
+        <div class="transactions transaction-history" id="transactionHistoryCard">
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <h2>Transaction History</h2>
                 <button type="button" class="income-btn" style="width:auto;height:40px;margin-top:0;padding:0 14px;" onclick="toggleSection('transactionsContent', this)">Hide</button>
@@ -1301,7 +1409,7 @@
                 <ul id="transactionList"></ul>
             </div>
         </div>
-        <div class="form" style="height:auto;">
+        <div class="form" id="hoursTrackerCard" style="height:auto;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <h2>⏱ Hours Tracker</h2>
             </div>
@@ -1366,7 +1474,7 @@
     </div>
 
     <div class="dashboard-row" style="grid-template-columns:1fr 1fr;align-items:start;">
-        <div class="transactions">
+        <div class="transactions" id="subscriptionsCard">
             <div style="display:flex;justify-content:space-between;align-items:center;">
                 <h2>📆 Monthly Subscriptions</h2>
                 <button type="button" class="income-btn" style="width:auto;height:40px;margin-top:0;padding:0 14px;" onclick="toggleSection('subscriptionCalendarWrapper', this)">Hide</button>
@@ -1405,15 +1513,132 @@
     </div>
 
 
-    <!-- Spending Breakdown card moved to its own row at the bottom -->
-    <div class="dashboard-row" style="grid-template-columns:1fr;align-items:start;">
-        <div class="form" style="height:auto;">
-            <h2>📊 Spending Breakdown</h2>
-            <canvas id="pieChart"></canvas>
-            <div id="chartTooltip"></div>
-            <div id="pieLegend"></div>
+    <section class="analytics-section" aria-label="Finance analytics">
+        <div class="analytics-header">
+            <div>
+                <h2>Finance Analytics</h2>
+                <p>Trends, cash flow, categories, and savings momentum.</p>
+            </div>
         </div>
-    </div>
+
+        <div class="analytics-insights" id="analyticsInsights">
+            <div class="analytics-insight-card insight-red">
+                <div class="insight-icon">💳</div>
+                <span>Biggest Expense</span>
+                <strong id="biggestExpenseMonthInsight">$0.00</strong>
+                <em id="biggestExpenseTrend">↘ 0% vs last month</em>
+            </div>
+            <div class="analytics-insight-card insight-amber">
+                <div class="insight-icon">📆</div>
+                <span>Daily Spend</span>
+                <strong id="averageDailySpendingInsight">$0.00</strong>
+                <em id="dailySpendingTrend">↘ 0% vs last month</em>
+            </div>
+            <div class="analytics-insight-card insight-blue">
+                <div class="insight-icon">🧾</div>
+                <span>Avg Transaction</span>
+                <strong id="averageTransactionInsight">$0.00</strong>
+                <em id="transactionAverageTrend">↗ 0% vs last month</em>
+            </div>
+            <div class="analytics-insight-card insight-green">
+                <div class="insight-icon">🏦</div>
+                <span>Savings Rate</span>
+                <strong id="analyticsSavingsRateInsight">0%</strong>
+                <em id="savingsRateTrend">↗ 0% vs last month</em>
+            </div>
+            <div class="analytics-insight-card insight-purple">
+                <div class="insight-icon">🏷️</div>
+                <span>Top Category</span>
+                <strong id="highestCategoryInsight">$0.00</strong>
+                <em id="categoryTrend">↘ 0% vs last month</em>
+            </div>
+            <div class="analytics-insight-card insight-cyan">
+                <div class="insight-icon">✨</div>
+                <span>No-Spend Streak</span>
+                <strong id="noSpendStreakInsight">0 days</strong>
+                <em id="streakTrend">↗ Keep it going</em>
+            </div>
+            <div class="analytics-insight-card insight-pink">
+                <div class="insight-icon">🔮</div>
+                <span>Projected Balance</span>
+                <strong id="projectedBalanceInsight">$0.00</strong>
+                <em id="projectedBalanceTrend">↗ 0% vs last month</em>
+            </div>
+        </div>
+
+        <div class="analytics-grid">
+            <article class="analytics-card analytics-card-wide analytics-accent-blue">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3><span class="chart-title-icon">📈</span> Monthly Spending Trend</h3>
+                        <p>Expenses over time</p>
+                    </div>
+                    <div class="analytics-actions">
+                        <div class="segmented-control" role="group" aria-label="Spending trend range">
+                            <button type="button" class="active" data-period="weekly" onclick="setAnalyticsPeriod('weekly')">Weekly</button>
+                            <button type="button" data-period="monthly" onclick="setAnalyticsPeriod('monthly')">Monthly</button>
+                            <button type="button" data-period="yearly" onclick="setAnalyticsPeriod('yearly')">Yearly</button>
+                        </div>
+                    </div>
+                </div>
+                <canvas id="spendingTrendChart" class="analytics-canvas"></canvas>
+            </article>
+
+            <article class="analytics-card analytics-card-wide analytics-accent-green">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3><span class="chart-title-icon">⚖️</span> Income vs Expenses</h3>
+                        <p>Monthly comparison</p>
+                    </div>
+                </div>
+                <canvas id="incomeExpenseChart" class="analytics-canvas"></canvas>
+            </article>
+
+            <article class="analytics-card analytics-accent-purple">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3><span class="chart-title-icon">🍩</span> Spending by Category</h3>
+                        <p>Click a category to filter</p>
+                    </div>
+                </div>
+                <div class="donut-layout">
+                    <canvas id="pieChart" class="analytics-canvas"></canvas>
+                    <div id="pieLegend" class="analytics-legend"></div>
+                </div>
+            </article>
+
+            <article class="analytics-card analytics-accent-cyan">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3><span class="chart-title-icon">🌱</span> Savings Growth</h3>
+                        <p>Balance and goal progress</p>
+                    </div>
+                </div>
+                <canvas id="savingsGrowthChart" class="analytics-canvas"></canvas>
+            </article>
+
+            <article class="analytics-card analytics-card-wide analytics-accent-amber">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3><span class="chart-title-icon">💸</span> Cash Flow</h3>
+                        <p>Net income by month</p>
+                    </div>
+                </div>
+                <canvas id="cashFlowChart" class="analytics-canvas"></canvas>
+            </article>
+
+            <article class="analytics-card analytics-card-wide analytics-accent-pink">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3><span class="chart-title-icon">🏆</span> Top Spending Categories</h3>
+                        <p>Ranked from highest to lowest</p>
+                    </div>
+                </div>
+                <canvas id="topCategoriesChart" class="analytics-canvas"></canvas>
+            </article>
+        </div>
+        <div id="chartTooltip"></div>
+    </section>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -1434,6 +1659,51 @@ function toggleSection(sectionId, button) {
     }
 }
 
+function positionPopupInViewport(content, options = {}) {
+    if (!content) return;
+
+    const margin = options.margin ?? 18;
+    const verticalAnchor = options.verticalAnchor;
+
+    content.style.position = 'fixed';
+    content.style.visibility = 'hidden';
+    content.style.margin = '0';
+    content.style.display = 'block';
+    content.style.left = '50%';
+    content.style.transform = 'translateX(-50%)';
+    content.style.maxHeight = `calc(100dvh - ${margin * 2}px)`;
+
+    const contentRect = content.getBoundingClientRect();
+    const anchorRect = verticalAnchor?.getBoundingClientRect?.();
+    const preferredTop = anchorRect
+        ? anchorRect.top
+        : window.innerHeight * 0.12;
+    const maxTop = Math.max(margin, window.innerHeight - contentRect.height - margin);
+
+    content.style.top = `${Math.min(Math.max(margin, preferredTop), maxTop)}px`;
+    content.style.visibility = 'visible';
+}
+
+function trackPopupInViewport(key, content, options = {}) {
+    stopPopupViewportTracking(key);
+
+    const reposition = () => positionPopupInViewport(content, options);
+    window.addEventListener('scroll', reposition, { passive: true });
+    window.addEventListener('resize', reposition);
+
+    window.popupViewportHandlers = window.popupViewportHandlers || {};
+    window.popupViewportHandlers[key] = reposition;
+}
+
+function stopPopupViewportTracking(key) {
+    const handler = window.popupViewportHandlers?.[key];
+    if (!handler) return;
+
+    window.removeEventListener('scroll', handler);
+    window.removeEventListener('resize', handler);
+    delete window.popupViewportHandlers[key];
+}
+
 function openSavedJobsPanel(button) {
     const panel = document.getElementById('savedJobsPanel');
     const content = document.getElementById('savedJobsPanelContent');
@@ -1444,15 +1714,11 @@ function openSavedJobsPanel(button) {
     panel.style.visibility = 'visible';
     panel.style.opacity = '1';
     panel.style.pointerEvents = 'auto';
-    panel.style.justifyContent = 'center';
-    panel.style.alignItems = 'center';
+    panel.style.justifyContent = 'flex-start';
+    panel.style.alignItems = 'flex-start';
 
-    content.style.position = 'relative';
-    content.style.top = '';
-    content.style.left = '';
-    content.style.margin = '0';
-    content.style.visibility = 'visible';
-    content.style.display = 'block';
+    positionPopupInViewport(content, { verticalAnchor: button });
+    trackPopupInViewport('savedJobsPanel', content, { verticalAnchor: button });
 }
 
 function restoreSectionState(sectionId, buttonSelector) {
@@ -1477,6 +1743,127 @@ const supabaseClient = window.supabase?.createClient(
     SUPABASE_ANON_KEY
 );
 
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.animation = 'toastOut .18s ease forwards';
+        setTimeout(() => toast.remove(), 190);
+    }, 3200);
+}
+
+window.alert = (message) => showToast(String(message || ''), 'error');
+
+function setEmptyState(container, message) {
+    if (!container) return;
+    container.innerHTML = '';
+    const empty = document.createElement('p');
+    empty.className = 'empty-state';
+    empty.textContent = message;
+    container.appendChild(empty);
+}
+
+function showLoadingSkeleton(containerId, count = 3) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const hasOnlyEmptyState = container.children.length === 1 && container.firstElementChild?.classList.contains('empty-state');
+    if (container.children.length > 0 && !hasOnlyEmptyState) return;
+
+    container.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+        const skeleton = document.createElement('div');
+        skeleton.className = 'skeleton-card';
+        container.appendChild(skeleton);
+    }
+}
+
+function pulseElement(selector) {
+    const element = document.querySelector(selector);
+    if (!element) return;
+    element.classList.remove('polish-pulse');
+    void element.offsetWidth;
+    element.classList.add('polish-pulse');
+}
+
+function hideContextMenu() {
+    const menu = document.getElementById('contextMenu');
+    if (menu) menu.style.display = 'none';
+}
+
+function showContextMenu(event, actions) {
+    event.preventDefault();
+    hideContextMenu();
+
+    const menu = document.getElementById('contextMenu');
+    if (!menu) return;
+
+    menu.innerHTML = '';
+    actions.forEach(action => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = action.label;
+        button.onclick = () => {
+            hideContextMenu();
+            action.run();
+        };
+        menu.appendChild(button);
+    });
+
+    menu.style.display = 'block';
+    const rect = menu.getBoundingClientRect();
+    const left = Math.min(event.clientX, window.innerWidth - rect.width - 10);
+    const top = Math.min(event.clientY, window.innerHeight - rect.height - 10);
+    menu.style.left = `${Math.max(10, left)}px`;
+    menu.style.top = `${Math.max(10, top)}px`;
+}
+
+async function copyTextToClipboard(text, label = 'Copied') {
+    try {
+        await navigator.clipboard.writeText(String(text || ''));
+        showToast(label, 'success');
+    } catch (error) {
+        console.error('Copy failed:', error);
+        showToast('Copy failed.', 'error');
+    }
+}
+
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (event) => {
+        const active = document.activeElement;
+        const isTyping = active && ['INPUT', 'TEXTAREA', 'SELECT'].includes(active.tagName);
+
+        if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+            event.preventDefault();
+            addTransaction();
+            return;
+        }
+
+        if (event.metaKey || event.ctrlKey || event.altKey || isTyping) return;
+
+        const key = event.key.toLowerCase();
+        const targets = {
+            '/': 'transactionSearch',
+            t: 'description',
+            s: 'savingsAmount',
+            h: 'hoursInput'
+        };
+
+        if (targets[key]) {
+            event.preventDefault();
+            document.getElementById(targets[key])?.focus();
+        }
+    });
+}
+
+document.addEventListener('click', hideContextMenu);
+document.addEventListener('scroll', hideContextMenu, { passive: true });
+
 // Subscription calendar data & rendering
 let subscriptions = [];
 let calendarDate = new Date();
@@ -1495,13 +1882,15 @@ async function loadSubscriptions() {
         return;
     }
 
+    showLoadingSkeleton('subscriptionCalendar', 3);
+
     const { data, error } = await supabaseClient
         .from('subscriptions')
         .select('*')
         .order('day', { ascending: true });
 
     if (error) {
-        console.error(error);
+        console.error('Subscriptions load failed:', error);
         subscriptions = savedSubscriptions;
         renderSubscriptions();
         return;
@@ -1515,12 +1904,13 @@ async function loadSubscriptions() {
 
 async function addSubscription() {
     const editingId = document.getElementById('editingSubscriptionId')?.value || '';
+    const isEditing = Boolean(editingId);
     const name = document.getElementById('subName').value;
     const amount = Number(document.getElementById('subAmount').value);
     const selectedDate = document.getElementById('subDay').value;
 
     if (!name || amount <= 0 || !selectedDate) {
-        alert('Enter valid subscription information.');
+        showToast('Enter valid subscription information.', 'error');
         return;
     }
 
@@ -1535,7 +1925,8 @@ async function addSubscription() {
         const { error } = await query;
 
         if (error) {
-            alert(error.message);
+            console.error('Subscription save failed:', error);
+            showToast('Subscription failed to save: ' + error.message, 'error');
             return;
         }
 
@@ -1543,7 +1934,7 @@ async function addSubscription() {
         renderVisualCalendar();
     } else {
         if (editingId) {
-            subscriptions = subscriptions.map(sub => String(sub.id) === String(editingId) ? { ...sub, ...payload } : sub);
+            subscriptions = subscriptions.map(sub => sameId(sub.id, editingId) ? { ...sub, ...payload } : sub);
         } else {
             subscriptions.push({ id: createLocalId('sub'), ...payload });
         }
@@ -1553,6 +1944,8 @@ async function addSubscription() {
     }
 
     cancelSubscriptionEdit();
+    showToast(isEditing ? 'Subscription updated.' : 'Subscription added.', 'success');
+    if (!isEditing) pulseElement('#subscriptionsCard');
 }
 
 async function deleteSubscription(index) {
@@ -1566,7 +1959,8 @@ async function deleteSubscription(index) {
             .eq('id', sub.id);
 
         if (error) {
-            alert(error.message);
+            console.error('Subscription delete failed:', error);
+            showToast('Subscription failed to delete: ' + error.message, 'error');
             return;
         }
 
@@ -1695,8 +2089,8 @@ function renderVisualCalendar() {
 
         cell.innerHTML = `
             <div class="calendar-day-number">${day}</div>
-            ${matches.map(sub => `<div class="calendar-sub">${sub.name}</div>`).join('')}
-            ${paydays.map(job => `<div class="calendar-sub" style="background:#f3e8ff;color:#7c3aed;">💰 ${job.name}</div>`).join('')}
+            ${matches.map(sub => `<div class="calendar-sub">${escapeHTML(sub.name)}</div>`).join('')}
+            ${paydays.map(job => `<div class="calendar-sub" style="background:#f3e8ff;color:#7c3aed;">💰 ${escapeHTML(job.name)}</div>`).join('')}
             <div class="calendar-dot-row">
                 ${matches.map(() => '<span class="calendar-dot"></span>').join('')}
                 ${paydays.map(() => '<span class="calendar-dot payday"></span>').join('')}
@@ -1742,8 +2136,8 @@ function showCalendarDayDetails(year, month, day, remember = true) {
     const date = new Date(year, month, day);
     const events = getCalendarEventsForDay(year, month, day);
     const lines = [
-        ...events.subscriptions.map(sub => `<div class="mini-card"><strong>${sub.name}</strong><br>$${Number(sub.amount || 0).toFixed(2)} subscription</div>`),
-        ...events.paydays.map(job => `<div class="mini-card"><strong>${job.name}</strong><br>Payday</div>`)
+        ...events.subscriptions.map(sub => `<div class="mini-card"><strong>${escapeHTML(sub.name)}</strong><br>$${Number(sub.amount || 0).toFixed(2)} subscription</div>`),
+        ...events.paydays.map(job => `<div class="mini-card"><strong>${escapeHTML(job.name)}</strong><br>Payday</div>`)
     ];
 
     details.innerHTML = `
@@ -1760,6 +2154,10 @@ function renderSubscriptions() {
 
     container.innerHTML = '';
     let total = 0;
+
+    if (subscriptions.length === 0) {
+        setEmptyState(container, 'No subscriptions yet');
+    }
 
     subscriptions
         .sort((a, b) => a.day - b.day)
@@ -1782,7 +2180,7 @@ function renderSubscriptions() {
             item.innerHTML = `
                 <div class="subscription-meta">
                     <div>
-                        <strong>${sub.name}</strong><br>
+                        <strong>${escapeHTML(sub.name)}</strong><br>
                         $${sub.amount.toFixed(2)}/month
                     </div>
                     <div class="subscription-date">${sub.day}${sub.day === 1 ? 'st' : sub.day === 2 ? 'nd' : sub.day === 3 ? 'rd' : 'th'} of each month</div>
@@ -1806,6 +2204,11 @@ function renderSubscriptions() {
                     </button>
                 </div>
             `;
+
+            item.addEventListener('contextmenu', (event) => showContextMenu(event, [
+                { label: 'Edit', run: () => editSubscription(index) },
+                { label: 'Delete', run: () => deleteSubscription(index) }
+            ]));
 
             container.appendChild(item);
         });
@@ -1846,8 +2249,8 @@ function renderSubscriptions() {
     renderVisualCalendar();
 }
 
-let income = Number(localStorage.getItem('income')) || 0;
-let expenses = Number(localStorage.getItem('expenses')) || 0;
+let income = 0;
+let expenses = 0;
 let savedMoney = Number(localStorage.getItem('savedMoney')) || 0;
 let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
 // Savings activity is currently stored only in localStorage.
@@ -1864,10 +2267,19 @@ let chartSlices = [];
 let editTransactionScrollPosition = { x: 0, y: 0 };
 
 let lastSelectedJobId = localStorage.getItem('lastSelectedJobId') || null;
+localStorage.removeItem('income');
+localStorage.removeItem('expenses');
+localStorage.removeItem('balance');
 
 async function loadJobsFromSupabase() {
     if (!supabaseClient) return;
-    const { data } = await supabaseClient.from('jobs').select('*');
+    showLoadingSkeleton('savedJobsList', 2);
+    const { data, error } = await supabaseClient.from('jobs').select('*');
+    if (error) {
+        console.error('Jobs load failed:', error);
+        renderJobs();
+        return;
+    }
     if (data) {
         jobs = data;
         renderJobs();
@@ -1876,7 +2288,13 @@ async function loadJobsFromSupabase() {
 
 async function loadShiftsFromSupabase() {
     if (!supabaseClient) return;
-    const { data } = await supabaseClient.from('shifts').select('*').order('date', { ascending: false });
+    showLoadingSkeleton('shiftList', 3);
+    const { data, error } = await supabaseClient.from('shifts').select('*').order('date', { ascending: false });
+    if (error) {
+        console.error('Shifts load failed:', error);
+        renderShifts();
+        return;
+    }
     if (data) {
         shifts = data;
         renderShifts();
@@ -1884,8 +2302,6 @@ async function loadShiftsFromSupabase() {
 }
 
 function saveData() {
-    localStorage.setItem('income', income);
-    localStorage.setItem('expenses', expenses);
     localStorage.setItem('savedMoney', savedMoney);
     localStorage.setItem('transactions', JSON.stringify(transactions));
     localStorage.setItem('savingsTransactions', JSON.stringify(savingsTransactions));
@@ -1898,7 +2314,7 @@ async function addJob() {
     const payDate = document.getElementById('jobPayDate').value;
 
     if (!name || rate <= 0 || !payDate) {
-        alert('Enter a job name, hourly rate, and last paycheck date.');
+        showToast('Enter a job name, hourly rate, and last paycheck date.', 'error');
         return;
     }
     const jobData = {
@@ -1914,13 +2330,14 @@ async function addJob() {
             : supabaseClient.from('jobs').insert(jobData);
         const { error } = await query;
         if (error) {
-            alert(error.message);
+            console.error('Job save failed:', error);
+            showToast('Job failed to save: ' + error.message, 'error');
             return;
         }
         await loadJobsFromSupabase();
     } else {
         if (editingJobId) {
-            jobs = jobs.map(job => String(job.id) === String(editingJobId) ? { ...job, ...jobData } : job);
+            jobs = jobs.map(job => sameId(job.id, editingJobId) ? { ...job, ...jobData } : job);
         } else {
             jobs.push({ id: createLocalId('job'), ...jobData });
         }
@@ -1935,19 +2352,20 @@ async function deleteJob(jobId) {
     if (supabaseClient && /^\d+$/.test(String(jobId))) {
         const { error } = await supabaseClient.from('jobs').delete().eq('id', jobId);
         if (error) {
-            alert(error.message);
+            console.error('Job delete failed:', error);
+            showToast('Job failed to delete: ' + error.message, 'error');
             return;
         }
         await loadJobsFromSupabase();
         return;
     }
-    jobs = jobs.filter(job => job.id !== jobId);
+    jobs = jobs.filter(job => !sameId(job.id, jobId));
     saveData();
     renderJobs();
 }
 
 function editJob(jobId) {
-    const job = jobs.find(item => String(item.id) === String(jobId));
+    const job = jobs.find(item => sameId(item.id, jobId));
     if (!job) return;
 
     editingJobId = job.id;
@@ -1972,13 +2390,16 @@ function renderJobs() {
     const savedJobsList = document.getElementById('savedJobsList');
     if (savedJobsList) {
         savedJobsList.innerHTML = '';
+        if (jobs.length === 0) {
+            setEmptyState(savedJobsList, 'No jobs yet');
+        }
     }
 
     jobs.forEach(job => {
         const option = document.createElement('option');
         option.value = job.id;
         option.textContent = `${job.name} ($${job.rate}/hr)`;
-        if (String(job.id) === String(lastSelectedJobId)) {
+        if (sameId(job.id, lastSelectedJobId)) {
             option.selected = true;
         }
         select.appendChild(option);
@@ -1989,7 +2410,7 @@ function renderJobs() {
 
             row.innerHTML = `
 <div>
-    <div style="font-weight:600;">${job.name}</div>
+	    <div style="font-weight:600;">${escapeHTML(job.name)}</div>
     <div style="font-size:12px;color:#64748b;">$${job.rate}/hr • Pay cycle starts ${job.pay_date || 'unset'}</div>
 </div>
 <div class="row-actions">
@@ -2015,7 +2436,7 @@ function renderJobs() {
         }
     });
 
-    const selectedJob = jobs.find(j => j.id === lastSelectedJobId);
+    const selectedJob = jobs.find(j => sameId(j.id, lastSelectedJobId));
 
     if (selectedJob) {
         document.getElementById('hourlyRate').value = selectedJob.rate;
@@ -2028,7 +2449,7 @@ function updateRateFromJob() {
     lastSelectedJobId = selectedId;
     localStorage.setItem('lastSelectedJobId', selectedId);
 
-    const job = jobs.find(j => String(j.id) === String(selectedId));
+    const job = jobs.find(j => sameId(j.id, selectedId));
 
     if (job) {
         document.getElementById('hourlyRate').value = job.rate;
@@ -2039,14 +2460,15 @@ async function addShift() {
     const date = document.getElementById('shiftDate').value;
     const hours = Number(document.getElementById('hoursInput').value);
     const rate = Number(document.getElementById('hourlyRate').value);
+    const isEditing = Boolean(editingShiftId);
 
     if (!date || hours <= 0 || rate <= 0) {
-        alert('Enter valid shift information.');
+        showToast('Enter valid shift information.', 'error');
         return;
     }
 
     const selectedId = document.getElementById('jobSelect').value;
-    const selectedJob = jobs.find(j => String(j.id) === String(selectedId));
+    const selectedJob = jobs.find(j => sameId(j.id, selectedId));
     if (supabaseClient) {
         const shiftPayload = {
             date,
@@ -2061,7 +2483,8 @@ async function addShift() {
         const { error } = await query;
 
         if (error) {
-            alert(error.message);
+            console.error('Shift save failed:', error);
+            showToast('Shift failed to save: ' + error.message, 'error');
             return;
         }
 
@@ -2076,7 +2499,7 @@ async function addShift() {
             pay: hours * rate
         };
         if (editingShiftId) {
-            shifts = shifts.map(shift => String(shift.id) === String(editingShiftId) ? shiftPayload : shift);
+            shifts = shifts.map(shift => sameId(shift.id, editingShiftId) ? shiftPayload : shift);
         } else {
             shifts.unshift(shiftPayload);
         }
@@ -2090,30 +2513,34 @@ async function addShift() {
     lastSelectedJobId = currentJobId;
     localStorage.setItem('lastSelectedJobId', currentJobId);
 
-    const currentJob = jobs.find(j => String(j.id) === String(currentJobId));
+    const currentJob = jobs.find(j => sameId(j.id, currentJobId));
 
     if (currentJob) {
         document.getElementById('hourlyRate').value = currentJob.rate;
     }
+
+    showToast(isEditing ? 'Shift updated.' : 'Shift added.', 'success');
+    if (!isEditing) pulseElement('#hoursTrackerCard');
 }
 
 async function deleteShift(id) {
     if (supabaseClient && /^\d+$/.test(String(id))) {
         const { error } = await supabaseClient.from('shifts').delete().eq('id', id);
         if (error) {
-            alert(error.message);
+            console.error('Shift delete failed:', error);
+            showToast('Shift failed to delete: ' + error.message, 'error');
             return;
         }
         await loadShiftsFromSupabase();
         return;
     }
-    shifts = shifts.filter(shift => shift.id !== id);
+    shifts = shifts.filter(shift => !sameId(shift.id, id));
     saveData();
     renderShifts();
 }
 
 function editShift(id) {
-    const shift = shifts.find(item => String(item.id) === String(id));
+    const shift = shifts.find(item => sameId(item.id, id));
     if (!shift) return;
 
     editingShiftId = shift.id;
@@ -2234,7 +2661,7 @@ function renderShifts() {
 
         card.innerHTML = `
             <div class="transaction-card-content">
-                <strong>${shift.job || 'Job'}</strong>
+	                <strong>${escapeHTML(shift.job || 'Job')}</strong>
                 <span class="transaction-date">${new Date(shift.date + 'T12:00:00').toLocaleDateString()}</span>
                 <span class="transaction-meta">${shift.hours} hrs • $${shift.rate}/hr</span>
             </div>
@@ -2258,8 +2685,17 @@ function renderShifts() {
             </div>
         `;
 
+        card.addEventListener('contextmenu', (event) => showContextMenu(event, [
+            { label: 'Edit', run: () => editShift(shift.id) },
+            { label: 'Delete', run: () => deleteShift(shift.id) }
+        ]));
+
         list.appendChild(card);
     });
+
+    if (shifts.length === 0) {
+        setEmptyState(list, 'No shifts yet');
+    }
 
     document.getElementById('hoursWorked').textContent = totalHours.toFixed(1);
     document.getElementById('weekHours').textContent = weekHours.toFixed(1);
@@ -2277,7 +2713,7 @@ function renderShifts() {
             row.className = 'paycheck-row';
 
             row.innerHTML = `
-                <span>${jobName}<br><small>Gross $${data.amount.toFixed(2)} • Est. take-home $${data.takeHome.toFixed(2)}</small></span>
+                <span>${escapeHTML(jobName)}<br><small>Gross $${data.amount.toFixed(2)} • Est. take-home $${data.takeHome.toFixed(2)}</small></span>
                 <span><strong>${data.payDate.toLocaleDateString()}</strong><br><small>Cutoff ${data.cutoffDate.toLocaleDateString()}</small></span>
             `;
 
@@ -2317,14 +2753,22 @@ async function addSavings() {
     const amount = Number(document.getElementById('savingsAmount').value);
 
     if (!amount || amount <= 0) {
-        alert('Enter a valid savings amount.');
+        showToast('Enter a valid savings amount.', 'error');
         return;
     }
 
-    const availableBalance = income - expenses - savedMoney;
+    const currentIncome = transactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
-    if (amount > availableBalance) {
-        alert('You do not have enough available balance.');
+    const currentExpenses = transactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+    const spendableBalance = currentIncome - currentExpenses;
+
+    if (amount > spendableBalance) {
+        showToast(`Not enough balance. You currently have $${spendableBalance.toFixed(2)} available.`, 'error');
         return;
     }
 
@@ -2350,7 +2794,7 @@ async function addSavings() {
 
         if (error) {
             console.error('Savings activity insert failed:', error);
-            alert('Savings activity sync failed: ' + error.message);
+            showToast('Savings activity sync failed: ' + error.message, 'error');
             return;
         }
 
@@ -2360,35 +2804,45 @@ async function addSavings() {
     }
 
     savedMoney += amount;
-    if (!(await saveSavingsToSupabase())) return;
+    if (!(await saveSavingsToSupabase())) {
+        savedMoney -= amount;
+        savingsTransactions = savingsTransactions.filter(item => item !== transaction && item.created_at !== transaction.created_at);
+        renderSavingsTransactions();
+        updateDashboard({ animate: false });
+        return;
+    }
     document.getElementById('savingsAmount').value = '';
 
-    // Add to transaction history as expense
-    transactions.unshift({
+    const transferResult = await recordTransaction({
         id: createLocalId('tx'),
-        description: 'Transfer to Savings',
+        description: 'Moved to Savings',
         amount,
         type: 'expense',
-        category: 'Savings',
+        category: 'Savings Transfer',
         created_at: new Date().toISOString()
     });
+    if (transferResult.error) {
+        showToast('Savings was updated, but transaction history failed to sync: ' + transferResult.error.message, 'error');
+    }
 
     saveData();
-    updateDashboard();
     renderSavingsTransactions();
-    renderTransactions({ refreshFilters: true });
+    renderTransactions({ refreshFilters: true, animate: false });
+    updateDashboard({ animate: false });
+    showToast('Moved to savings.', 'success');
+    pulseElement('#savingsCard');
 }
 
 async function withdrawSavings() {
     const amount = Number(document.getElementById('savingsAmount').value);
 
     if (!amount || amount <= 0) {
-        alert('Enter a valid withdrawal amount.');
+        showToast('Enter a valid withdrawal amount.', 'error');
         return;
     }
 
     if (amount > savedMoney) {
-        alert('You do not have that much in savings.');
+        showToast('You do not have that much in savings.', 'error');
         return;
     }
 
@@ -2414,7 +2868,7 @@ async function withdrawSavings() {
 
         if (error) {
             console.error('Savings activity insert failed:', error);
-            alert('Savings activity sync failed: ' + error.message);
+            showToast('Savings activity sync failed: ' + error.message, 'error');
             return;
         }
 
@@ -2424,24 +2878,34 @@ async function withdrawSavings() {
     }
 
     savedMoney -= amount;
-    if (!(await saveSavingsToSupabase())) return;
+    if (!(await saveSavingsToSupabase())) {
+        savedMoney += amount;
+        savingsTransactions = savingsTransactions.filter(item => item !== transaction && item.created_at !== transaction.created_at);
+        renderSavingsTransactions();
+        updateDashboard({ animate: false });
+        return;
+    }
 
-    // Add to transaction history as income
-    transactions.unshift({
+    const transferResult = await recordTransaction({
         id: createLocalId('tx'),
-        description: 'Transfer from Savings',
+        description: 'Withdrawn from Savings',
         amount,
         type: 'income',
-        category: 'Savings',
+        category: 'Savings Transfer',
         created_at: new Date().toISOString()
     });
+    if (transferResult.error) {
+        showToast('Savings was updated, but transaction history failed to sync: ' + transferResult.error.message, 'error');
+    }
 
     document.getElementById('savingsAmount').value = '';
 
     saveData();
-    updateDashboard();
     renderSavingsTransactions();
-    renderTransactions({ refreshFilters: true });
+    renderTransactions({ refreshFilters: true, animate: false });
+    updateDashboard({ animate: false });
+    showToast('Withdrawn from savings.', 'success');
+    pulseElement('#savingsCard');
 }
 
 async function saveSavingsToSupabase() {
@@ -2456,7 +2920,7 @@ async function saveSavingsToSupabase() {
 
     if (error) {
         console.error('Savings sync failed:', error);
-        alert('Savings failed to sync. Check the browser console.');
+        showToast('Savings failed to sync. Check the browser console.', 'error');
         return false;
     }
 
@@ -2465,6 +2929,7 @@ async function saveSavingsToSupabase() {
 
 async function loadSavingsActivity() {
     if (!supabaseClient) return;
+    showLoadingSkeleton('savingsList', 3);
 
     const { data, error } = await supabaseClient
         .from('savings_activity')
@@ -2476,10 +2941,8 @@ async function loadSavingsActivity() {
         return;
     }
 
-    console.log('Loaded savings activity from Supabase:', data);
     if (data) {
         savingsTransactions = data;
-        console.log('Savings IDs:', savingsTransactions.map(t => t.id));
         await reconcileSavingsFromActivity();
         renderSavingsTransactions();
     }
@@ -2492,7 +2955,7 @@ function renderSavingsTransactions() {
     list.innerHTML = '';
 
     if (savingsTransactions.length === 0) {
-        list.innerHTML = '<p style="color:#64748b;margin:0;">No savings activity yet.</p>';
+        setEmptyState(list, 'No savings activity yet');
         return;
     }
 
@@ -2504,10 +2967,11 @@ function renderSavingsTransactions() {
             card.className = 'transaction-card savings-row';
             card.style.marginBottom = '8px';
             const amount = Number(t.amount || 0);
+            const savingsKey = t.id || index;
             card.innerHTML = `
                 <div class="transaction-card-content">
                     <div>
-                        <strong>${t.description}</strong><br>
+                        <strong>${escapeHTML(t.description)}</strong><br>
                         <span class="transaction-meta">${new Date(t.created_at).toLocaleDateString()}</span>
                     </div>
                     <span class="transaction-amount" style="color:${t.type === 'deposit' ? 'green' : '#ef4444'}">
@@ -2515,13 +2979,13 @@ function renderSavingsTransactions() {
                     </span>
                 </div>
                 <div class="row-actions">
-                    <button class="edit-btn" onclick="editSavingsTransaction(${index})" title="Edit savings activity">
+                    <button class="edit-btn" onclick="editSavingsTransaction('${savingsKey}')" title="Edit savings activity">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 20h9"></path>
                             <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
                         </svg>
                     </button>
-                    <button class="delete-btn" onclick="deleteSavingsTransaction(${index})" title="Delete savings activity">
+                    <button class="delete-btn" onclick="deleteSavingsTransaction('${savingsKey}')" title="Delete savings activity">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="3 6 5 6 21 6"></polyline>
                             <path d="M19 6l-1 14H6L5 6"></path>
@@ -2532,6 +2996,10 @@ function renderSavingsTransactions() {
                     </button>
                 </div>
             `;
+            card.addEventListener('contextmenu', (event) => showContextMenu(event, [
+                { label: 'Delete', run: () => deleteSavingsTransaction(savingsKey) },
+                { label: 'Copy description', run: () => copyTextToClipboard(t.description, 'Savings description copied.') }
+            ]));
             list.appendChild(card);
         });
 }
@@ -2539,6 +3007,28 @@ function renderSavingsTransactions() {
 function savingsDelta(transaction) {
     const amount = Number(transaction?.amount || 0);
     return transaction?.type === 'deposit' ? amount : -amount;
+}
+
+function getSavingsTransactionIndex(key) {
+    const indexById = savingsTransactions.findIndex(transaction => sameId(transaction.id, key));
+    if (indexById !== -1) return indexById;
+
+    const numericIndex = Number(key);
+    return Number.isInteger(numericIndex) && savingsTransactions[numericIndex]
+        ? numericIndex
+        : -1;
+}
+
+function savingsDeleteReversalTransaction(transaction) {
+    const isDeposit = transaction?.type === 'deposit';
+    return {
+        id: createLocalId('tx'),
+        description: isDeposit ? 'Deleted Savings Deposit Reversal' : 'Deleted Savings Withdrawal Reversal',
+        amount: Number(transaction?.amount || 0),
+        category: 'Savings Transfer',
+        type: isDeposit ? 'income' : 'expense',
+        created_at: new Date().toISOString()
+    };
 }
 
 async function reconcileSavingsFromActivity() {
@@ -2555,7 +3045,8 @@ async function reconcileSavingsFromActivity() {
     updateDashboard();
 }
 
-async function editSavingsTransaction(index) {
+async function editSavingsTransaction(key) {
+    const index = getSavingsTransactionIndex(key);
     const transaction = savingsTransactions[index];
     if (!transaction) return;
 
@@ -2570,7 +3061,8 @@ async function editSavingsTransaction(index) {
     if (supabaseClient) {
         const { error } = await updateSavingsActivityRemote(transaction, { amount: nextAmount });
         if (error) {
-            alert(error.message);
+            console.error('Savings activity update failed:', error);
+            showToast('Savings activity failed to update: ' + error.message, 'error');
             return;
         }
     }
@@ -2587,7 +3079,8 @@ async function editSavingsTransaction(index) {
     updateDashboard();
 }
 
-async function deleteSavingsTransaction(index) {
+async function deleteSavingsTransaction(key) {
+    const index = getSavingsTransactionIndex(key);
     const transaction = savingsTransactions[index];
     if (!transaction || !confirm('Delete this savings activity?')) return;
 
@@ -2597,7 +3090,8 @@ async function deleteSavingsTransaction(index) {
     if (supabaseClient) {
         const { error } = await deleteSavingsActivityRemote(transaction);
         if (error) {
-            alert(error.message);
+            console.error('Savings activity delete failed:', error);
+            showToast('Savings activity failed to delete: ' + error.message, 'error');
             return;
         }
     }
@@ -2608,9 +3102,18 @@ async function deleteSavingsTransaction(index) {
         return;
     }
 
+    const reversalTransaction = savingsDeleteReversalTransaction(transaction);
+    const reversalResult = await recordTransaction(reversalTransaction);
+    if (reversalResult.error) {
+        transactions.unshift(reversalTransaction);
+        syncTransactionTotals();
+        showToast('Savings activity was deleted, but transaction history failed to sync: ' + reversalResult.error.message, 'error');
+    }
+
     savingsTransactions.splice(index, 1);
     saveData();
     renderSavingsTransactions();
+    renderTransactions({ refreshFilters: true, animate: false });
     updateDashboard();
 }
 
@@ -2635,8 +3138,6 @@ async function updateSavingsActivityRemote(transaction, changes) {
 async function deleteSavingsActivityRemote(transaction) {
     if (!supabaseClient) return { error: null };
 
-    console.log("Attempting to delete:", transaction);
-
     // Try deleting by ID first.
     if (transaction.id) {
         const { data, error } = await supabaseClient
@@ -2644,12 +3145,6 @@ async function deleteSavingsActivityRemote(transaction) {
             .delete()
             .eq('id', transaction.id)
             .select();
-
-        console.log("Delete by ID:", {
-            id: transaction.id,
-            data,
-            error
-        });
 
         if (error) return { error };
 
@@ -2668,8 +3163,6 @@ async function deleteSavingsActivityRemote(transaction) {
         .eq('amount', Number(transaction.amount || 0))
         .select();
 
-    console.log("Fallback delete:", result);
-
     return result;
 }
 
@@ -2681,6 +3174,10 @@ async function loadSettings() {
         .select('*')
         .eq('id', 1)
         .single();
+
+    if (error && error.code !== 'PGRST116') {
+        console.error('Settings load failed:', error);
+    }
 
     if (!error && data) {
         document.getElementById('savingsGoal').value = data.savings_goal || '';
@@ -2703,8 +3200,8 @@ async function saveGoal() {
         });
 
     if (error) {
-        console.error(error);
-        alert('Savings goal failed to save: ' + error.message);
+        console.error('Savings goal save failed:', error);
+        showToast('Savings goal failed to save: ' + error.message, 'error');
         return;
     }
 
@@ -2713,6 +3210,7 @@ async function saveGoal() {
 
 async function loadFromSupabase() {
     if (!supabaseClient) return;
+    showLoadingSkeleton('transactionList', 4);
 
     const { data, error } = await supabaseClient
         .from('transactions')
@@ -2720,7 +3218,7 @@ async function loadFromSupabase() {
         .order('id', { ascending: false });
 
     if (error) {
-        console.error(error);
+        console.error('Transactions load failed:', error);
         return;
     }
 
@@ -2735,44 +3233,22 @@ async function loadFromSupabase() {
 
     syncTransactionTotals();
     saveData();
-    renderTransactions({ refreshFilters: true });
-    updateDashboard();
+    renderTransactions({ refreshFilters: true, animate: false });
+    updateDashboard({ animate: false });
 }
 
-function updateDashboard() {
-    // If filters are active, compute totals from filtered transactions for dashboard
-    const activeFilters = (document.getElementById('filterMonth')?.value || '') || (document.getElementById('filterYear')?.value || '') || (document.getElementById('filterType')?.value || '') || (document.getElementById('filterCategory')?.value || '');
-    let displayIncome = income;
-    if (activeFilters) {
-        const vis = getFilteredTransactions();
-        displayIncome = vis.filter(t=>t.type==='income').reduce((s,t)=>s+Number(t.amount||0),0);
-    }
-    animateValue('income', Number(document.getElementById('income').textContent || 0), displayIncome);
-    // Calculate monthly expenses
-    const now = new Date();
-    const sourceTx = (activeFilters ? getFilteredTransactions() : transactions);
-    const monthlyExpenses = sourceTx
-        .filter(t => {
-            if (t.type !== 'expense') return false;
+function updateDashboard(options = {}) {
+    const animate = options.animate !== false;
+    syncTransactionTotals();
+    updateAnalyticsFilterGlow();
+    const spendingExpenses = getSpendingExpenseTotal();
+    animateValue('income', Number(document.getElementById('income').textContent || 0), income, animate ? 600 : 0);
+    animateValue('expenses', Number(document.getElementById('expenses').textContent || 0), spendingExpenses, animate ? 600 : 0);
+    animateValue('savedMoney', Number(document.getElementById('savedMoney').textContent || 0), savedMoney, animate ? 600 : 0);
 
-            const date = t.created_at
-                ? new Date(t.created_at)
-                : now;
-
-            return (
-                date.getMonth() === now.getMonth() &&
-                date.getFullYear() === now.getFullYear()
-            );
-        })
-        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-
-    animateValue('expenses', Number(document.getElementById('expenses').textContent || 0), monthlyExpenses);
-    // savedMoney remains overall
-    animateValue('savedMoney', Number(document.getElementById('savedMoney').textContent || 0), savedMoney);
-
-    const balance = displayIncome - monthlyExpenses - savedMoney;
-    animateValue('balance', Number(document.getElementById('balance').textContent || 0), balance);
-    animateValue('savedAmount', Number(document.getElementById('savedAmount').textContent || 0), savedMoney);
+    const balance = income - expenses;
+    animateValue('balance', Number(document.getElementById('balance').textContent || 0), balance, animate ? 600 : 0);
+    animateValue('savedAmount', Number(document.getElementById('savedAmount').textContent || 0), savedMoney, animate ? 600 : 0);
 
     const goal = Number(document.getElementById('savingsGoal').value) || 0;
 
@@ -2783,7 +3259,7 @@ function updateDashboard() {
     }
 
     updateDashboardInsights();
-    drawChart();
+    drawChart({ animate });
 }
 
 function updateDashboardInsights() {
@@ -2799,10 +3275,10 @@ function updateDashboardInsights() {
     savingsRateEl.textContent = `${savingsRate.toFixed(0)}%`;
 
     const largestExpense = transactions
-        .filter(t => t.type === 'expense')
+        .filter(isSpendingExpense)
         .sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0];
     largestExpenseEl.textContent = largestExpense
-        ? `${largestExpense.category || 'Expense'} $${Number(largestExpense.amount || 0).toFixed(2)}`
+        ? `${largestExpense.description || 'Expense'} $${Number(largestExpense.amount || 0).toFixed(2)}`
         : '$0.00';
 
     const nextPaycheck = Object.values(latestPaycheckTotals || {})
@@ -2813,6 +3289,10 @@ function updateDashboardInsights() {
 function animateValue(elementId, start, end, duration = 600) {
     const el = document.getElementById(elementId);
     if (!el) return;
+    if (duration <= 0) {
+        el.textContent = Number(end).toFixed(2);
+        return;
+    }
     const startTime = performance.now();
     const initial = start;
     const diff = end - initial;
@@ -2831,6 +3311,10 @@ function debounce(fn, wait=150){let t; return (...args)=>{clearTimeout(t); t=set
 
 function createLocalId(prefix = 'local') {
     return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function sameId(a, b) {
+    return String(a || '') === String(b || '');
 }
 
 function toInputDate(date) {
@@ -2862,6 +3346,20 @@ function syncTransactionTotals() {
         .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 }
 
+function isSavingsTransfer(transaction) {
+    return transaction?.category === 'Savings Transfer';
+}
+
+function isSpendingExpense(transaction) {
+    return transaction?.type === 'expense' && !isSavingsTransfer(transaction);
+}
+
+function getSpendingExpenseTotal(source = transactions) {
+    return source
+        .filter(isSpendingExpense)
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+}
+
 function closeEditTransactionPanel() {
     const panel = document.getElementById('editTransactionPanel');
     const content = document.getElementById('editTransactionPanelContent');
@@ -2877,9 +3375,12 @@ function closeEditTransactionPanel() {
         content.style.position = '';
         content.style.top = '';
         content.style.left = '';
+        content.style.transform = '';
+        content.style.maxHeight = '';
         content.style.margin = '';
         content.style.visibility = '';
     }
+    stopPopupViewportTracking('editTransactionPanel');
     const saveButton = document.getElementById('saveTransactionEditButton');
     if (saveButton) {
         saveButton.disabled = false;
@@ -2894,19 +3395,27 @@ function closeEditTransactionPanel() {
         console.error('Error restoring body state:', e);
     }
 
-    requestAnimationFrame(() => {
-        window.scrollTo(editTransactionScrollPosition.x, editTransactionScrollPosition.y);
-    });
 }
 
 function closeSavedJobsPanel() {
     const panel = document.getElementById('savedJobsPanel');
+    const content = document.getElementById('savedJobsPanelContent');
     if (panel) {
         panel.style.display = 'none';
         panel.style.visibility = 'hidden';
         panel.style.opacity = '0';
         panel.style.pointerEvents = 'none';
     }
+    if (content) {
+        content.style.position = '';
+        content.style.top = '';
+        content.style.left = '';
+        content.style.transform = '';
+        content.style.maxHeight = '';
+        content.style.margin = '';
+        content.style.visibility = '';
+    }
+    stopPopupViewportTracking('savedJobsPanel');
     if (window.savedJobsScrollHandler) {
         window.removeEventListener('scroll', window.savedJobsScrollHandler);
         delete window.savedJobsScrollHandler;
@@ -2920,7 +3429,7 @@ function closeSavedJobsPanel() {
 }
 
 function openEditTransactionPanel(transactionId, triggerElement) {
-    const transaction = transactions.find((item) => String(item.id || '') === String(transactionId || ''));
+    const transaction = transactions.find((item) => sameId(item.id, transactionId));
     if (!transaction) return;
 
     const panel = document.getElementById('editTransactionPanel');
@@ -2947,27 +3456,11 @@ function openEditTransactionPanel(transactionId, triggerElement) {
     panel.style.alignItems = 'flex-start';
 
     if (content) {
-        content.style.position = 'fixed';
-        content.style.visibility = 'hidden';
-        content.style.margin = '0';
-        content.style.display = 'block';
-
-        const rect = triggerElement?.getBoundingClientRect();
-        const contentRect = content.getBoundingClientRect();
-        const margin = 18;
-        const fallbackTop = (window.innerHeight - contentRect.height) / 2;
-        const fallbackLeft = (window.innerWidth - contentRect.width) / 2;
-        const preferredTop = rect ? rect.top - 18 : fallbackTop;
-        const preferredLeft = rect ? rect.left - contentRect.width + rect.width : fallbackLeft;
-        const maxTop = Math.max(margin, window.innerHeight - contentRect.height - margin);
-        const maxLeft = Math.max(margin, window.innerWidth - contentRect.width - margin);
-
-        content.style.top = `${Math.min(Math.max(margin, preferredTop), maxTop)}px`;
-        content.style.left = `${Math.min(Math.max(margin, preferredLeft), maxLeft)}px`;
-        content.style.visibility = 'visible';
+        positionPopupInViewport(content, { verticalAnchor: triggerElement });
+        trackPopupInViewport('editTransactionPanel', content, { verticalAnchor: triggerElement });
     }
 
-    try { document.body.style.overflow = 'hidden'; document.body.classList.add('modal-open'); } catch (e) {}
+    try { document.body.classList.add('modal-open'); } catch (e) {}
     document.getElementById('editTransactionDescription')?.focus();
 }
 
@@ -2979,13 +3472,13 @@ async function saveTransactionEdit() {
     const type = document.getElementById('editTransactionType').value;
 
     if (!description || amount <= 0) {
-        alert('Please enter valid transaction information.');
+        showToast('Please enter valid transaction information.', 'error');
         return;
     }
 
-    const existingTransaction = transactions.find((item) => String(item.id || '') === String(transactionId || ''));
+    const existingTransaction = transactions.find((item) => sameId(item.id, transactionId));
     if (!existingTransaction) {
-        alert('Transaction not found.');
+        showToast('Transaction not found.', 'error');
         return;
     }
 
@@ -3009,14 +3502,15 @@ async function saveTransactionEdit() {
                 saveButton.disabled = false;
                 saveButton.textContent = 'Save Changes';
             }
-            alert(error.message);
+            console.error('Transaction update failed:', error);
+            showToast('Transaction failed to save: ' + error.message, 'error');
             return;
         }
 
         await loadFromSupabase();
         saveData();
-        renderTransactions();
-        updateDashboard();
+        renderTransactions({ animate: false });
+        updateDashboard({ animate: false });
         closeEditTransactionPanel();
         return;
     }
@@ -3031,11 +3525,11 @@ async function saveTransactionEdit() {
         created_at: existingTransaction.created_at || new Date().toISOString()
     };
 
-    transactions = transactions.map((item) => (String(item.id || '') === String(transactionId || '') ? updatedTransaction : item));
+    transactions = transactions.map((item) => (sameId(item.id, transactionId) ? updatedTransaction : item));
     syncTransactionTotals();
     saveData();
-    renderTransactions({ refreshFilters: true });
-    updateDashboard();
+    renderTransactions({ refreshFilters: true, animate: false });
+    updateDashboard({ animate: false });
     closeEditTransactionPanel();
 
     if (saveButton) {
@@ -3047,6 +3541,8 @@ async function saveTransactionEdit() {
 function renderTransactions(options = {}) {
     const list = document.getElementById('transactionList');
     if (!list) return;
+
+    const shouldAnimate = Boolean(options.animate);
 
     if (ensureTransactionIds()) {
         saveData();
@@ -3060,8 +3556,8 @@ function renderTransactions(options = {}) {
 
     if (visible.length === 0) {
         const empty = document.createElement('li');
-        empty.className = 'transaction-empty-state';
-        empty.textContent = 'No matching transactions';
+        empty.className = 'transaction-empty-state empty-state';
+        empty.textContent = 'No transactions found';
         list.appendChild(empty);
         return;
     }
@@ -3069,7 +3565,8 @@ function renderTransactions(options = {}) {
     visible.forEach((t, index) => {
         const item = document.createElement('li');
         item.className = 'transaction-card transaction-history-card';
-        item.style.animationDelay = `${Math.min(index * 25, 180)}ms`;
+        item.style.animation = shouldAnimate ? 'transactionFadeIn 0.32s ease both' : 'none';
+        item.style.animationDelay = shouldAnimate ? `${Math.min(index * 25, 180)}ms` : '';
 
         const transactionDate = t.created_at
             ? new Date(t.created_at).toLocaleDateString()
@@ -3079,11 +3576,11 @@ function renderTransactions(options = {}) {
         <div class="transaction-main">
             <div>
                 <div class="transaction-title-row">
-                    <strong>${t.description}</strong>
+                    <strong>${escapeHTML(t.description)}</strong>
                     <span class="transaction-type-pill ${t.type}">${t.type === 'income' ? 'Income' : 'Expense'}</span>
                 </div>
                 <div class="transaction-info-row">
-                    <span class="transaction-meta category-badge">${getCategoryLabel(t.category)}</span>
+                    <span class="transaction-meta category-badge">${escapeHTML(getCategoryLabel(t.category))}</span>
                     <span class="transaction-date">${transactionDate}</span>
                 </div>
             </div>
@@ -3111,7 +3608,13 @@ function renderTransactions(options = {}) {
             </svg>
         </button>
     </div>
-`;
+	`;
+
+        item.addEventListener('contextmenu', (event) => showContextMenu(event, [
+            { label: 'Edit', run: () => openEditTransactionPanel(t.id) },
+            { label: 'Delete', run: () => deleteTransaction(t.id) },
+            { label: 'Copy description', run: () => copyTextToClipboard(t.description, 'Transaction description copied.') }
+        ]));
 
         fragment.appendChild(item);
     });
@@ -3145,8 +3648,17 @@ function getFilteredTransactions(){
 const debouncedRenderTransactions = debounce(renderTransactions, 150);
 
 function handleTransactionFilterChange() {
-    renderTransactions();
-    updateDashboard();
+    updateAnalyticsFilterGlow();
+    renderTransactions({ animate: false });
+    updateDashboard({ animate: false });
+}
+
+function updateAnalyticsFilterGlow() {
+    const wrapper = document.getElementById('transactionFilters');
+    if (!wrapper) return;
+    const hasFilter = ['filterMonth', 'filterYear', 'filterType', 'filterCategory']
+        .some(id => document.getElementById(id)?.value);
+    wrapper.classList.toggle('has-active-filter', hasFilter);
 }
 
 function handleEditTransactionKeydown(event) {
@@ -3164,7 +3676,7 @@ function handleEditTransactionKeydown(event) {
 }
 
 async function deleteTransaction(transactionId, buttonElement) {
-    const t = transactions.find((item) => String(item.id || '') === String(transactionId || ''));
+    const t = transactions.find((item) => sameId(item.id, transactionId));
     if (!t) return;
 
     const card = buttonElement?.closest('.transaction-card');
@@ -3180,8 +3692,8 @@ async function deleteTransaction(transactionId, buttonElement) {
             .eq('id', t.id);
 
         if (error) {
-            console.error(error);
-            alert('Delete failed: ' + error.message);
+            console.error('Transaction delete failed:', error);
+            showToast('Delete failed: ' + error.message, 'error');
             return;
         }
 
@@ -3189,182 +3701,860 @@ async function deleteTransaction(transactionId, buttonElement) {
         return;
     }
 
-    transactions = transactions.filter((item) => String(item.id || '') !== String(transactionId || ''));
+    transactions = transactions.filter((item) => !sameId(item.id, transactionId));
     syncTransactionTotals();
     saveData();
-    renderTransactions();
-    updateDashboard();
+    renderTransactions({ animate: false });
+    updateDashboard({ animate: false });
+}
+
+async function recordTransaction(transaction) {
+    if (supabaseClient) {
+        const { error } = await supabaseClient
+            .from('transactions')
+            .insert({
+                description: transaction.description,
+                amount: transaction.amount,
+                type: transaction.type,
+                category: transaction.category,
+                created_at: transaction.created_at
+            });
+
+        if (error) {
+            console.error('Transaction insert failed:', error);
+            return { error };
+        }
+
+        await loadFromSupabase();
+        return { error: null };
+    }
+
+    transactions.unshift(transaction);
+    syncTransactionTotals();
+    saveData();
+    renderTransactions({ refreshFilters: true, animate: false });
+    updateDashboard({ animate: false });
+    return { error: null };
+}
+
+function savingsActivityMigrationTransaction(activity) {
+    const isDeposit = activity.type === 'deposit';
+    return {
+        id: createLocalId('tx'),
+        description: isDeposit ? 'Savings Deposit' : 'Savings Withdrawal',
+        amount: Number(activity.amount || 0),
+        type: isDeposit ? 'expense' : 'income',
+        category: 'Savings Transfer',
+        created_at: activity.created_at || new Date().toISOString()
+    };
+}
+
+function hasMatchingSavingsMigrationTransaction(transaction) {
+    return transactions.some(item =>
+        item.description === transaction.description &&
+        item.category === transaction.category &&
+        item.type === transaction.type &&
+        Number(item.amount || 0) === Number(transaction.amount || 0) &&
+        String(item.created_at || '') === String(transaction.created_at || '')
+    );
+}
+
+async function removeExistingSavingsBalanceTransaction() {
+    const lumpTransactions = transactions.filter(item => item.description === 'Existing Savings Balance');
+    if (lumpTransactions.length === 0) return true;
+
+    for (const transaction of lumpTransactions) {
+        if (supabaseClient && transaction.id && /^\d+$/.test(String(transaction.id))) {
+            const { error } = await supabaseClient
+                .from('transactions')
+                .delete()
+                .eq('id', transaction.id);
+
+            if (error) {
+                console.error('Existing savings balance cleanup failed:', error);
+                return false;
+            }
+        }
+    }
+
+    transactions = transactions.filter(item => item.description !== 'Existing Savings Balance');
+    saveData();
+    if (supabaseClient) await loadFromSupabase();
+    return true;
+}
+
+async function migrateSavingsActivityToTransactions() {
+    const migrationKey = 'savingsActivityMigratedToTransactions';
+
+    const removedLumpTransaction = await removeExistingSavingsBalanceTransaction();
+    if (!removedLumpTransaction) return;
+    localStorage.removeItem('existingSavingsMigratedToTransactions');
+
+    if (localStorage.getItem(migrationKey) === 'true') return;
+
+    for (const activity of savingsTransactions) {
+        const transaction = savingsActivityMigrationTransaction(activity);
+        if (transaction.amount <= 0 || hasMatchingSavingsMigrationTransaction(transaction)) continue;
+
+        const { error } = await recordTransaction(transaction);
+        if (error) {
+            console.error('Savings activity transaction migration failed:', error);
+            return;
+        }
+    }
+
+    localStorage.setItem(migrationKey, 'true');
+    saveData();
+    renderTransactions({ refreshFilters: true, animate: false });
+    updateDashboard({ animate: false });
 }
 
 async function addTransaction() {
-    const description = document.getElementById('description').value;
+    const description = document.getElementById('description').value.trim();
     const amount = Number(document.getElementById('amount').value);
     const type = document.getElementById('type').value;
     const category = document.getElementById('category').value;
 
     if (!description || amount <= 0) {
-        alert('Please enter valid information.');
+        showToast('Please enter valid information.', 'error');
         return;
     }
 
-    if (type === 'income') {
-        income += amount;
-    } else {
-        expenses += amount;
-    }
-
     const created_at = new Date().toISOString();
+    const { error } = await recordTransaction({
+        id: createLocalId('tx'),
+        description,
+        amount,
+        type,
+        category,
+        created_at
+    });
 
-    if (supabaseClient) {
-        const { error } = await supabaseClient
-            .from('transactions')
-            .insert({
-                description,
-                amount,
-                type,
-                category,
-                created_at
-            });
-
-        if (error) {
-            console.error(error);
-            alert(error.message);
-            return;
-        }
-
-        await loadFromSupabase();
-    } else {
-        transactions.unshift({ id: createLocalId('tx'), description, amount, type, category, created_at });
-        syncTransactionTotals();
-        saveData();
-        renderTransactions({ refreshFilters: true });
-        updateDashboard();
+    if (error) {
+        showToast('Transaction failed to save: ' + error.message, 'error');
+        return;
     }
 
     document.getElementById('description').value = '';
     document.getElementById('amount').value = '';
+    showToast('Transaction added.', 'success');
+    pulseElement('#transactionHistoryCard');
 }
 
-function drawChart() {
-    const pieCanvas = document.getElementById('pieChart');
-    const pieLegend = document.getElementById('pieLegend');
-    if (!pieCanvas) return;
-    if (pieLegend) pieLegend.innerHTML = '';
+const analyticsColors = {
+    blue: '#2563eb',
+    green: '#16a34a',
+    red: '#dc2626',
+    amber: '#f59e0b',
+    purple: '#7c3aed',
+    cyan: '#0891b2',
+    pink: '#db2777',
+    slate: '#475569',
+    grid: '#e2e8f0',
+    text: '#0f172a',
+    muted: '#64748b',
+    surface: '#ffffff'
+};
+const categoryPalette = ['#2563eb', '#16a34a', '#f59e0b', '#dc2626', '#7c3aed', '#0891b2', '#db2777', '#475569', '#0f766e', '#9333ea'];
+let analyticsPeriod = localStorage.getItem('analyticsPeriod') || 'monthly';
+let analyticsHoverTargets = {};
+let analyticsAnimationFrame = null;
 
-    const pieCtx = pieCanvas.getContext('2d');
-    const rect = pieCanvas.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
+function drawChart(options = {}) {
+    const animate = options.animate !== false;
+    updateAnalyticsInsights();
+    if (analyticsAnimationFrame) cancelAnimationFrame(analyticsAnimationFrame);
 
-    pieCanvas.width = rect.width * dpr;
-    pieCanvas.height = rect.height * dpr;
-    pieCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    pieCtx.clearRect(0, 0, rect.width, rect.height);
-
-    const categories = {};
-    const sourceTx = getFilteredTransactions();
-    sourceTx.forEach(t => {
-        if (t.type === 'expense') {
-            categories[t.category] = (categories[t.category] || 0) + Number(t.amount);
-        }
-    });
-
-    const values = Object.values(categories);
-    const labels = Object.keys(categories);
-
-    const totalExpenses = values.reduce((a, b) => a + b, 0);
-    chartSlices = [];
-
-    if (totalExpenses <= 0) {
-        pieCtx.font = '16px sans-serif';
-        pieCtx.fillStyle = '#6b7280';
-        pieCtx.textAlign = 'center';
-        pieCtx.fillText('Add expenses to generate chart', rect.width / 2, rect.height / 2);
+    if (!animate) {
+        renderAnalyticsCharts(1);
         return;
     }
 
-    let startAngle = -Math.PI / 2;
-    const colors = ['#2563eb', '#16a34a', '#f59e0b', '#ef4444', '#7c3aed', '#0891b2', '#db2777', '#475569'];
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const radius = Math.min(rect.width, rect.height) / 2 - 24;
+    const start = performance.now();
+    const duration = 750;
 
-    values.forEach((value, i) => {
-        const slice = (value / totalExpenses) * Math.PI * 2;
-        const color = colors[i % colors.length];
-        const endAngle = startAngle + slice;
+    function frame(now) {
+        const progress = easeOutCubic(Math.min(1, (now - start) / duration));
+        renderAnalyticsCharts(progress);
+        if (progress < 1) analyticsAnimationFrame = requestAnimationFrame(frame);
+    }
 
-        pieCtx.beginPath();
-        pieCtx.moveTo(centerX, centerY);
-        pieCtx.arc(centerX, centerY, radius, startAngle, endAngle);
-        pieCtx.closePath();
-        pieCtx.fillStyle = color;
-        pieCtx.fill();
-
-        const midAngle = startAngle + slice / 2;
-        const labelX = centerX + Math.cos(midAngle) * (radius * 0.65);
-        const labelY = centerY + Math.sin(midAngle) * (radius * 0.65);
-        const percent = (value / totalExpenses) * 100;
-
-        if (percent >= 6) {
-            pieCtx.fillStyle = '#fff';
-            pieCtx.font = 'bold 12px sans-serif';
-            pieCtx.textAlign = 'center';
-            pieCtx.textBaseline = 'middle';
-            pieCtx.fillText(`${labels[i]} ${percent.toFixed(0)}%`, labelX, labelY);
-        }
-
-        if (pieLegend) {
-            const row = document.createElement('div');
-            row.className = 'legend-row';
-            row.innerHTML = `<span class="legend-color" style="background:${color}"></span> ${labels[i]} — ${percent.toFixed(0)}% ($${value.toFixed(2)})`;
-            pieLegend.appendChild(row);
-        }
-
-        chartSlices.push({
-            label: labels[i],
-            value,
-            percent,
-            color,
-            startAngle,
-            endAngle,
-            centerX,
-            centerY,
-            radius
-        });
-
-        startAngle = endAngle;
-    });
-
-        // Simple visual kick-in animation class
-        try { pieCanvas.classList.add('chart-animate'); setTimeout(()=>pieCanvas.classList.remove('chart-animate'),500); } catch(e){}
+    analyticsAnimationFrame = requestAnimationFrame(frame);
 }
 
 function setupChartInteractions() {
+    document.querySelectorAll('.segmented-control [data-period]').forEach(button => {
+        button.classList.toggle('active', button.dataset.period === analyticsPeriod);
+    });
+
+    document.querySelectorAll('.analytics-canvas').forEach(canvas => {
+        if (canvas.dataset.bound === 'true') return;
+        canvas.dataset.bound = 'true';
+
+        canvas.addEventListener('mousemove', event => {
+            const target = getAnalyticsTargetAtEvent(canvas, event);
+            showAnalyticsTooltip(event, target);
+            canvas.style.cursor = target?.category ? 'pointer' : target ? 'default' : '';
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            const tooltip = document.getElementById('chartTooltip');
+            if (tooltip) tooltip.style.display = 'none';
+            canvas.style.cursor = '';
+        });
+
+        canvas.addEventListener('click', event => {
+            const target = getAnalyticsTargetAtEvent(canvas, event);
+            if (target?.category) filterTransactionsByAnalyticsCategory(target.category);
+        });
+    });
+
+    const section = document.querySelector('.analytics-section');
+    if (section && localStorage.getItem('analyticsTheme') === 'dark') {
+        section.classList.add('analytics-dark');
+    }
+}
+
+function renderAnalyticsCharts(progress = 1) {
+    analyticsHoverTargets = {};
+    drawSpendingTrendChart(progress);
+    drawIncomeExpenseChart(progress);
+    drawCategoryDonutChart(progress);
+    drawSavingsGrowthChart(progress);
+    drawCashFlowChart(progress);
+    drawTopCategoriesChart(progress);
+}
+
+function setAnalyticsPeriod(period) {
+    analyticsPeriod = period;
+    localStorage.setItem('analyticsPeriod', period);
+    document.querySelectorAll('.segmented-control [data-period]').forEach(button => {
+        button.classList.toggle('active', button.dataset.period === period);
+    });
+    drawChart();
+}
+
+function updateAnalyticsInsights() {
+    const tx = transactions.slice();
+    const now = new Date();
+    const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const monthTx = tx.filter(t => {
+        const date = getTransactionDate(t);
+        return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+    });
+    const lastMonthTx = tx.filter(t => {
+        const date = getTransactionDate(t);
+        return date.getMonth() === lastMonthDate.getMonth() && date.getFullYear() === lastMonthDate.getFullYear();
+    });
+    const monthExpenses = monthTx.filter(isSpendingExpense);
+    const lastMonthExpenses = lastMonthTx.filter(isSpendingExpense);
+    const allExpenses = tx.filter(isSpendingExpense);
+    const allIncome = tx.filter(t => t.type === 'income');
+    const monthIncomeTotal = monthTx.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const monthExpenseTotal = monthExpenses.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const lastMonthIncomeTotal = lastMonthTx.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const lastMonthExpenseTotal = lastMonthExpenses.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const totalIncome = allIncome.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const biggestExpense = monthExpenses.sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0];
+    const lastBiggestExpense = lastMonthExpenses.sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0];
+    const categories = aggregateByCategory(allExpenses);
+    const monthCategories = aggregateByCategory(monthExpenses);
+    const lastMonthCategories = aggregateByCategory(lastMonthExpenses);
+    const topCategory = categories[0];
+    const monthTopCategory = monthCategories[0];
+    const lastMonthTopCategory = lastMonthCategories[0];
+    const daysElapsed = now.getDate();
+    const avgDaily = daysElapsed > 0 ? monthExpenseTotal / daysElapsed : 0;
+    const lastMonthDays = new Date(lastMonthDate.getFullYear(), lastMonthDate.getMonth() + 1, 0).getDate();
+    const lastAvgDaily = lastMonthDays > 0 ? lastMonthExpenseTotal / lastMonthDays : 0;
+    const avgTransaction = tx.length ? tx.reduce((sum, t) => sum + Number(t.amount || 0), 0) / tx.length : 0;
+    const monthAvgTransaction = monthTx.length ? monthTx.reduce((sum, t) => sum + Number(t.amount || 0), 0) / monthTx.length : 0;
+    const lastMonthAvgTransaction = lastMonthTx.length ? lastMonthTx.reduce((sum, t) => sum + Number(t.amount || 0), 0) / lastMonthTx.length : 0;
+    const savingsRate = totalIncome > 0 ? Math.max(0, (savedMoney / totalIncome) * 100) : 0;
+    const monthSavingsRate = monthIncomeTotal > 0 ? Math.max(0, ((monthIncomeTotal - monthExpenseTotal) / monthIncomeTotal) * 100) : 0;
+    const lastMonthSavingsRate = lastMonthIncomeTotal > 0 ? Math.max(0, ((lastMonthIncomeTotal - lastMonthExpenseTotal) / lastMonthIncomeTotal) * 100) : 0;
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const projectedExpenses = avgDaily * daysInMonth;
+    const projectedBalance = monthIncomeTotal - projectedExpenses - savedMoney;
+    const lastProjectedBalance = lastMonthIncomeTotal - lastMonthExpenseTotal - savedMoney;
+
+    setText('biggestExpenseMonthInsight', biggestExpense ? `${biggestExpense.description || 'Expense'} ${formatMoney(Number(biggestExpense.amount || 0))}` : '$0.00');
+    animateInsightValue('averageDailySpendingInsight', avgDaily, formatMoney);
+    animateInsightValue('averageTransactionInsight', avgTransaction, formatMoney);
+    animateInsightValue('analyticsSavingsRateInsight', savingsRate, value => `${value.toFixed(0)}%`);
+    setText('highestCategoryInsight', topCategory ? `${topCategory.label} ${formatMoney(topCategory.value)}` : '$0.00');
+    animateInsightValue('noSpendStreakInsight', calculateNoSpendStreak(), value => `${value.toFixed(0)} days`);
+    animateInsightValue('projectedBalanceInsight', projectedBalance, formatMoney);
+
+    setTrendText('biggestExpenseTrend', Number(biggestExpense?.amount || 0), Number(lastBiggestExpense?.amount || 0), true);
+    setTrendText('dailySpendingTrend', avgDaily, lastAvgDaily, true);
+    setTrendText('transactionAverageTrend', monthAvgTransaction, lastMonthAvgTransaction, false);
+    setTrendText('savingsRateTrend', monthSavingsRate, lastMonthSavingsRate, false);
+    setTrendText('categoryTrend', Number(monthTopCategory?.value || 0), Number(lastMonthTopCategory?.value || 0), true);
+    setText('streakTrend', calculateNoSpendStreak() > 0 ? '↗ Keep it going' : '→ Start today');
+    setTrendText('projectedBalanceTrend', projectedBalance, lastProjectedBalance, false);
+}
+
+function drawSpendingTrendChart(progress) {
+    const canvas = document.getElementById('spendingTrendChart');
+    const chart = prepareChart(canvas);
+    if (!chart) return;
+    const points = getSpendingTrendData();
+    drawLineChart(chart, points, {
+        color: analyticsColors.blue,
+        fill: 'rgba(37, 99, 235, 0.12)',
+        formatter: formatMoney,
+        empty: 'Add expenses to see spending trends'
+    }, progress);
+}
+
+function drawIncomeExpenseChart(progress) {
+    const canvas = document.getElementById('incomeExpenseChart');
+    const chart = prepareChart(canvas);
+    if (!chart) return;
+    const rows = getMonthlyIncomeExpenseData();
+    drawGroupedBarChart(chart, rows, progress);
+}
+
+function drawCategoryDonutChart(progress) {
     const canvas = document.getElementById('pieChart');
-    const tooltip = document.getElementById('chartTooltip');
-    if (!canvas || !tooltip || canvas.dataset.bound === 'true') return;
+    const chart = prepareChart(canvas);
+    const legend = document.getElementById('pieLegend');
+    if (!chart) return;
+    if (legend) legend.innerHTML = '';
 
-    canvas.dataset.bound = 'true';
-    canvas.addEventListener('mousemove', event => {
-        const rect = canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        const slice = getChartSliceAtPoint(x, y);
+    const categories = aggregateByCategory(getAnalyticsTransactions().filter(isSpendingExpense));
+    const total = categories.reduce((sum, item) => sum + item.value, 0);
+    chartSlices = [];
+    analyticsHoverTargets[canvas.id] = [];
 
-        if (!slice) {
-            tooltip.style.display = 'none';
-            return;
+    if (total <= 0) {
+        drawEmptyChart(chart, 'Add expenses to generate category insights');
+        return;
+    }
+
+    const { ctx, width, height } = chart;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radius = Math.min(width, height) * 0.39;
+    const innerRadius = radius * 0.54;
+    let startAngle = -Math.PI / 2;
+
+    categories.forEach((item, index) => {
+        const color = categoryPalette[index % categoryPalette.length];
+        const slice = (item.value / total) * Math.PI * 2 * progress;
+        const endAngle = startAngle + slice;
+        const percent = (item.value / total) * 100;
+
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+        ctx.arc(centerX, centerY, innerRadius, endAngle, startAngle, true);
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        chartSlices.push({ label: item.label, value: item.value, percent, color, startAngle, endAngle, centerX, centerY, radius, innerRadius });
+        analyticsHoverTargets[canvas.id].push({ type: 'arc', category: item.label, label: item.label, value: item.value, percent, startAngle, endAngle, centerX, centerY, radius, innerRadius });
+        startAngle += (item.value / total) * Math.PI * 2;
+
+        if (legend) {
+            const row = document.createElement('button');
+            row.type = 'button';
+            row.className = 'legend-row analytics-legend-row';
+            row.onclick = () => filterTransactionsByAnalyticsCategory(item.label);
+            row.innerHTML = `<span class="legend-color" style="background:${color}"></span><span>${escapeHTML(item.label)}</span><strong>${percent.toFixed(0)}% ${formatMoney(item.value)}</strong>`;
+            legend.appendChild(row);
+        }
+    });
+
+    const dominantPercent = categories[0] ? (categories[0].value / total) * 100 : 0;
+    ctx.fillStyle = getThemeColor('--text', analyticsColors.text);
+    ctx.font = '900 36px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`${dominantPercent.toFixed(0)}%`, centerX, centerY - 16);
+    ctx.fillStyle = getThemeColor('--muted', analyticsColors.muted);
+    ctx.font = '800 12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+    ctx.fillText(categories[0]?.label || 'top category', centerX, centerY + 12);
+    ctx.fillText(formatMoney(total), centerX, centerY + 32);
+}
+
+function drawSavingsGrowthChart(progress) {
+    const canvas = document.getElementById('savingsGrowthChart');
+    const chart = prepareChart(canvas);
+    if (!chart) return;
+    const goal = Number(document.getElementById('savingsGoal')?.value || 0);
+    const data = getSavingsGrowthData();
+    const savingsData = data.length ? data : (goal > 0 ? [{ label: 'Now', value: 0 }] : []);
+    drawLineChart(chart, savingsData, {
+        color: analyticsColors.green,
+        fill: 'rgba(22, 163, 74, 0.12)',
+        formatter: formatMoney,
+        empty: 'Add savings activity to see growth',
+        goal
+    }, progress);
+}
+
+function drawCashFlowChart(progress) {
+    const canvas = document.getElementById('cashFlowChart');
+    const chart = prepareChart(canvas);
+    if (!chart) return;
+    const rows = getMonthlyIncomeExpenseData().map(row => ({ label: row.label, value: row.income - row.expense }));
+    drawCashFlowBars(chart, rows, progress);
+}
+
+function drawTopCategoriesChart(progress) {
+    const canvas = document.getElementById('topCategoriesChart');
+    const chart = prepareChart(canvas);
+    if (!chart) return;
+    const rows = aggregateByCategory(getAnalyticsTransactions().filter(isSpendingExpense)).slice(0, 8);
+    drawHorizontalBars(chart, rows, progress);
+}
+
+function prepareChart(canvas) {
+    if (!canvas) return null;
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const width = Math.max(320, rect.width || canvas.parentElement?.clientWidth || 640);
+    const height = Math.max(320, rect.height || 380);
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+    return { canvas, ctx, width, height, plot: { left: 68, right: 32, top: 34, bottom: 62 } };
+}
+
+function drawLineChart(chart, data, options, progress) {
+    const { ctx, width, height, plot, canvas } = chart;
+    analyticsHoverTargets[canvas.id] = [];
+    if (!data.length || (data.every(point => point.value <= 0) && !options.goal)) {
+        drawEmptyChart(chart, options.empty || 'No data yet');
+        return;
+    }
+
+    const values = data.map(point => point.value);
+    if (options.goal) values.push(options.goal);
+    const maxValue = Math.max(...values, 1) * 1.15;
+    drawGrid(chart, maxValue, options.formatter);
+
+    const plotWidth = width - plot.left - plot.right;
+    const plotHeight = height - plot.top - plot.bottom;
+    const points = data.map((point, index) => ({
+        ...point,
+        x: plot.left + (data.length === 1 ? plotWidth / 2 : (plotWidth / (data.length - 1)) * index),
+        y: plot.top + plotHeight - ((point.value * progress) / maxValue) * plotHeight
+    }));
+
+    if (options.goal) {
+        [0.25, 0.5, 0.75, 1].forEach(milestone => {
+            const milestoneValue = options.goal * milestone;
+            const milestoneY = plot.top + plotHeight - (Math.min(milestoneValue, maxValue) / maxValue) * plotHeight;
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.16)';
+            ctx.beginPath();
+            ctx.moveTo(plot.left, milestoneY);
+            ctx.lineTo(width - plot.right, milestoneY);
+            ctx.stroke();
+            ctx.fillStyle = analyticsColors.amber;
+            ctx.font = '700 10px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(`${Math.round(milestone * 100)}%`, width - plot.right - 28, milestoneY - 5);
+        });
+
+        const goalY = plot.top + plotHeight - (Math.min(options.goal, maxValue) / maxValue) * plotHeight;
+        ctx.setLineDash([6, 6]);
+        ctx.strokeStyle = analyticsColors.amber;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(plot.left, goalY);
+        ctx.lineTo(width - plot.right, goalY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = analyticsColors.amber;
+        ctx.font = '700 12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+        ctx.fillText(`Goal ${formatMoney(options.goal)}`, plot.left + 4, goalY - 8);
+    }
+
+    const fillGradient = ctx.createLinearGradient(0, plot.top, 0, height - plot.bottom);
+    fillGradient.addColorStop(0, options.fill);
+    fillGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+    ctx.beginPath();
+    traceSmoothLine(ctx, points);
+    ctx.lineTo(points[points.length - 1].x, height - plot.bottom);
+    ctx.lineTo(points[0].x, height - plot.bottom);
+    ctx.closePath();
+    ctx.fillStyle = fillGradient;
+    ctx.fill();
+
+    ctx.beginPath();
+    traceSmoothLine(ctx, points);
+    ctx.strokeStyle = options.color;
+    ctx.lineWidth = 4;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    points.forEach((point, index) => {
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = options.color;
+        ctx.fill();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.stroke();
+        analyticsHoverTargets[canvas.id].push({ type: 'point', x: point.x, y: point.y, label: point.label, value: point.value });
+
+        if (index % Math.ceil(points.length / 6) === 0 || index === points.length - 1) {
+            ctx.fillStyle = getThemeColor('--muted', analyticsColors.muted);
+            ctx.font = '700 11px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(point.label, point.x, height - 18);
         }
 
-        tooltip.style.display = 'block';
-        tooltip.style.left = `${event.clientX + 12}px`;
-        tooltip.style.top = `${event.clientY + 12}px`;
-        tooltip.innerHTML = `<strong>${slice.label}</strong><br>$${slice.value.toFixed(2)} • ${slice.percent.toFixed(1)}%`;
+        if (point.value > 0 && (index === points.length - 1 || data.length <= 6)) {
+            ctx.fillStyle = getThemeColor('--text', analyticsColors.text);
+            ctx.font = '800 11px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(formatMoney(point.value), point.x, Math.max(plot.top + 12, point.y - 12));
+        }
+    });
+}
+
+function drawGroupedBarChart(chart, rows, progress) {
+    const { ctx, width, height, plot, canvas } = chart;
+    analyticsHoverTargets[canvas.id] = [];
+    const maxValue = Math.max(...rows.flatMap(row => [row.income, row.expense]), 1) * 1.18;
+    drawGrid(chart, maxValue, formatMoney);
+    const plotWidth = width - plot.left - plot.right;
+    const plotHeight = height - plot.top - plot.bottom;
+    const groupWidth = plotWidth / rows.length;
+    const barWidth = Math.max(7, Math.min(22, groupWidth * 0.28));
+
+    rows.forEach((row, index) => {
+        const cx = plot.left + groupWidth * index + groupWidth / 2;
+        drawBar(ctx, canvas.id, cx - barWidth - 2, row.income, maxValue, plot, plotHeight, barWidth, analyticsColors.green, row.label, 'Income', progress);
+        drawBar(ctx, canvas.id, cx + 2, row.expense, maxValue, plot, plotHeight, barWidth, analyticsColors.red, row.label, 'Expenses', progress);
+        if (index % 2 === 0 || rows.length <= 8) drawXAxisLabel(ctx, row.label, cx, height);
     });
 
-    canvas.addEventListener('mouseleave', () => {
-        tooltip.style.display = 'none';
+    drawLegend(ctx, width, [{ label: 'Income', color: analyticsColors.green }, { label: 'Expenses', color: analyticsColors.red }]);
+}
+
+function drawCashFlowBars(chart, rows, progress) {
+    const { ctx, width, height, plot, canvas } = chart;
+    analyticsHoverTargets[canvas.id] = [];
+    const maxAbs = Math.max(...rows.map(row => Math.abs(row.value)), 1) * 1.25;
+    const plotWidth = width - plot.left - plot.right;
+    const plotHeight = height - plot.top - plot.bottom;
+    const zeroY = plot.top + plotHeight / 2;
+    drawGrid(chart, maxAbs, formatMoney, true);
+    ctx.strokeStyle = getThemeColor('--line', analyticsColors.grid);
+    ctx.beginPath();
+    ctx.moveTo(plot.left, zeroY);
+    ctx.lineTo(width - plot.right, zeroY);
+    ctx.stroke();
+
+    const groupWidth = plotWidth / rows.length;
+    const barWidth = Math.max(9, Math.min(28, groupWidth * 0.48));
+    rows.forEach((row, index) => {
+        const x = plot.left + groupWidth * index + (groupWidth - barWidth) / 2;
+        const barHeight = Math.abs(row.value) / maxAbs * (plotHeight / 2) * progress;
+        const y = row.value >= 0 ? zeroY - barHeight : zeroY;
+        ctx.fillStyle = row.value >= 0 ? analyticsColors.green : analyticsColors.red;
+        roundRect(ctx, x, y, barWidth, barHeight, 8);
+        ctx.fill();
+        if (Math.abs(row.value) > 0 && progress > 0.92) {
+            ctx.fillStyle = getThemeColor('--text', analyticsColors.text);
+            ctx.font = '800 11px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(formatCompactMoney(row.value), x + barWidth / 2, row.value >= 0 ? y - 8 : y + barHeight + 16);
+        }
+        analyticsHoverTargets[canvas.id].push({ type: 'rect', x, y, width: barWidth, height: barHeight, label: row.label, series: 'Net income', value: row.value });
+        if (index % 2 === 0 || rows.length <= 8) drawXAxisLabel(ctx, row.label, x + barWidth / 2, height);
     });
+}
+
+function drawHorizontalBars(chart, rows, progress) {
+    const { ctx, width, height, plot, canvas } = chart;
+    analyticsHoverTargets[canvas.id] = [];
+    if (!rows.length) {
+        drawEmptyChart(chart, 'Add expenses to rank categories');
+        return;
+    }
+    const maxValue = Math.max(...rows.map(row => row.value), 1);
+    const rowHeight = (height - plot.top - plot.bottom) / rows.length;
+    rows.forEach((row, index) => {
+        const y = plot.top + rowHeight * index + rowHeight * 0.22;
+        const barHeight = Math.max(16, rowHeight * 0.48);
+        const x = plot.left + 112;
+        const available = width - x - plot.right;
+        const barWidth = (row.value / maxValue) * available * progress;
+        const color = categoryPalette[index % categoryPalette.length];
+        ctx.fillStyle = getThemeColor('--text', analyticsColors.text);
+        ctx.font = '700 12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(row.label, x - 12, y + barHeight / 2 + 4);
+        ctx.fillStyle = 'rgba(148, 163, 184, 0.16)';
+        roundRect(ctx, x, y, available, barHeight, 9);
+        ctx.fill();
+        ctx.fillStyle = color;
+        roundRect(ctx, x, y, barWidth, barHeight, 9);
+        ctx.fill();
+        ctx.fillStyle = getThemeColor('--muted', analyticsColors.muted);
+        ctx.textAlign = 'left';
+        ctx.fillText(formatMoney(row.value), x + Math.min(barWidth + 8, available - 64), y + barHeight / 2 + 4);
+        analyticsHoverTargets[canvas.id].push({ type: 'rect', x, y, width: Math.max(barWidth, 8), height: barHeight, label: row.label, value: row.value, category: row.label });
+    });
+}
+
+function drawBar(ctx, canvasId, x, value, maxValue, plot, plotHeight, width, color, label, series, progress) {
+    const height = (value / maxValue) * plotHeight * progress;
+    const y = plot.top + plotHeight - height;
+    ctx.fillStyle = color;
+    roundRect(ctx, x, y, width, height, 7);
+    ctx.fill();
+    if (value > 0 && progress > 0.92) {
+        ctx.fillStyle = getThemeColor('--text', analyticsColors.text);
+        ctx.font = '800 10px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(formatCompactMoney(value), x + width / 2, Math.max(plot.top + 10, y - 7));
+    }
+    analyticsHoverTargets[canvasId].push({ type: 'rect', x, y, width, height, label, series, value });
+}
+
+function drawGrid(chart, maxValue, formatter, centered = false) {
+    const { ctx, width, height, plot } = chart;
+    const plotHeight = height - plot.top - plot.bottom;
+    ctx.strokeStyle = getThemeColor('--line', analyticsColors.grid);
+    ctx.fillStyle = getThemeColor('--muted', analyticsColors.muted);
+    ctx.font = '700 11px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.lineWidth = 1;
+
+    for (let i = 0; i <= 4; i++) {
+        const y = plot.top + (plotHeight / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(plot.left, y);
+        ctx.lineTo(width - plot.right, y);
+        ctx.stroke();
+        const value = centered ? maxValue - (maxValue / 2) * i : maxValue - (maxValue / 4) * i;
+        ctx.fillText(formatter ? formatter(value) : value.toFixed(0), plot.left - 8, y + 4);
+    }
+}
+
+function drawLegend(ctx, width, items) {
+    let x = width - 190;
+    items.forEach(item => {
+        ctx.fillStyle = item.color;
+        roundRect(ctx, x, 18, 10, 10, 5);
+        ctx.fill();
+        ctx.fillStyle = getThemeColor('--muted', analyticsColors.muted);
+        ctx.font = '700 12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(item.label, x + 16, 27);
+        x += 88;
+    });
+}
+
+function drawXAxisLabel(ctx, label, x, height) {
+    ctx.fillStyle = getThemeColor('--muted', analyticsColors.muted);
+    ctx.font = '700 11px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x, height - 18);
+}
+
+function traceSmoothLine(ctx, points) {
+    if (!points.length) return;
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+        const previous = points[i - 1];
+        const current = points[i];
+        const midX = (previous.x + current.x) / 2;
+        const midY = (previous.y + current.y) / 2;
+        ctx.quadraticCurveTo(previous.x, previous.y, midX, midY);
+        if (i === points.length - 1) {
+            ctx.quadraticCurveTo(current.x, current.y, current.x, current.y);
+        }
+    }
+}
+
+function drawEmptyChart(chart, message) {
+    const { ctx, width, height } = chart;
+    ctx.fillStyle = getThemeColor('--muted', analyticsColors.muted);
+    ctx.font = '700 15px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(message, width / 2, height / 2);
+}
+
+function getAnalyticsTransactions() {
+    return typeof getFilteredTransactions === 'function' ? getFilteredTransactions() : transactions.slice();
+}
+
+function getSpendingTrendData() {
+    const expensesOnly = getAnalyticsTransactions().filter(isSpendingExpense);
+    if (analyticsPeriod === 'weekly') return buildWeeklySeries(expensesOnly, 12, 'expense');
+    if (analyticsPeriod === 'yearly') return buildYearlySeries(expensesOnly, 5, 'expense');
+    return buildMonthlySeries(expensesOnly, 12, 'expense');
+}
+
+function getMonthlyIncomeExpenseData() {
+    const months = buildMonthKeys(12);
+    const source = getAnalyticsTransactions();
+    return months.map(item => {
+        const monthTx = source.filter(t => formatMonthKey(getTransactionDate(t)) === item.key);
+        return {
+            label: item.label,
+            income: monthTx.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount || 0), 0),
+            expense: monthTx.filter(isSpendingExpense).reduce((sum, t) => sum + Number(t.amount || 0), 0)
+        };
+    });
+}
+
+function getSavingsGrowthData() {
+    const sorted = savingsTransactions.slice().sort((a, b) => getTransactionDate(a) - getTransactionDate(b));
+    if (!sorted.length) {
+        return savedMoney > 0 ? [{ label: 'Now', value: savedMoney }] : [];
+    }
+    let running = 0;
+    return sorted.map(item => {
+        running += savingsDelta(item);
+        return {
+            label: getTransactionDate(item).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+            value: Math.max(0, running)
+        };
+    });
+}
+
+function buildMonthlySeries(source, count, type) {
+    return buildMonthKeys(count).map(item => ({
+        label: item.label,
+        value: source
+            .filter(t => (!type || t.type === type) && formatMonthKey(getTransactionDate(t)) === item.key)
+            .reduce((sum, t) => sum + Number(t.amount || 0), 0)
+    }));
+}
+
+function buildWeeklySeries(source, count, type) {
+    const weeks = [];
+    const today = new Date();
+    const start = new Date(today);
+    start.setDate(today.getDate() - ((today.getDay() + 6) % 7) - (count - 1) * 7);
+    start.setHours(0, 0, 0, 0);
+    for (let i = 0; i < count; i++) {
+        const weekStart = new Date(start);
+        weekStart.setDate(start.getDate() + i * 7);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 7);
+        weeks.push({
+            label: weekStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+            value: source
+                .filter(t => {
+                    const date = getTransactionDate(t);
+                    return (!type || t.type === type) && date >= weekStart && date < weekEnd;
+                })
+                .reduce((sum, t) => sum + Number(t.amount || 0), 0)
+        });
+    }
+    return weeks;
+}
+
+function buildYearlySeries(source, count, type) {
+    const year = new Date().getFullYear();
+    const years = [];
+    for (let y = year - count + 1; y <= year; y++) {
+        years.push({
+            label: String(y),
+            value: source
+                .filter(t => (!type || t.type === type) && getTransactionDate(t).getFullYear() === y)
+                .reduce((sum, t) => sum + Number(t.amount || 0), 0)
+        });
+    }
+    return years;
+}
+
+function buildMonthKeys(count) {
+    const now = new Date();
+    const months = [];
+    for (let i = count - 1; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        months.push({
+            key: formatMonthKey(d),
+            label: d.toLocaleDateString(undefined, { month: 'short' })
+        });
+    }
+    return months;
+}
+
+function aggregateByCategory(source) {
+    const categories = {};
+    source.forEach(t => {
+        const category = t.category || 'Other';
+        categories[category] = (categories[category] || 0) + Number(t.amount || 0);
+    });
+    return Object.keys(categories)
+        .map(label => ({ label, value: categories[label] }))
+        .sort((a, b) => b.value - a.value);
+}
+
+function calculateNoSpendStreak() {
+    const expenseDays = new Set(transactions
+        .filter(isSpendingExpense)
+        .map(t => getTransactionDate(t).toISOString().slice(0, 10)));
+    let streak = 0;
+    const day = new Date();
+    day.setHours(0, 0, 0, 0);
+    while (!expenseDays.has(day.toISOString().slice(0, 10))) {
+        streak++;
+        day.setDate(day.getDate() - 1);
+        if (streak > 365) break;
+    }
+    return streak;
+}
+
+function filterTransactionsByAnalyticsCategory(category) {
+    const catSelect = document.getElementById('filterCategory');
+    if (!catSelect) return;
+    populateTransactionFilters({ force: true });
+    catSelect.value = category;
+    renderTransactions({ animate: false });
+    updateDashboard({ animate: false });
+    document.getElementById('transactionList')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function getAnalyticsTargetAtEvent(canvas, event) {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    return (analyticsHoverTargets[canvas.id] || []).find(target => {
+        if (target.type === 'rect') return x >= target.x && x <= target.x + target.width && y >= target.y && y <= target.y + target.height;
+        if (target.type === 'point') return Math.hypot(x - target.x, y - target.y) <= 12;
+        if (target.type === 'arc') {
+            const dx = x - target.centerX;
+            const dy = y - target.centerY;
+            const distance = Math.hypot(dx, dy);
+            if (distance < target.innerRadius || distance > target.radius) return false;
+            let angle = Math.atan2(dy, dx);
+            if (angle < -Math.PI / 2) angle += Math.PI * 2;
+            return angle >= target.startAngle && angle <= target.endAngle;
+        }
+        return false;
+    });
+}
+
+function showAnalyticsTooltip(event, target) {
+    const tooltip = document.getElementById('chartTooltip');
+    if (!tooltip || !target) {
+        if (tooltip) tooltip.style.display = 'none';
+        return;
+    }
+    tooltip.style.display = 'block';
+    tooltip.style.left = `${event.clientX + 14}px`;
+    tooltip.style.top = `${event.clientY + 14}px`;
+    const label = target.series ? `${target.series} • ${target.label}` : target.label;
+    const percent = typeof target.percent === 'number' ? `<br>${target.percent.toFixed(1)}% of spending` : '';
+    tooltip.innerHTML = `<strong>${escapeHTML(label)}</strong><br>${formatMoney(target.value)}${percent}`;
 }
 
 function getChartSliceAtPoint(x, y) {
@@ -3372,12 +4562,105 @@ function getChartSliceAtPoint(x, y) {
         const dx = x - slice.centerX;
         const dy = y - slice.centerY;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance > slice.radius) return false;
-
+        if (distance < slice.innerRadius || distance > slice.radius) return false;
         let angle = Math.atan2(dy, dx);
         if (angle < -Math.PI / 2) angle += Math.PI * 2;
         return angle >= slice.startAngle && angle <= slice.endAngle;
     });
+}
+
+function getTransactionDate(transaction) {
+    const date = transaction?.created_at ? new Date(transaction.created_at) : new Date();
+    return Number.isNaN(date.getTime()) ? new Date() : date;
+}
+
+function formatMonthKey(date) {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function formatMoney(value) {
+    const amount = Number(value || 0);
+    return `${amount < 0 ? '-' : ''}$${Math.abs(amount).toFixed(2)}`;
+}
+
+function formatCompactMoney(value) {
+    const amount = Number(value || 0);
+    const sign = amount < 0 ? '-' : '';
+    const absolute = Math.abs(amount);
+    if (absolute >= 1000000) return `${sign}$${(absolute / 1000000).toFixed(1)}M`;
+    if (absolute >= 1000) return `${sign}$${(absolute / 1000).toFixed(1)}K`;
+    return `${sign}$${absolute.toFixed(0)}`;
+}
+
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = value;
+    el.classList.remove('value-pop');
+    void el.offsetWidth;
+    el.classList.add('value-pop');
+}
+
+function animateInsightValue(id, end, formatter) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const start = Number(el.dataset.numericValue || 0);
+    const next = Number(end || 0);
+    el.dataset.numericValue = String(next);
+    const startTime = performance.now();
+    const duration = 650;
+
+    function step(now) {
+        const progress = easeOutCubic(Math.min(1, (now - startTime) / duration));
+        const value = start + (next - start) * progress;
+        el.textContent = formatter(value);
+        if (progress < 1) requestAnimationFrame(step);
+        else {
+            el.classList.remove('value-pop');
+            void el.offsetWidth;
+            el.classList.add('value-pop');
+        }
+    }
+
+    requestAnimationFrame(step);
+}
+
+function setTrendText(id, current, previous, lowerIsBetter = false) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const change = calculatePercentChange(current, previous);
+    const improved = lowerIsBetter ? current <= previous : current >= previous;
+    const arrow = change === 0 ? '→' : improved ? '↗' : '↘';
+    el.textContent = `${arrow} ${Math.abs(change).toFixed(0)}% vs last month`;
+    el.classList.toggle('trend-positive', improved);
+    el.classList.toggle('trend-negative', !improved);
+}
+
+function calculatePercentChange(current, previous) {
+    if (!previous) return current ? 100 : 0;
+    return ((current - previous) / Math.abs(previous)) * 100;
+}
+
+function getThemeColor(name, fallback) {
+    const section = document.querySelector('.analytics-section');
+    return getComputedStyle(section || document.documentElement).getPropertyValue(name).trim()
+        || getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+        || fallback;
+}
+
+function roundRect(ctx, x, y, width, height, radius) {
+    const r = Math.min(radius, Math.abs(width) / 2, Math.abs(height) / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + width - r, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+    ctx.lineTo(x + width, y + height - r);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+    ctx.lineTo(x + r, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
 }
 
     // Redraw charts on resize but debounce
@@ -3452,18 +4735,21 @@ async function initializeApp() {
     await loadSettings();
     await loadSavingsActivity();
     await loadFromSupabase();
+    await migrateSavingsActivityToTransactions();
     await loadSubscriptions();
     await loadJobsFromSupabase();
     await loadShiftsFromSupabase();
 
     setTodayDate();
     renderJobs();
-    renderTransactions();
+    renderTransactions({ refreshFilters: true, animate: true });
     renderSavingsTransactions();
     renderShifts();
     renderVisualCalendar();
     setupChartInteractions();
-    updateDashboard();
+    setupKeyboardShortcuts();
+    updateDashboard({ animate: true });
+    showToast('Polish features loaded.', 'success');
 
     // populate filter selects
     populateTransactionFilters();
