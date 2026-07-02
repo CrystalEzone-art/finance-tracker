@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tyler's Finance Tracker</title>
     <meta name="theme-color" content="#22c55e">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2322c55e'/%3E%3Ctext x='32' y='43' text-anchor='middle' font-size='34' font-family='Arial,sans-serif' fill='white' font-weight='700'%3E$%3C/text%3E%3C/svg%3E">
 
     <style>
         body {
@@ -189,6 +190,32 @@
         .transaction-type-pill.expense {
             color: #b91c1c;
             background: #fee2e2;
+        }
+
+        .savings-transfer-in {
+            border-left: 5px solid #22c55e;
+        }
+
+        .savings-transfer-in .transaction-amount {
+            color: #16a34a;
+        }
+
+        .savings-transfer-in .transaction-type-pill {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .savings-transfer-out {
+            border-left: 5px solid #3b82f6;
+        }
+
+        .savings-transfer-out .transaction-amount {
+            color: #2563eb;
+        }
+
+        .savings-transfer-out .transaction-type-pill {
+            background: #dbeafe;
+            color: #1d4ed8;
         }
 
         .transaction-info-row {
@@ -1167,67 +1194,949 @@
         #contextMenu button:hover {
             background: #f1f5f9;
         }
+
+        .app-header {
+            position: relative;
+            display: grid;
+            justify-items: center;
+            gap: 8px;
+            margin-bottom: 30px;
+        }
+
+        .app-header h1 {
+            margin-bottom: 0;
+        }
+
+        .app-header p {
+            text-align: center;
+            color: #6e6e73;
+            font-size: 22px;
+            margin: -5px 0 0;
+        }
+
+        .settings-button {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: auto;
+            min-height: 46px;
+            margin: 0;
+            padding: 0 18px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,.28);
+            background: rgba(255,255,255,.82);
+            color: #0f172a;
+            box-shadow: 0 14px 34px rgba(15,23,42,.12);
+            font-weight: 900;
+            cursor: pointer;
+            backdrop-filter: blur(14px);
+        }
+
+        #settingsPanel {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            background: rgba(15,23,42,.34);
+            backdrop-filter: blur(14px);
+            z-index: 11000;
+            overflow: hidden;
+        }
+
+        .settings-content {
+            width: 1100px;
+            height: 700px;
+            display: grid;
+            grid-template-columns: 250px minmax(0, 1fr);
+            grid-template-rows: 70px 630px;
+            overflow: hidden;
+            background: rgba(255,255,255,.98);
+            border: 1px solid rgba(226,232,240,.9);
+            border-radius: 28px;
+            box-shadow: 0 34px 100px rgba(15,23,42,.28);
+        }
+
+        .settings-header {
+            position: relative;
+            grid-column: 1 / -1;
+            grid-row: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            height: 70px;
+            min-height: 70px;
+            padding: 0 72px 0 24px;
+            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg,#f8fafc,#eef4ff);
+        }
+
+        .settings-header h2 {
+            margin: 0;
+            color: #0f172a;
+            font-size: 28px;
+            letter-spacing: -0.6px;
+        }
+
+        .settings-header::after {
+            content: 'Manage profile, privacy, backups, categories, and budgets';
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 700;
+            margin-right: auto;
+            margin-left: 8px;
+        }
+
+        .settings-close {
+            position: absolute;
+            top: 15px;
+            right: 18px;
+            z-index: 10;
+
+            box-sizing: border-box;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 40px !important;
+            height: 40px !important;
+            min-width: 40px !important;
+            max-width: 40px !important;
+            min-height: 40px !important;
+            max-height: 40px !important;
+
+            aspect-ratio: 1 / 1;
+
+            margin: 0 !important;
+            padding: 0 !important;
+
+            border: 0;
+            border-radius: 12px;
+
+            background: #ef4444;
+            color: white;
+
+            font-size: 0;
+            line-height: 1;
+
+            cursor: pointer;
+
+            box-shadow: 0 10px 24px rgba(239,68,68,.30);
+        }
+
+        .settings-close::before {
+            content: "✕";
+            display: block;
+
+            width: 18px;
+            height: 18px;
+
+            font-size: 18px;
+            line-height: 18px;
+
+            text-align: center;
+            color: white;
+        }
+
+        .settings-close:hover {
+            background: #dc2626;
+            transform: scale(1.04);
+            box-shadow: 0 14px 30px rgba(220,38,38,.38);
+        }
+
+        .settings-tabs {
+            grid-column: 1;
+            grid-row: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 0;
+            height: 100%;
+            padding: 16px;
+            background: linear-gradient(180deg,#f8fafc,#eef4ff);
+            border-right: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        .settings-tab {
+            width: 100%;
+            min-height: 44px;
+            margin: 0;
+            padding: 0 14px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            border: 1px solid transparent;
+            border-radius: 16px;
+            background: transparent;
+            color: #334155;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: none;
+            text-align: left;
+        }
+
+        .settings-tab.active {
+            background: white;
+            border-color: #dbeafe;
+            color: #2563eb;
+            box-shadow: 0 12px 28px rgba(37,99,235,.12);
+        }
+
+        .settings-tab:hover {
+            background: rgba(255,255,255,.74);
+            transform: none;
+            box-shadow: 0 10px 24px rgba(15,23,42,.08);
+        }
+
+        .settings-page {
+            grid-column: 2;
+            grid-row: 2;
+            display: none;
+            min-height: 0;
+            height: 100%;
+            padding: 22px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: #ffffff;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .settings-page.active {
+            display: block;
+            animation: settingsPageIn .22s ease both;
+        }
+
+        .settings-page::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .settings-page::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+
+        .settings-page::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        @keyframes settingsPageIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .settings-page h3 {
+            margin: 0 0 6px;
+            color: #0f172a;
+            font-size: 28px;
+            letter-spacing: -0.4px;
+        }
+
+        .settings-page > p,
+        .settings-page .settings-subtitle {
+            color: #64748b;
+            margin: 0 0 18px;
+            line-height: 1.45;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .settings-field label,
+        .settings-toggle label {
+            display: block;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+
+        .settings-field {
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            background: linear-gradient(180deg,#ffffff,#f8fafc);
+            box-shadow: 0 10px 24px rgba(15,23,42,.05);
+        }
+
+        .settings-field input,
+        .settings-field select {
+            margin-top: 0;
+        }
+
+        .settings-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            background: linear-gradient(180deg,#ffffff,#f8fafc);
+            box-shadow: 0 10px 24px rgba(15,23,42,.05);
+        }
+
+        .settings-toggle label {
+            margin: 0;
+        }
+
+        .settings-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .settings-actions button {
+            width: auto;
+            min-height: 42px;
+            margin: 0;
+            padding: 0 14px;
+        }
+
+        .settings-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .settings-list-row,
+        .budget-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 12px;
+            align-items: center;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            background: linear-gradient(180deg,#ffffff,#f8fafc);
+            box-shadow: 0 10px 24px rgba(15,23,42,.05);
+        }
+
+        .settings-list-row strong,
+        .budget-row strong {
+            color: #0f172a;
+        }
+
+        .settings-list-row span,
+        .budget-row span {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .category-manager-section {
+            display: grid;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .category-manager-heading {
+            margin: 10px 0 0;
+            color: #0f172a;
+            font-size: 15px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+
+        .category-manager-card {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            gap: 12px;
+            align-items: center;
+            padding: 14px;
+            border: 1px solid #e5e7eb;
+            border-left: 5px solid var(--category-color, #64748b);
+            border-radius: 18px;
+            background: linear-gradient(180deg,#ffffff,#f8fafc);
+            box-shadow: 0 10px 24px rgba(15,23,42,.05);
+            animation: transactionFadeIn .24s ease both;
+        }
+
+        .category-manager-card[draggable="true"] {
+            cursor: grab;
+        }
+
+        .category-manager-icon {
+            display: grid;
+            place-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            background: color-mix(in srgb, var(--category-color, #64748b) 15%, white);
+            font-size: 22px;
+        }
+
+        .category-manager-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .category-manager-card.removing {
+            animation: categoryCardOut .18s ease forwards;
+        }
+
+        @keyframes categoryCardOut {
+            to {
+                opacity: 0;
+                transform: translateX(12px) scale(.98);
+            }
+        }
+
+        .category-manager-meta {
+            display: grid;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .category-manager-title {
+            color: #0f172a;
+            font-size: 15px;
+            font-weight: 900;
+        }
+
+        .category-manager-detail {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .category-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(15,23,42,.34);
+            backdrop-filter: blur(10px);
+            z-index: 12050;
+        }
+
+        .category-modal-content {
+            width: min(460px, 100%);
+            padding: 22px;
+            border: 1px solid #e5e7eb;
+            border-radius: 24px;
+            background: white;
+            box-shadow: 0 24px 70px rgba(15,23,42,.24);
+            animation: settingsPageIn .18s ease both;
+        }
+
+        .category-modal-content h3 {
+            margin: 0 0 14px;
+            color: #0f172a;
+        }
+
+        body.settings-card-compact .card,
+        body.settings-card-compact .form,
+        body.settings-card-compact .transactions,
+        body.settings-card-compact .analytics-card,
+        body.settings-card-compact .insight-card {
+            padding: 16px;
+        }
+
+        body.settings-card-large .card,
+        body.settings-card-large .form,
+        body.settings-card-large .transactions,
+        body.settings-card-large .analytics-card,
+        body.settings-card-large .insight-card {
+            padding: 28px;
+        }
+
+        body.settings-radius-soft .card,
+        body.settings-radius-soft .form,
+        body.settings-radius-soft .transactions,
+        body.settings-radius-soft .analytics-card,
+        body.settings-radius-soft .settings-content,
+        body.settings-radius-soft .settings-page {
+            border-radius: 14px;
+        }
+
+        body.settings-radius-extra .card,
+        body.settings-radius-extra .form,
+        body.settings-radius-extra .transactions,
+        body.settings-radius-extra .analytics-card {
+            border-radius: 28px;
+        }
+
+        body.settings-no-glass .settings-button,
+        body.settings-no-glass #settingsPanel,
+        body.settings-no-glass .settings-content {
+            backdrop-filter: none;
+        }
+
+        body.settings-reduced-motion *,
+        body.settings-reduced-motion *::before,
+        body.settings-reduced-motion *::after {
+            animation-duration: .001ms !important;
+            animation-iteration-count: 1 !important;
+            scroll-behavior: auto !important;
+            transition-duration: .001ms !important;
+        }
+
+        body.settings-animation-slow * {
+            transition-duration: .32s;
+        }
+
+        body.settings-animation-fast * {
+            transition-duration: .12s;
+        }
+
+        body.settings-theme-dark {
+            background: #0f172a;
+        }
+
+        body.settings-theme-dark .container,
+        body.settings-theme-dark .settings-page,
+        body.settings-theme-dark .settings-content {
+            color: #e5e7eb;
+        }
+
+        body.settings-theme-dark .card,
+        body.settings-theme-dark .form,
+        body.settings-theme-dark .transactions,
+        body.settings-theme-dark .analytics-card,
+        body.settings-theme-dark .settings-page {
+            background: #111827;
+            border-color: #334155;
+            color: #e5e7eb;
+        }
+
+        body.settings-theme-dark h1,
+        body.settings-theme-dark h2,
+        body.settings-theme-dark h3,
+        body.settings-theme-dark .settings-page h3 {
+            color: #f8fafc;
+        }
+
+        body.settings-accent-green .income-btn,
+        body.settings-accent-green .settings-tab.active {
+            background: #16a34a;
+            border-color: #16a34a;
+        }
+
+        body.settings-accent-purple .income-btn,
+        body.settings-accent-purple .settings-tab.active {
+            background: #7c3aed;
+            border-color: #7c3aed;
+        }
+
+        body.settings-accent-orange .income-btn,
+        body.settings-accent-orange .settings-tab.active {
+            background: #f97316;
+            border-color: #f97316;
+        }
+
+        body.settings-accent-pink .income-btn,
+        body.settings-accent-pink .settings-tab.active {
+            background: #db2777;
+            border-color: #db2777;
+        }
+
+        .budget-progress {
+            height: 11px;
+            margin: 10px 0 7px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: #e5e7eb;
+            box-shadow: inset 0 1px 2px rgba(15,23,42,.08);
+        }
+
+        .budget-progress-fill {
+            height: 100%;
+            width: 0;
+            border-radius: inherit;
+            background: linear-gradient(90deg,#2563eb,#60a5fa);
+            transition: width .25s ease;
+        }
+
+        .budget-row.over-budget .budget-progress-fill {
+            background: linear-gradient(90deg,#dc2626,#fb7185);
+        }
+
+        .budget-row.over-budget strong,
+        .budget-row.over-budget .budget-remaining {
+            color: #dc2626;
+        }
+
+        .hidden-balance {
+            filter: blur(7px);
+            user-select: none;
+        }
+
+        body.balances-hidden .stat-value,
+        body.balances-hidden .transaction-amount,
+        body.balances-hidden .insight-value,
+        body.balances-hidden #subscriptionTotal,
+        body.balances-hidden #nextPaycheckTotal,
+        body.balances-hidden #savedAmount,
+        body.balances-hidden #paycheckBreakdown,
+        body.balances-hidden #paydayCountdown {
+            filter: blur(7px);
+            user-select: none;
+        }
+
+        @media (max-width: 700px) {
+            .app-header {
+                justify-items: stretch;
+                padding-top: 52px;
+            }
+
+            .settings-button {
+                left: 0;
+                right: auto;
+            }
+
+            .app-header h1,
+            .app-header p {
+                text-align: left;
+            }
+
+            #settingsPanel {
+                padding: 12px;
+                align-items: flex-start;
+                overflow-y: auto;
+            }
+
+            .settings-content {
+                display: block;
+                width: 100%;
+                height: auto;
+                max-height: none;
+                padding: 0;
+                border-radius: 22px;
+            }
+
+            .settings-tabs {
+                display: flex;
+                flex-direction: row;
+                height: auto;
+                min-height: 0;
+                overflow-x: auto;
+                overflow-y: hidden;
+                padding: 12px;
+                border-right: none;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            .settings-tab {
+                width: auto;
+                flex: 0 0 auto;
+                white-space: nowrap;
+            }
+
+            .settings-header {
+                height: auto;
+                min-height: 64px;
+                padding: 16px 64px 16px 16px;
+            }
+
+            .settings-header h2 {
+                font-size: 24px;
+            }
+
+            .settings-header::after {
+                display: none;
+            }
+
+            .settings-page {
+                height: auto;
+                min-height: 0;
+                padding: 16px;
+            }
+
+            .settings-page h3 {
+                font-size: 23px;
+            }
+
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-actions button,
+            .settings-tab {
+                width: 100%;
+            }
+
+            .settings-list-row,
+            .budget-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .top-spending-list {
+            display: grid;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .top-category-row {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+        }
+
+        .top-category-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 999px;
+            flex-shrink: 0;
+            background: var(--category-color, #64748b);
+            box-shadow: 0 0 0 4px color-mix(in srgb, var(--category-color, #64748b) 16%, transparent);
+        }
+
+        .top-category-name {
+            min-width: 0;
+            color: var(--category-color, #0f172a);
+            font-weight: 900;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .top-category-amount {
+            color: var(--category-color, #334155);
+            font-weight: 950;
+            white-space: nowrap;
+        }
+
+        .top-category-track {
+            grid-column: 2 / -1;
+            width: 100%;
+            height: 10px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: rgba(148,163,184,.22);
+        }
+
+        .top-category-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: var(--category-color, #3b82f6);
+            box-shadow: 0 8px 16px color-mix(in srgb, var(--category-color, #3b82f6) 26%, transparent);
+        }
+
+        .top-category-row {
+            --category-color: #64748b;
+        }
+
+        .top-category-dot {
+            background: var(--category-color) !important;
+        }
+
+        .top-category-name {
+            color: var(--category-color) !important;
+        }
+
+        .top-category-amount {
+            color: var(--category-color) !important;
+        }
+
+        .top-category-fill {
+            background: var(--category-color) !important;
+        }
+
+        #pieLegend .legend-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            --category-color: #64748b;
+        }
+
+        #pieLegend .legend-main {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        #pieLegend .legend-color {
+            background: var(--category-color) !important;
+        }
+
+        #pieLegend .legend-name {
+            color: var(--category-color) !important;
+            font-weight: 900;
+        }
+
+        #pieLegend .legend-amount {
+            color: var(--category-color) !important;
+            font-weight: 950;
+        }
+
+        .top-category-row,
+        #pieLegend .legend-row {
+            --category-color: #64748b;
+        }
+
+        .top-category-dot,
+        .top-category-fill,
+        #pieLegend .legend-color {
+            background: var(--category-color) !important;
+        }
+
+        .top-category-name,
+        .top-category-amount,
+        #pieLegend .legend-name,
+        #pieLegend .legend-amount {
+            color: var(--category-color) !important;
+            -webkit-text-fill-color: var(--category-color) !important;
+        }
     </style>
-    <link rel="stylesheet" href="modern.css">
+    <link rel="stylesheet" href="modern-off.css">
     <script>
-        const categoryIcons = {
-            // Income
-            'Paycheck': '💼',
-            'Bonus': '🎉',
-            'Refund': '↩️',
-            'Gift': '🎁',
-            'Interest': '💰',
-            'Investment': '📈',
-            'Side Hustle': '🛠️',
-            'Selling Items': '📦',
-            'Cash': '💵',
-            'Other Income': '🔸',
-            // Food
-            'Food': '🍽️',
-            'Groceries': '🛒',
-            'Restaurants': '🍔',
-            'Fast Food': '🍟',
-            'Coffee': '☕',
-            // Transportation
-            'Gas': '⛽',
-            'Parking': '🅿️',
-            'Toll': '🛣️',
-            'Uber/Lyft': '🚕',
-            'Car Maintenance': '🔧',
-            // Housing
-            'Phone': '📱',
-            // Shopping
-            'Clothing': '👕',
-            'Electronics': '🔌',
-            'Amazon': '🛍️',
-            'Home Goods': '🧺',
-            'Gifts': '🎁',
-            // Entertainment
-            'Movies': '🎬',
-            'Games': '🎮',
-            'Music': '🎵',
-            'Streaming': '📺',
-            'Subscriptions': '🔁',
-            'Hobbies': '🎨',
-            // Health
-            'Doctor': '🩺',
-            'Dentist': '🦷',
-            'Pharmacy': '💊',
-            'Gym': '🏋️‍♂️',
-            // Education
-            'Books': '📚',
-            'School': '🏫',
-            // Financial
-            'Savings Transfer': '🏦',
-            // Misc
-            'Pets': '🐶',
-            'Other': '🔸'
-        };
+        function readStorageJSON(key, fallback) {
+            try {
+                const raw = localStorage.getItem(key);
+                if (raw === null || raw === '') return fallback;
+                const parsed = JSON.parse(raw);
+                return parsed ?? fallback;
+            } catch (error) {
+                console.warn(`Ignoring invalid saved data for ${key}:`, error);
+                return fallback;
+            }
+        }
+
+        const defaultCategories = [
+            ['Paycheck','💼','#16a34a','income'], ['Bonus','🎉','#16a34a','income'], ['Refund','↩️','#16a34a','income'],
+            ['Gift','🎁','#16a34a','income'], ['Interest','💰','#16a34a','income'], ['Investment','📈','#16a34a','income'],
+            ['Side Hustle','🛠️','#16a34a','income'], ['Selling Items','📦','#16a34a','income'], ['Cash','💵','#16a34a','income'],
+            ['Other Income','🔸','#16a34a','income'], ['Food','🍽️','#ef4444','expense'], ['Groceries','🛒','#ef4444','expense'],
+            ['Restaurants','🍔','#ef4444','expense'], ['Fast Food','🍟','#ef4444','expense'], ['Coffee','☕','#ef4444','expense'],
+            ['Gas','⛽','#f97316','expense'], ['Parking','🅿️','#f97316','expense'], ['Toll','🛣️','#f97316','expense'],
+            ['Uber/Lyft','🚕','#f97316','expense'], ['Car Maintenance','🔧','#f97316','expense'], ['Phone','📱','#3b82f6','expense'],
+            ['Clothing','👕','#a855f7','expense'], ['Electronics','🔌','#a855f7','expense'], ['Amazon','🛍️','#a855f7','expense'],
+            ['Home Goods','🧺','#a855f7','expense'], ['Gifts','🎁','#a855f7','expense'], ['Movies','🎬','#ec4899','expense'],
+            ['Games','🎮','#ec4899','expense'], ['Music','🎵','#ec4899','expense'], ['Streaming','📺','#ec4899','expense'],
+            ['Subscriptions','🔁','#ec4899','expense'], ['Hobbies','🎨','#ec4899','expense'], ['Doctor','🩺','#06b6d4','expense'],
+            ['Dentist','🦷','#06b6d4','expense'], ['Pharmacy','💊','#06b6d4','expense'], ['Gym','🏋️‍♂️','#06b6d4','expense'],
+            ['Books','📚','#64748b','expense'], ['School','🏫','#64748b','expense'], ['Savings Transfer','🏦','#3b82f6','transfer'],
+            ['Pets','🐶','#64748b','expense'], ['Other','🔸','#64748b','expense']
+        ].map(([name, icon, color, type], order) => ({ id: `cat-${order + 1}`, name, icon, color, type, order }));
+
+        function normalizeCategory(category, order = 0) {
+            const name = String(category?.name || '').trim();
+            if (!name) return null;
+            return {
+                id: category.id || `cat-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-') || Date.now()}`,
+                name,
+                icon: String(category.icon || '🔸').trim() || '🔸',
+                color: category.color || '#64748b',
+                type: ['income', 'expense', 'transfer'].includes(category.type) ? category.type : 'expense',
+                order: Number.isFinite(Number(category.order)) ? Number(category.order) : order
+            };
+        }
+
+        function mergeCategoryList(...lists) {
+            const map = new Map();
+            lists.flat().forEach((category, index) => {
+                const normalized = normalizeCategory(category, index);
+                if (!normalized) return;
+                const key = normalized.name.toLowerCase();
+                map.set(key, { ...(map.get(key) || {}), ...normalized });
+            });
+            return [...map.values()].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
+        }
+
+        function loadMasterCategories() {
+            let saved = [];
+            let custom = [];
+            let existingTransactions = [];
+            saved = readStorageJSON('categories', []);
+            custom = readStorageJSON('customCategories', []);
+            existingTransactions = readStorageJSON('transactions', []);
+            const customMapped = Array.isArray(custom) ? custom.map((category, index) => ({
+                ...category,
+                color: category.color || (category.type === 'income' ? '#16a34a' : '#ef4444'),
+                order: defaultCategories.length + index
+            })) : [];
+            const transactionMapped = Array.isArray(existingTransactions) ? existingTransactions
+                .filter(transaction => transaction.category)
+                .map((transaction, index) => ({
+                    name: transaction.category,
+                    icon: '🔸',
+                    color: transaction.category === 'Savings Transfer' ? '#3b82f6' : '#64748b',
+                    type: transaction.category === 'Savings Transfer' ? 'transfer' : (transaction.type === 'income' ? 'income' : 'expense'),
+                    order: defaultCategories.length + customMapped.length + index
+                })) : [];
+            const merged = mergeCategoryList(defaultCategories, saved, customMapped, transactionMapped);
+            localStorage.setItem('categories', JSON.stringify(merged));
+            return merged;
+        }
+
+        let categories = loadMasterCategories();
+        window.trackerCategories = categories;
 
         function getCategoryLabel(cat) {
             if (!cat) return '';
-            const icon = categoryIcons[cat] || '';
-            return icon ? `${icon} ${cat}` : cat;
+            const category = (window.trackerCategories || []).find(item => item.name === cat);
+            return category?.icon ? `${category.icon} ${cat}` : cat;
+        }
+
+        function getCategoryColor(cat, fallback = '#64748b') {
+            return (window.trackerCategories || []).find(item => item.name === cat)?.color || fallback;
+        }
+
+        function getCategoryChartColor(categoryName, index = 0) {
+            const categoryColorMap = {
+                'Other': '#64748b',
+                'Food': '#ef4444',
+                'Groceries': '#22c55e',
+                'Restaurants': '#f97316',
+                'Fast Food': '#fb7185',
+                'Coffee': '#92400e',
+                'Bills': '#0ea5e9',
+                'Gas': '#f59e0b',
+                'Parking': '#facc15',
+                'Toll': '#ca8a04',
+                'Uber/Lyft': '#fb923c',
+                'Car Maintenance': '#ea580c',
+                'Phone': '#2563eb',
+                'Clothing': '#8b5cf6',
+                'Electronics': '#6366f1',
+                'Amazon': '#a855f7',
+                'Home Goods': '#7c3aed',
+                'Gifts': '#ec4899',
+                'Movies': '#db2777',
+                'Games': '#14b8a6',
+                'Music': '#06b6d4',
+                'Streaming': '#0891b2',
+                'Subscriptions': '#be185d',
+                'Entertainment': '#d946ef',
+                'Hobbies': '#c026d3',
+                'Doctor': '#10b981',
+                'Dentist': '#2dd4bf',
+                'Pharmacy': '#059669',
+                'Gym': '#84cc16',
+                'Books': '#475569',
+                'School': '#334155',
+                'Savings Transfer': '#3b82f6',
+                'Pets': '#b45309'
+            };
+
+            const fallbackPalette = [
+                '#3b82f6', '#22c55e', '#f97316', '#a855f7', '#ec4899',
+                '#06b6d4', '#f59e0b', '#ef4444', '#14b8a6', '#64748b'
+            ];
+
+            return categoryColorMap[categoryName] || getCategoryColor(categoryName, fallbackPalette[index % fallbackPalette.length]);
         }
 
         function escapeHTML(value) {
@@ -1244,9 +2153,398 @@
 <body>
     <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
     <div id="contextMenu"></div>
+    <div id="settingsPanel" onclick="if (event.target === this) closeSettingsPanel()">
+        <div class="settings-content" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+            <div class="settings-header">
+                <h2 id="settingsTitle">Settings</h2>
+                <button type="button" class="settings-close" onclick="closeSettingsPanel()" aria-label="Close settings"></button>
+            </div>
+
+            <div class="settings-tabs" role="tablist">
+                <button type="button" class="settings-tab active" data-settings-tab="health" onclick="showSettingsPage('health')">Finance Health</button>
+                <button type="button" class="settings-tab" data-settings-tab="profile" onclick="showSettingsPage('profile')">Profile</button>
+                <button type="button" class="settings-tab" data-settings-tab="dashboard" onclick="showSettingsPage('dashboard')">Dashboard</button>
+                <button type="button" class="settings-tab" data-settings-tab="appearance" onclick="showSettingsPage('appearance')">Appearance</button>
+                <button type="button" class="settings-tab" data-settings-tab="security" onclick="showSettingsPage('security')">Security</button>
+                <button type="button" class="settings-tab" data-settings-tab="data" onclick="showSettingsPage('data')">Data & Backup</button>
+                <button type="button" class="settings-tab" data-settings-tab="preferences" onclick="showSettingsPage('preferences')">Preferences</button>
+                <button type="button" class="settings-tab" data-settings-tab="categories" onclick="showSettingsPage('categories')">Categories</button>
+                <button type="button" class="settings-tab" data-settings-tab="budgets" onclick="showSettingsPage('budgets')">Budgets</button>
+                <button type="button" class="settings-tab" data-settings-tab="about" onclick="showSettingsPage('about')">About</button>
+            </div>
+
+            <div id="settingsPageHealth" class="settings-page active">
+                <h3>Finance Health</h3>
+                <p class="settings-subtitle">Quick checks and repair tools for keeping your tracker data clean.</p>
+                <div class="settings-grid">
+                    <div class="settings-toggle">
+                        <div>
+                            <label>Calculated Balance</label>
+                            <strong id="healthCalculatedBalance">$0.00</strong>
+                        </div>
+                    </div>
+                    <div class="settings-toggle">
+                        <div>
+                            <label>Transactions</label>
+                            <strong id="healthTransactionCount">0</strong>
+                        </div>
+                    </div>
+                    <div class="settings-toggle">
+                        <div>
+                            <label>Savings Transfers</label>
+                            <strong id="healthSavingsTransferCount">0</strong>
+                        </div>
+                    </div>
+                    <div class="settings-toggle">
+                        <div>
+                            <label>Possible Issues</label>
+                            <strong id="healthPossibleIssues">0</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button type="button" class="secondary-btn" onclick="runDataHealthCheck()">Run Health Check</button>
+                    <button type="button" class="secondary-btn" onclick="repairSavingsDuplicatesFromSettings()">Repair Savings Duplicates</button>
+                    <button type="button" class="secondary-btn" onclick="refreshDashboardFromSettings()">Refresh UI</button>
+                    <button type="button" class="secondary-btn" onclick="exportBackup()">Export Backup</button>
+                </div>
+                <div id="settingsHealthResults" class="empty-state" style="margin-top:16px;text-align:left;">Run Health Check to scan for issues.</div>
+            </div>
+
+            <div id="settingsPageProfile" class="settings-page">
+                <div class="settings-grid">
+                    <div class="settings-field">
+                        <label for="settingsDisplayName">Display name</label>
+                        <input type="text" id="settingsDisplayName" placeholder="Your name">
+                    </div>
+                    <div class="settings-field">
+                        <label for="settingsEmail">Email</label>
+                        <input type="email" id="settingsEmail" placeholder="you@example.com">
+                    </div>
+                    <div class="settings-field">
+                        <label for="settingsCurrency">Currency</label>
+                        <select id="settingsCurrency">
+                            <option value="USD">USD - US Dollar</option>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="GBP">GBP - British Pound</option>
+                            <option value="CAD">CAD - Canadian Dollar</option>
+                            <option value="AUD">AUD - Australian Dollar</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button type="button" class="income-btn" onclick="saveProfileSettings()">Save Profile</button>
+                </div>
+            </div>
+
+            <div id="settingsPageDashboard" class="settings-page">
+                <h3>Dashboard</h3>
+                <p class="settings-subtitle">Choose which dashboard sections are visible and how roomy the cards feel.</p>
+                <div class="settings-grid">
+                    <div class="settings-toggle">
+                        <label for="settingsShowSavings">Show Savings Vault</label>
+                        <input type="checkbox" id="settingsShowSavings">
+                    </div>
+                    <div class="settings-toggle">
+                        <label for="settingsShowTransactions">Show Transaction History</label>
+                        <input type="checkbox" id="settingsShowTransactions">
+                    </div>
+                    <div class="settings-toggle">
+                        <label for="settingsShowHours">Show Hours Tracker</label>
+                        <input type="checkbox" id="settingsShowHours">
+                    </div>
+                    <div class="settings-toggle">
+                        <label for="settingsShowSubscriptions">Show Subscriptions</label>
+                        <input type="checkbox" id="settingsShowSubscriptions">
+                    </div>
+                    <div class="settings-toggle">
+                        <label for="settingsShowCalendar">Show Calendar</label>
+                        <input type="checkbox" id="settingsShowCalendar">
+                    </div>
+                    <div class="settings-toggle">
+                        <label for="settingsShowAnalytics">Show Analytics</label>
+                        <input type="checkbox" id="settingsShowAnalytics">
+                    </div>
+                    <div class="settings-field">
+                        <label for="settingsCardSize">Card Size</label>
+                        <select id="settingsCardSize">
+                            <option value="compact">Compact</option>
+                            <option value="comfortable">Comfortable</option>
+                            <option value="large">Large</option>
+                        </select>
+                    </div>
+                    <div class="settings-field">
+                        <label for="settingsDashboardDefaultPage">Default Page</label>
+                        <select id="settingsDashboardDefaultPage">
+                            <option value="dashboard">Dashboard</option>
+                            <option value="transactions">Transactions</option>
+                            <option value="savings">Savings</option>
+                            <option value="hours">Hours</option>
+                            <option value="subscriptions">Subscriptions</option>
+                            <option value="calendar">Calendar</option>
+                            <option value="analytics">Analytics</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button type="button" class="income-btn" onclick="saveDashboardSettings()">Save Dashboard</button>
+                    <button type="button" class="secondary-btn" onclick="resetDashboardSettings()">Reset Dashboard</button>
+                </div>
+            </div>
+
+            <div id="settingsPageAppearance" class="settings-page">
+                <h3>Appearance</h3>
+                <p class="settings-subtitle">Tune the look and motion of the tracker.</p>
+                <div class="settings-grid">
+                    <div class="settings-field">
+                        <label for="settingsTheme">Theme</label>
+                        <select id="settingsTheme">
+                            <option value="light">Light</option>
+                            <option value="auto">Auto</option>
+                            <option value="dark">Dark</option>
+                        </select>
+                    </div>
+                    <div class="settings-field">
+                        <label for="settingsAccentColor">Accent Color</label>
+                        <select id="settingsAccentColor">
+                            <option value="blue">Blue</option>
+                            <option value="green">Green</option>
+                            <option value="purple">Purple</option>
+                            <option value="orange">Orange</option>
+                            <option value="pink">Pink</option>
+                        </select>
+                    </div>
+                    <div class="settings-field">
+                        <label for="settingsCornerRadius">Corner Radius</label>
+                        <select id="settingsCornerRadius">
+                            <option value="soft">Soft</option>
+                            <option value="rounded">Rounded</option>
+                            <option value="extra">Extra Rounded</option>
+                        </select>
+                    </div>
+                    <div class="settings-field">
+                        <label for="settingsAnimationSpeed">Animation Speed</label>
+                        <select id="settingsAnimationSpeed">
+                            <option value="slow">Slow</option>
+                            <option value="normal">Normal</option>
+                            <option value="fast">Fast</option>
+                        </select>
+                    </div>
+                    <div class="settings-toggle">
+                        <label for="settingsGlassEffect">Glass Effect</label>
+                        <input type="checkbox" id="settingsGlassEffect">
+                    </div>
+                    <div class="settings-toggle">
+                        <label for="settingsReducedMotion">Reduced Motion</label>
+                        <input type="checkbox" id="settingsReducedMotion">
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button type="button" class="income-btn" onclick="saveAppearanceSettings()">Save Appearance</button>
+                    <button type="button" class="secondary-btn" onclick="resetAppearanceSettings()">Reset Appearance</button>
+                </div>
+            </div>
+
+            <div id="settingsPageSecurity" class="settings-page">
+                <div class="settings-grid">
+                    <div class="settings-toggle">
+                        <label for="settingsPinLock">PIN lock</label>
+                        <input type="checkbox" id="settingsPinLock">
+                    </div>
+                    <div class="settings-toggle">
+                        <label for="settingsHideBalances">Hide balances</label>
+                        <input type="checkbox" id="settingsHideBalances">
+                    </div>
+                    <div class="settings-field">
+                        <label for="settingsPin">Change PIN</label>
+                        <input type="password" id="settingsPin" inputmode="numeric" placeholder="New PIN">
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button type="button" class="income-btn" onclick="saveSecuritySettings()">Save Security</button>
+                </div>
+            </div>
+
+            <div id="settingsPageData" class="settings-page">
+                <input type="file" id="backupImportInput" accept="application/json,.json" style="display:none" onchange="importBackupFile(event)">
+                <div class="settings-actions">
+                    <button type="button" class="income-btn" onclick="exportBackup()">Export Backup</button>
+                    <button type="button" class="secondary-btn" onclick="document.getElementById('backupImportInput').click()">Import Backup</button>
+                    <button type="button" class="secondary-btn" onclick="runSettingsBalanceRepair()">Repair Balance</button>
+                    <button type="button" class="expense-btn" onclick="clearLocalData()">Clear Local Data</button>
+                </div>
+            </div>
+
+            <div id="settingsPagePreferences" class="settings-page">
+                <div class="settings-grid">
+                    <div class="settings-field">
+                        <label for="settingsDefaultType">Default transaction type</label>
+                        <select id="settingsDefaultType">
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    <div class="settings-field">
+                        <label for="settingsDefaultCategory">Default category</label>
+                        <select id="settingsDefaultCategory"></select>
+                    </div>
+                    <div class="settings-field">
+                        <label for="settingsStartingPage">Starting page</label>
+                        <select id="settingsStartingPage">
+                            <option value="dashboard">Dashboard</option>
+                            <option value="transactions">Transactions</option>
+                            <option value="savings">Savings</option>
+                            <option value="hours">Hours</option>
+                            <option value="subscriptions">Subscriptions</option>
+                            <option value="calendar">Calendar</option>
+                            <option value="analytics">Analytics</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button type="button" class="income-btn" onclick="savePreferenceSettings()">Save Preferences</button>
+                </div>
+            </div>
+
+            <div id="settingsPageCategories" class="settings-page">
+                <h3>Categories Manager</h3>
+                <p class="settings-subtitle">Manage every income, expense, and transfer category from one list.</p>
+                <div class="settings-grid">
+                    <div class="settings-field">
+                        <label for="categoryManagerSearch">Search categories</label>
+                        <input type="text" id="categoryManagerSearch" placeholder="Search categories" oninput="renderCategoriesManager()">
+                    </div>
+                    <div class="settings-field">
+                        <label for="categoryManagerName">Name</label>
+                        <input type="text" id="categoryManagerName" placeholder="Category name">
+                    </div>
+                    <div class="settings-field">
+                        <label for="categoryManagerIcon">Icon</label>
+                        <input type="text" id="categoryManagerIcon" maxlength="4" placeholder="✨">
+                    </div>
+                    <div class="settings-field">
+                        <label for="categoryManagerColor">Color</label>
+                        <input type="color" id="categoryManagerColor" value="#64748b">
+                    </div>
+                    <div class="settings-field">
+                        <label for="categoryManagerType">Type</label>
+                        <select id="categoryManagerType">
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                            <option value="transfer">Transfer</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button type="button" class="income-btn" onclick="saveCategoryManagerCategory()">Save Category</button>
+                    <button type="button" class="secondary-btn" onclick="resetCategoryManagerForm()">Clear</button>
+                </div>
+                <input type="hidden" id="categoryManagerEditingId">
+                <div id="categoryManagerList" class="settings-list"></div>
+            </div>
+
+            <div id="settingsPageBudgets" class="settings-page">
+                <div class="settings-grid">
+                    <div class="settings-field">
+                        <label for="budgetCategory">Expense category</label>
+                        <select id="budgetCategory"></select>
+                    </div>
+                    <div class="settings-field">
+                        <label for="budgetLimit">Monthly budget limit</label>
+                        <input type="number" id="budgetLimit" min="0" step="0.01" placeholder="150.00">
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button type="button" class="income-btn" onclick="saveCategoryBudget()">Save Budget</button>
+                </div>
+                <div id="budgetList" class="settings-list"></div>
+            </div>
+
+            <div id="settingsPageAbout" class="settings-page">
+                <h3>About</h3>
+                <p class="settings-subtitle">App details, storage status, and backup tools.</p>
+                <div class="settings-grid">
+                    <div class="settings-toggle">
+                        <label>App name</label>
+                        <strong>Tyler's Finance Tracker</strong>
+                    </div>
+                    <div class="settings-toggle">
+                        <label>Version</label>
+                        <strong>1.0</strong>
+                    </div>
+                    <div class="settings-toggle">
+                        <label>Built by</label>
+                        <strong>Tyler Phan</strong>
+                    </div>
+                    <div class="settings-toggle">
+                        <label>Storage</label>
+                        <strong id="aboutStorageStatus">Local only</strong>
+                    </div>
+                    <div class="settings-toggle">
+                        <label>Transaction count</label>
+                        <strong id="aboutTransactionCount">0</strong>
+                    </div>
+                    <div class="settings-toggle">
+                        <label>Last backup time</label>
+                        <strong id="aboutLastBackupTime">Never</strong>
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button type="button" class="secondary-btn" onclick="renderAboutSettings()">Refresh Status</button>
+                    <button type="button" class="income-btn" onclick="exportBackup()">Export Backup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="categoryEditModal" class="category-modal" onclick="if (event.target === this) closeCategoryEditModal()">
+        <div class="category-modal-content">
+            <h3>Edit Category</h3>
+            <input type="hidden" id="categoryEditId">
+            <div class="settings-grid" style="grid-template-columns:1fr;">
+                <div class="settings-field">
+                    <label for="categoryEditName">Name</label>
+                    <input type="text" id="categoryEditName" placeholder="Category name">
+                </div>
+                <div class="settings-field">
+                    <label for="categoryEditIcon">Emoji/Icon</label>
+                    <input type="text" id="categoryEditIcon" maxlength="4" placeholder="✨">
+                </div>
+                <div class="settings-field">
+                    <label for="categoryEditType">Type</label>
+                    <select id="categoryEditType">
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                        <option value="transfer">Transfer</option>
+                    </select>
+                </div>
+                <div class="settings-field">
+                    <label for="categoryEditColor">Color</label>
+                    <input type="color" id="categoryEditColor" value="#64748b">
+                </div>
+            </div>
+            <div class="settings-actions">
+                <button type="button" class="secondary-btn" onclick="closeCategoryEditModal()">Cancel</button>
+                <button type="button" class="income-btn" onclick="saveCategoryEditModal()">Save</button>
+            </div>
+        </div>
+    </div>
+    <div id="categoryDeleteModal" class="category-modal" onclick="if (event.target === this) closeCategoryDeleteModal()">
+        <div class="category-modal-content">
+            <h3 id="categoryDeleteTitle">Delete Category?</h3>
+            <p id="categoryDeleteMessage" class="settings-subtitle">This cannot be undone.</p>
+            <input type="hidden" id="categoryDeleteId">
+            <div class="settings-actions">
+                <button type="button" class="secondary-btn" onclick="closeCategoryDeleteModal()">Cancel</button>
+                <button type="button" class="expense-btn" onclick="confirmCategoryDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
     <div class="container">
-        <h1>💰 Tyler's Finance Tracker</h1>
-        <p style="text-align:center;color:#6e6e73;font-size:22px;margin-top:-5px;margin-bottom:30px;">Track spending, savings, and financial goals.</p>
+        <div class="app-header">
+            <button type="button" class="settings-button" onclick="openSettingsPanel()">Settings</button>
+            <h1>💰 Tyler's Finance Tracker</h1>
+            <p>Track spending, savings, and financial goals.</p>
+        </div>
 
         <div class="cards">
             <div class="card balance-card">
@@ -1325,53 +2623,7 @@
                     <input type="number" id="amount" placeholder="Amount">
                 </div>
 
-                <select id="category">
-                    <optgroup label="Income">
-                        <option value="Paycheck">💼 Paycheck</option>
-                        <option value="Bonus">🎉 Bonus</option>
-                        <option value="Refund">↩️ Refund</option>
-                        <option value="Gift">🎁 Gift</option>
-                        <option value="Interest">💰 Interest</option>
-                        <option value="Investment">📈 Investment</option>
-                        <option value="Side Hustle">🛠️ Side Hustle</option>
-                        <option value="Selling Items">📦 Selling Items</option>
-                        <option value="Cash">💵 Cash</option>
-                        <option value="Other Income">🔸 Other Income</option>
-                    </optgroup>
-                    <optgroup label="Expenses">
-                        <option value="Food">🍽️ Food</option>
-                        <option value="Groceries">🛒 Groceries</option>
-                        <option value="Restaurants">🍔 Restaurants</option>
-                        <option value="Fast Food">🍟 Fast Food</option>
-                        <option value="Coffee">☕ Coffee</option>
-                        <option value="Gas">⛽ Gas</option>
-                        <option value="Parking">🅿️ Parking</option>
-                        <option value="Toll">🛣️ Toll</option>
-                        <option value="Uber/Lyft">🚕 Uber/Lyft</option>
-                        <option value="Car Maintenance">🔧 Car Maintenance</option>
-                        <option value="Phone">📱 Phone</option>
-                        <option value="Clothing">👕 Clothing</option>
-                        <option value="Electronics">🔌 Electronics</option>
-                        <option value="Amazon">🛍️ Amazon</option>
-                        <option value="Home Goods">🧺 Home Goods</option>
-                        <option value="Gifts">🎁 Gifts</option>
-                        <option value="Movies">🎬 Movies</option>
-                        <option value="Games">🎮 Games</option>
-                        <option value="Music">🎵 Music</option>
-                        <option value="Streaming">📺 Streaming</option>
-                        <option value="Subscriptions">🔁 Subscriptions</option>
-                        <option value="Hobbies">🎨 Hobbies</option>
-                        <option value="Doctor">🩺 Doctor</option>
-                        <option value="Dentist">🦷 Dentist</option>
-                        <option value="Pharmacy">💊 Pharmacy</option>
-                        <option value="Gym">🏋️‍♂️ Gym</option>
-                        <option value="Books">📚 Books</option>
-                        <option value="School">🏫 School</option>
-                        <option value="Savings Transfer">🏦 Savings Transfer</option>
-                        <option value="Pets">🐶 Pets</option>
-                        <option value="Other">🔸 Other</option>
-                    </optgroup>
-                </select>
+                <select id="category"></select>
 
                 <select id="type">
                     <option value="income">Income</option>
@@ -1598,8 +2850,16 @@
                 <div class="analytics-card-header">
                     <div>
                         <h3><span class="chart-title-icon">🍩</span> Spending by Category</h3>
-                        <p>Click a category to filter</p>
+                        <p id="categoryFilterStatus">Click a category to filter</p>
                     </div>
+                    <button
+                        type="button"
+                        id="clearCategoryFilterButton"
+                        class="secondary-btn"
+                        style="display:none;width:auto;margin-top:0;padding:0 14px;"
+                        onclick="clearCategoryFilter(event)">
+                        All Categories
+                    </button>
                 </div>
                 <div class="donut-layout">
                     <canvas id="pieChart" class="analytics-canvas"></canvas>
@@ -1634,7 +2894,7 @@
                         <p>Ranked from highest to lowest</p>
                     </div>
                 </div>
-                <canvas id="topCategoriesChart" class="analytics-canvas"></canvas>
+                <div id="topSpendingCategories" class="top-spending-list"></div>
             </article>
         </div>
         <div id="chartTooltip"></div>
@@ -1874,7 +3134,7 @@ function saveSubscriptions() {
 }
 
 async function loadSubscriptions() {
-    const savedSubscriptions = JSON.parse(localStorage.getItem('subscriptions') || '[]');
+    const savedSubscriptions = readStorageJSON('subscriptions', []);
 
     if (!supabaseClient) {
         subscriptions = savedSubscriptions;
@@ -2252,19 +3512,58 @@ function renderSubscriptions() {
 let income = 0;
 let expenses = 0;
 let savedMoney = Number(localStorage.getItem('savedMoney')) || 0;
-let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-// Savings activity is currently stored only in localStorage.
-// To sync across devices, create a Supabase table named:
-// savings_activity(id bigint identity primary key, description text, amount numeric, type text, created_at timestamptz)
-let savingsTransactions = JSON.parse(localStorage.getItem('savingsTransactions')) || [];
-let shifts = JSON.parse(localStorage.getItem('shifts')) || [];
-let jobs = JSON.parse(localStorage.getItem('jobs')) || [];
+let transactions = readStorageJSON('transactions', []);
+let savingsTransactions = readStorageJSON('savingsTransactions', []);
+let shifts = readStorageJSON('shifts', []);
+let jobs = readStorageJSON('jobs', []);
 let transactionFilterSignature = '';
 let editingShiftId = null;
 let editingJobId = null;
 let latestPaycheckTotals = {};
 let chartSlices = [];
 let editTransactionScrollPosition = { x: 0, y: 0 };
+const defaultTrackerSettings = {
+    profile: {
+        displayName: '',
+        email: '',
+        currency: 'USD'
+    },
+    security: {
+        pinLock: false,
+        hideBalances: false,
+        pin: ''
+    },
+    preferences: {
+        defaultType: 'expense',
+        defaultCategory: 'Other',
+        startingPage: 'dashboard'
+    },
+    dashboard: {
+        showSavings: true,
+        showTransactions: true,
+        showHours: true,
+        showSubscriptions: true,
+        showCalendar: true,
+        showAnalytics: true,
+        cardSize: 'comfortable',
+        defaultPage: 'dashboard'
+    },
+    appearance: {
+        theme: 'light',
+        accentColor: 'blue',
+        cornerRadius: 'rounded',
+        animationSpeed: 'normal',
+        glassEffect: true,
+        reducedMotion: false
+    },
+    meta: {
+        lastBackupAt: ''
+    }
+};
+let trackerSettings = loadTrackerSettings();
+let categoryBudgets = loadCategoryBudgets();
+categories = mergeCategoryList(categories, loadCategoriesFromTransactions());
+window.trackerCategories = categories;
 
 let lastSelectedJobId = localStorage.getItem('lastSelectedJobId') || null;
 localStorage.removeItem('income');
@@ -2304,10 +3603,1002 @@ async function loadShiftsFromSupabase() {
 function saveData() {
     localStorage.setItem('savedMoney', savedMoney);
     localStorage.setItem('transactions', JSON.stringify(transactions));
-    localStorage.setItem('savingsTransactions', JSON.stringify(savingsTransactions));
+    localStorage.setItem('savingsTransactions', JSON.stringify(getSavingsActivityFromTransactions()));
     localStorage.setItem('shifts', JSON.stringify(shifts));
     localStorage.setItem('jobs', JSON.stringify(jobs));
 }
+
+function mergeSettings(settings) {
+    return {
+        profile: { ...defaultTrackerSettings.profile, ...(settings?.profile || {}) },
+        security: { ...defaultTrackerSettings.security, ...(settings?.security || {}) },
+        preferences: { ...defaultTrackerSettings.preferences, ...(settings?.preferences || {}) },
+        dashboard: { ...defaultTrackerSettings.dashboard, ...(settings?.dashboard || {}) },
+        appearance: { ...defaultTrackerSettings.appearance, ...(settings?.appearance || {}) },
+        meta: { ...defaultTrackerSettings.meta, ...(settings?.meta || {}) }
+    };
+}
+
+function loadTrackerSettings() {
+    const savedSettings = readStorageJSON('trackerSettings', {});
+    return mergeSettings(savedSettings && typeof savedSettings === 'object' ? savedSettings : {});
+}
+
+function saveTrackerSettings() {
+    localStorage.setItem('trackerSettings', JSON.stringify(trackerSettings));
+}
+
+function loadCategoriesFromTransactions() {
+    return (transactions || [])
+        .filter(transaction => transaction.category)
+        .map((transaction, index) => ({
+            name: transaction.category,
+            icon: '🔸',
+            color: transaction.category === 'Savings Transfer' ? '#3b82f6' : '#64748b',
+            type: transaction.category === 'Savings Transfer' ? 'transfer' : (transaction.type === 'income' ? 'income' : 'expense'),
+            order: categories.length + index
+        }));
+}
+
+function loadCategoryBudgets() {
+    const parsed = readStorageJSON('categoryBudgets', {});
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+}
+
+function saveCategories() {
+    categories = mergeCategoryList(categories);
+    window.trackerCategories = categories;
+    localStorage.setItem('categories', JSON.stringify(categories));
+}
+
+function saveCategoryBudgets() {
+    localStorage.setItem('categoryBudgets', JSON.stringify(categoryBudgets));
+}
+
+function openSettingsPanel() {
+    populateSettingsForm();
+    showSettingsPage('health');
+    updateFinanceHealthCards();
+    const panel = document.getElementById('settingsPanel');
+    if (panel) panel.style.display = 'flex';
+}
+
+function closeSettingsPanel() {
+    const panel = document.getElementById('settingsPanel');
+    if (panel) panel.style.display = 'none';
+}
+
+function showSettingsPage(page) {
+    document.querySelectorAll('.settings-page').forEach(section => {
+        section.classList.toggle('active', section.id === `settingsPage${page[0].toUpperCase()}${page.slice(1)}`);
+    });
+    document.querySelectorAll('.settings-tab').forEach(button => {
+        button.classList.toggle('active', button.dataset.settingsTab === page);
+    });
+    if (page === 'health') updateFinanceHealthCards();
+    if (page === 'about') renderAboutSettings();
+    if (page === 'categories') renderCustomCategories();
+    if (page === 'budgets') renderBudgets();
+}
+
+document.addEventListener('keydown', function(event) {
+    if (event.key !== 'Escape') return;
+
+    const settingsPanel = document.getElementById('settingsPanel');
+    if (settingsPanel && settingsPanel.style.display !== 'none' && settingsPanel.style.display !== '') {
+        closeSettingsPanel();
+    }
+});
+
+function setInputValue(id, value) {
+    const input = document.getElementById(id);
+    if (input) input.value = value ?? '';
+}
+
+function setCheckedValue(id, value) {
+    const input = document.getElementById(id);
+    if (input) input.checked = Boolean(value);
+}
+
+function populateSettingsCategoryOptions() {
+    const target = document.getElementById('settingsDefaultCategory');
+    if (!target) return;
+
+    const selectedValue = target.value || trackerSettings.preferences.defaultCategory;
+    target.innerHTML = '';
+    categories.forEach(category => {
+        const next = document.createElement('option');
+        next.value = category.name;
+        next.textContent = getCategoryLabel(category.name);
+        target.appendChild(next);
+    });
+    target.value = [...target.options].some(option => option.value === selectedValue)
+        ? selectedValue
+        : 'Other';
+}
+
+function populateSettingsForm() {
+    applyCustomCategoriesToDropdowns();
+    populateSettingsCategoryOptions();
+    setInputValue('settingsDisplayName', trackerSettings.profile.displayName);
+    setInputValue('settingsEmail', trackerSettings.profile.email);
+    setInputValue('settingsCurrency', trackerSettings.profile.currency);
+    setCheckedValue('settingsPinLock', trackerSettings.security.pinLock);
+    setCheckedValue('settingsHideBalances', trackerSettings.security.hideBalances);
+    setInputValue('settingsPin', '');
+    setInputValue('settingsDefaultType', trackerSettings.preferences.defaultType);
+    setInputValue('settingsDefaultCategory', trackerSettings.preferences.defaultCategory);
+    setInputValue('settingsStartingPage', trackerSettings.preferences.startingPage);
+    setCheckedValue('settingsShowSavings', trackerSettings.dashboard.showSavings);
+    setCheckedValue('settingsShowTransactions', trackerSettings.dashboard.showTransactions);
+    setCheckedValue('settingsShowHours', trackerSettings.dashboard.showHours);
+    setCheckedValue('settingsShowSubscriptions', trackerSettings.dashboard.showSubscriptions);
+    setCheckedValue('settingsShowCalendar', trackerSettings.dashboard.showCalendar);
+    setCheckedValue('settingsShowAnalytics', trackerSettings.dashboard.showAnalytics);
+    setInputValue('settingsCardSize', trackerSettings.dashboard.cardSize);
+    setInputValue('settingsDashboardDefaultPage', trackerSettings.dashboard.defaultPage);
+    setInputValue('settingsTheme', trackerSettings.appearance.theme);
+    setInputValue('settingsAccentColor', trackerSettings.appearance.accentColor);
+    setInputValue('settingsCornerRadius', trackerSettings.appearance.cornerRadius);
+    setInputValue('settingsAnimationSpeed', trackerSettings.appearance.animationSpeed);
+    setCheckedValue('settingsGlassEffect', trackerSettings.appearance.glassEffect);
+    setCheckedValue('settingsReducedMotion', trackerSettings.appearance.reducedMotion);
+    renderCustomCategories();
+    renderBudgets();
+    renderAboutSettings();
+}
+
+function applyTrackerSettings() {
+    document.body.classList.toggle('balances-hidden', Boolean(trackerSettings.security.hideBalances));
+    applyDashboardSettings();
+    applyAppearanceSettings();
+
+    const typeSelect = document.getElementById('type');
+    if (typeSelect && trackerSettings.preferences.defaultType) {
+        typeSelect.value = trackerSettings.preferences.defaultType;
+    }
+
+    const categorySelect = document.getElementById('category');
+    if (categorySelect && trackerSettings.preferences.defaultCategory) {
+        categorySelect.value = trackerSettings.preferences.defaultCategory;
+    }
+}
+
+function setSectionVisible(target, visible) {
+    if (!target) return;
+    target.style.display = visible ? '' : 'none';
+}
+
+function applyDashboardSettings() {
+    const dashboard = trackerSettings.dashboard;
+    setSectionVisible(document.getElementById('savingsCard'), dashboard.showSavings);
+    setSectionVisible(document.getElementById('transactionHistoryCard'), dashboard.showTransactions);
+    setSectionVisible(document.getElementById('hoursTrackerCard'), dashboard.showHours);
+    setSectionVisible(document.getElementById('subscriptionsCard'), dashboard.showSubscriptions);
+    setSectionVisible(document.getElementById('visualCalendar')?.closest('.transactions'), dashboard.showCalendar);
+    setSectionVisible(document.querySelector('.analytics-section'), dashboard.showAnalytics);
+
+    document.body.classList.toggle('settings-card-compact', dashboard.cardSize === 'compact');
+    document.body.classList.toggle('settings-card-large', dashboard.cardSize === 'large');
+}
+
+function applyAppearanceSettings() {
+    const appearance = trackerSettings.appearance;
+    const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+    const useDark = appearance.theme === 'dark' || (appearance.theme === 'auto' && prefersDark);
+
+    ['settings-theme-dark', 'settings-card-compact', 'settings-card-large', 'settings-radius-soft', 'settings-radius-extra', 'settings-no-glass', 'settings-reduced-motion', 'settings-animation-slow', 'settings-animation-fast', 'settings-accent-green', 'settings-accent-purple', 'settings-accent-orange', 'settings-accent-pink'].forEach(className => {
+        if (!['settings-card-compact', 'settings-card-large'].includes(className)) {
+            document.body.classList.remove(className);
+        }
+    });
+
+    document.body.classList.toggle('settings-theme-dark', useDark);
+    document.body.classList.toggle('settings-radius-soft', appearance.cornerRadius === 'soft');
+    document.body.classList.toggle('settings-radius-extra', appearance.cornerRadius === 'extra');
+    document.body.classList.toggle('settings-no-glass', appearance.glassEffect === false);
+    document.body.classList.toggle('settings-reduced-motion', Boolean(appearance.reducedMotion));
+    document.body.classList.toggle('settings-animation-slow', appearance.animationSpeed === 'slow');
+    document.body.classList.toggle('settings-animation-fast', appearance.animationSpeed === 'fast');
+
+    ['green', 'purple', 'orange', 'pink'].forEach(color => {
+        document.body.classList.toggle(`settings-accent-${color}`, appearance.accentColor === color);
+    });
+}
+
+function getAllCategoryOptions(type = '') {
+    return categories.filter(category => !type || category.type === type);
+}
+
+function populateCategorySelect(select, options = {}) {
+    if (!select) return;
+    const selectedValue = select.value || options.selected || '';
+    const includeTypes = options.types || ['income', 'expense', 'transfer'];
+    select.innerHTML = '';
+    const labels = { income: 'Income', expense: 'Expense', transfer: 'Transfer' };
+    includeTypes.forEach(type => {
+        const groupCategories = categories.filter(category => category.type === type);
+        if (!groupCategories.length) return;
+        const group = document.createElement('optgroup');
+        group.label = labels[type];
+        groupCategories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.name;
+            option.textContent = getCategoryLabel(category.name);
+            group.appendChild(option);
+        });
+        select.appendChild(group);
+    });
+    if ([...select.options].some(option => option.value === selectedValue)) {
+        select.value = selectedValue;
+    } else if (options.fallback) {
+        select.value = options.fallback;
+    }
+}
+
+function applyCustomCategoriesToDropdowns() {
+    saveCategories();
+    populateCategorySelect(document.getElementById('category'));
+    populateCategorySelect(document.getElementById('editTransactionCategory'));
+    populateSettingsCategoryOptions();
+    populateBudgetCategoryOptions();
+    populateTransactionFilters({ force: true });
+    if (typeof drawChart === 'function') drawChart({ animate: false });
+}
+
+function getCategoryUsageCount(name) {
+    return transactions.filter(transaction => transaction.category === name).length;
+}
+
+function resetCategoryManagerForm() {
+    setInputValue('categoryManagerEditingId', '');
+    setInputValue('categoryManagerName', '');
+    setInputValue('categoryManagerIcon', '');
+    setInputValue('categoryManagerColor', '#64748b');
+    setInputValue('categoryManagerType', 'expense');
+}
+
+function renderCategoriesManager() {
+    const list = document.getElementById('categoryManagerList');
+    if (!list) return;
+    const search = (document.getElementById('categoryManagerSearch')?.value || '').toLowerCase();
+    list.innerHTML = '';
+    const labels = { income: 'Income', expense: 'Expense', transfer: 'Transfer' };
+
+    ['income', 'expense', 'transfer'].forEach(type => {
+        const group = categories
+            .filter(category => category.type === type)
+            .filter(category => !search || category.name.toLowerCase().includes(search));
+        const section = document.createElement('div');
+        section.className = 'category-manager-section';
+        section.dataset.categoryType = type;
+        section.innerHTML = `<h4 class="category-manager-heading">${labels[type]}</h4>`;
+        group.forEach(category => {
+            const card = document.createElement('div');
+            card.className = 'category-manager-card';
+            card.draggable = true;
+            card.dataset.categoryId = category.id;
+            card.style.setProperty('--category-color', category.color || '#64748b');
+            card.innerHTML = `
+                <div class="category-manager-icon">${escapeHTML(category.icon || '🔸')}</div>
+                <div class="category-manager-meta">
+                    <span class="category-manager-title">${escapeHTML(category.name)}</span>
+                    <span class="category-manager-detail">${labels[type]} • Used by ${getCategoryUsageCount(category.name)} ${getCategoryUsageCount(category.name) === 1 ? 'transaction' : 'transactions'}</span>
+                </div>
+                <div class="category-manager-actions">
+                    <button type="button" class="edit-btn" onclick="openCategoryEditModal('${category.id}')" title="Edit category">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+                        </svg>
+                    </button>
+                    <button type="button" class="delete-btn" onclick="openCategoryDeleteModal('${category.id}')" title="Delete category">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 6L6 18"></path>
+                            <path d="M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            card.addEventListener('dragstart', event => event.dataTransfer.setData('text/plain', category.id));
+            card.addEventListener('dragover', event => event.preventDefault());
+            card.addEventListener('drop', event => {
+                event.preventDefault();
+                reorderCategory(event.dataTransfer.getData('text/plain'), category.id);
+            });
+            section.appendChild(card);
+        });
+        list.appendChild(section);
+    });
+}
+
+async function saveCategoryManagerCategory() {
+    const editingId = document.getElementById('categoryManagerEditingId')?.value || '';
+    const name = document.getElementById('categoryManagerName')?.value.trim();
+    const icon = document.getElementById('categoryManagerIcon')?.value.trim() || '🔸';
+    const color = document.getElementById('categoryManagerColor')?.value || '#64748b';
+    const type = document.getElementById('categoryManagerType')?.value || 'expense';
+    if (!name) {
+        showToast('Enter a category name.', 'error');
+        return;
+    }
+
+    const duplicate = categories.find(category => category.name.toLowerCase() === name.toLowerCase() && category.id !== editingId);
+    if (duplicate) {
+        showToast('A category with that name already exists.', 'error');
+        return;
+    }
+
+    if (editingId) {
+        const existing = categories.find(category => category.id === editingId);
+        const oldName = existing?.name;
+        categories = categories.map(category => category.id === editingId ? { ...category, name, icon, color, type } : category);
+        if (oldName && oldName !== name) {
+            if (supabaseClient) {
+                const { error } = await supabaseClient.from('transactions').update({ category: name }).eq('category', oldName);
+                if (error) {
+                    console.error('Category transaction update failed:', error);
+                    showToast('Could not update transaction categories: ' + error.message, 'error');
+                    return;
+                }
+            }
+            transactions.forEach(transaction => {
+                if (transaction.category === oldName) transaction.category = name;
+            });
+            if (categoryBudgets[oldName] !== undefined) {
+                categoryBudgets[name] = categoryBudgets[oldName];
+                delete categoryBudgets[oldName];
+                saveCategoryBudgets();
+            }
+            saveData();
+        }
+    } else {
+        categories.push({ id: createLocalId('cat'), name, icon, color, type, order: categories.length });
+    }
+
+    saveCategories();
+    applyCustomCategoriesToDropdowns();
+    renderCategoriesManager();
+    renderTransactions({ refreshFilters: true, animate: false });
+    renderBudgets();
+    resetCategoryManagerForm();
+    showToast('Category saved.', 'success');
+}
+
+function editCategoryManagerCategory(categoryId) {
+    const category = categories.find(item => item.id === categoryId);
+    if (!category) return;
+    setInputValue('categoryManagerEditingId', category.id);
+    setInputValue('categoryManagerName', category.name);
+    setInputValue('categoryManagerIcon', category.icon);
+    setInputValue('categoryManagerColor', category.color || '#64748b');
+    setInputValue('categoryManagerType', category.type);
+}
+
+function openCategoryEditModal(categoryId) {
+    const category = categories.find(item => item.id === categoryId);
+    if (!category) return;
+    setInputValue('categoryEditId', category.id);
+    setInputValue('categoryEditName', category.name);
+    setInputValue('categoryEditIcon', category.icon);
+    setInputValue('categoryEditType', category.type);
+    setInputValue('categoryEditColor', category.color || '#64748b');
+    const modal = document.getElementById('categoryEditModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeCategoryEditModal() {
+    const modal = document.getElementById('categoryEditModal');
+    if (modal) modal.style.display = 'none';
+}
+
+async function saveCategoryEditModal() {
+    setInputValue('categoryManagerEditingId', document.getElementById('categoryEditId')?.value || '');
+    setInputValue('categoryManagerName', document.getElementById('categoryEditName')?.value || '');
+    setInputValue('categoryManagerIcon', document.getElementById('categoryEditIcon')?.value || '');
+    setInputValue('categoryManagerType', document.getElementById('categoryEditType')?.value || 'expense');
+    setInputValue('categoryManagerColor', document.getElementById('categoryEditColor')?.value || '#64748b');
+    await saveCategoryManagerCategory();
+    closeCategoryEditModal();
+}
+
+function openCategoryDeleteModal(categoryId) {
+    const category = categories.find(item => item.id === categoryId);
+    if (!category) return;
+    setInputValue('categoryDeleteId', category.id);
+    setText('categoryDeleteTitle', `Delete "${category.name}"?`);
+    setText('categoryDeleteMessage', 'This cannot be undone.');
+    const modal = document.getElementById('categoryDeleteModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeCategoryDeleteModal() {
+    const modal = document.getElementById('categoryDeleteModal');
+    if (modal) modal.style.display = 'none';
+}
+
+async function confirmCategoryDelete() {
+    const categoryId = document.getElementById('categoryDeleteId')?.value || '';
+    await deleteCategoryManagerCategory(categoryId);
+    closeCategoryDeleteModal();
+}
+
+async function deleteCategoryManagerCategory(categoryId) {
+    const category = categories.find(item => item.id === categoryId);
+    if (!category) return;
+    const card = [...document.querySelectorAll('.category-manager-card')]
+        .find(item => item.dataset.categoryId === categoryId);
+    if (card) {
+        card.classList.add('removing');
+        await new Promise(resolve => setTimeout(resolve, 180));
+    }
+    const usageCount = getCategoryUsageCount(category.name);
+    let replacement = 'Other';
+    if (usageCount > 0) {
+        const otherCategory = categories.find(item => item.name === 'Other' && item.id !== category.id);
+        if (!otherCategory && category.name !== 'Other') {
+            categories.push({ id: createLocalId('cat'), name: 'Other', icon: '🔸', color: '#64748b', type: 'expense', order: categories.length });
+        }
+        if (supabaseClient) {
+            const { error } = await supabaseClient.from('transactions').update({ category: replacement }).eq('category', category.name);
+            if (error) {
+                console.error('Category transaction move failed:', error);
+                showToast('Could not move transaction categories: ' + error.message, 'error');
+                return;
+            }
+        }
+        transactions.forEach(transaction => {
+            if (transaction.category === category.name) transaction.category = replacement;
+        });
+        saveData();
+    }
+    categories = categories.filter(item => item.id !== categoryId);
+    if (usageCount > 0 && !categories.some(item => item.name === 'Other')) {
+        categories.push({ id: createLocalId('cat'), name: 'Other', icon: '🔸', color: '#64748b', type: 'expense', order: categories.length });
+    }
+    delete categoryBudgets[category.name];
+    saveCategoryBudgets();
+    saveCategories();
+    applyCustomCategoriesToDropdowns();
+    renderCategoriesManager();
+    renderTransactions({ refreshFilters: true, animate: false });
+    renderBudgets();
+    showToast(`Category deleted${usageCount ? ` and transactions moved to ${replacement}` : ''}.`, 'success');
+}
+
+function reorderCategory(sourceId, targetId) {
+    if (!sourceId || !targetId || sourceId === targetId) return;
+    const sourceIndex = categories.findIndex(category => category.id === sourceId);
+    const targetIndex = categories.findIndex(category => category.id === targetId);
+    if (sourceIndex < 0 || targetIndex < 0) return;
+    const [moved] = categories.splice(sourceIndex, 1);
+    categories.splice(targetIndex, 0, moved);
+    categories = categories.map((category, order) => ({ ...category, order }));
+    saveCategories();
+    applyCustomCategoriesToDropdowns();
+    renderCategoriesManager();
+}
+
+function renderCustomCategories() {
+    renderCategoriesManager();
+}
+
+function saveCustomCategory() {
+    saveCategoryManagerCategory();
+}
+
+function deleteCustomCategory(categoryId) {
+    deleteCategoryManagerCategory(categoryId);
+}
+
+function populateBudgetCategoryOptions() {
+    const select = document.getElementById('budgetCategory');
+    if (!select) return;
+
+    const selectedValue = select.value;
+    select.innerHTML = '';
+    getAllCategoryOptions('expense')
+        .filter(category => category.name !== 'Savings Transfer')
+        .forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.name;
+            option.textContent = getCategoryLabel(category.name);
+            select.appendChild(option);
+        });
+
+    if ([...select.options].some(option => option.value === selectedValue)) {
+        select.value = selectedValue;
+    }
+}
+
+function getCurrentMonthBudgetSpent(category) {
+    const now = new Date();
+    return transactions
+        .filter(transaction => isSpendingExpense(transaction))
+        .filter(transaction => transaction.category === category)
+        .filter(transaction => {
+            const date = getTransactionDate(transaction);
+            return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+        })
+        .reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0);
+}
+
+function renderBudgets() {
+    populateBudgetCategoryOptions();
+    const list = document.getElementById('budgetList');
+    if (!list) return;
+
+    list.innerHTML = '';
+    const entries = Object.entries(categoryBudgets)
+        .map(([category, limit]) => [category, Number(limit || 0)])
+        .filter(([, limit]) => limit > 0)
+        .sort(([a], [b]) => a.localeCompare(b));
+
+    if (entries.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.textContent = 'No budgets set yet';
+        list.appendChild(empty);
+        return;
+    }
+
+    entries.forEach(([category, limit]) => {
+        const spent = getCurrentMonthBudgetSpent(category);
+        const remaining = limit - spent;
+        const percent = limit > 0 ? Math.min((spent / limit) * 100, 100) : 0;
+        const row = document.createElement('div');
+        row.className = `budget-row${spent > limit ? ' over-budget' : ''}`;
+        row.innerHTML = `
+            <div>
+                <strong>${escapeHTML(getCategoryLabel(category))}</strong><br>
+                <span>Spent this month: ${formatMoney(spent)} • Budget limit: ${formatMoney(limit)}</span>
+                <div class="budget-progress" aria-hidden="true">
+                    <div class="budget-progress-fill" style="width:${percent.toFixed(0)}%"></div>
+                </div>
+                <span class="budget-remaining">${remaining >= 0 ? `${formatMoney(remaining)} remaining` : `${formatMoney(Math.abs(remaining))} over budget`}</span>
+            </div>
+        `;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'expense-btn';
+        button.textContent = 'Delete';
+        button.onclick = () => deleteCategoryBudget(category);
+        row.appendChild(button);
+        list.appendChild(row);
+    });
+}
+
+function saveCategoryBudget() {
+    const category = document.getElementById('budgetCategory')?.value || '';
+    const limit = Number(document.getElementById('budgetLimit')?.value || 0);
+
+    if (!category || limit <= 0) {
+        showToast('Choose a category and enter a budget over $0.', 'error');
+        return;
+    }
+
+    categoryBudgets[category] = limit;
+    saveCategoryBudgets();
+    setInputValue('budgetLimit', '');
+    renderBudgets();
+    showToast('Budget saved.', 'success');
+}
+
+function deleteCategoryBudget(category) {
+    delete categoryBudgets[category];
+    saveCategoryBudgets();
+    renderBudgets();
+    showToast('Budget deleted.', 'success');
+}
+
+function saveProfileSettings() {
+    trackerSettings.profile.displayName = document.getElementById('settingsDisplayName')?.value.trim() || '';
+    trackerSettings.profile.email = document.getElementById('settingsEmail')?.value.trim() || '';
+    trackerSettings.profile.currency = document.getElementById('settingsCurrency')?.value || 'USD';
+    saveTrackerSettings();
+    showToast('Profile settings saved.', 'success');
+}
+
+function saveSecuritySettings() {
+    trackerSettings.security.pinLock = Boolean(document.getElementById('settingsPinLock')?.checked);
+    trackerSettings.security.hideBalances = Boolean(document.getElementById('settingsHideBalances')?.checked);
+    const nextPin = document.getElementById('settingsPin')?.value.trim();
+    if (nextPin) trackerSettings.security.pin = nextPin;
+    saveTrackerSettings();
+    applyTrackerSettings();
+    populateSettingsForm();
+    showToast('Security settings saved.', 'success');
+}
+
+function savePreferenceSettings() {
+    trackerSettings.preferences.defaultType = document.getElementById('settingsDefaultType')?.value || 'expense';
+    trackerSettings.preferences.defaultCategory = document.getElementById('settingsDefaultCategory')?.value || 'Other';
+    trackerSettings.preferences.startingPage = document.getElementById('settingsStartingPage')?.value || 'dashboard';
+    trackerSettings.dashboard.defaultPage = trackerSettings.preferences.startingPage;
+    saveTrackerSettings();
+    applyTrackerSettings();
+    showToast('Preferences saved.', 'success');
+}
+
+function saveDashboardSettings() {
+    trackerSettings.dashboard = {
+        showSavings: Boolean(document.getElementById('settingsShowSavings')?.checked),
+        showTransactions: Boolean(document.getElementById('settingsShowTransactions')?.checked),
+        showHours: Boolean(document.getElementById('settingsShowHours')?.checked),
+        showSubscriptions: Boolean(document.getElementById('settingsShowSubscriptions')?.checked),
+        showCalendar: Boolean(document.getElementById('settingsShowCalendar')?.checked),
+        showAnalytics: Boolean(document.getElementById('settingsShowAnalytics')?.checked),
+        cardSize: document.getElementById('settingsCardSize')?.value || 'comfortable',
+        defaultPage: document.getElementById('settingsDashboardDefaultPage')?.value || 'dashboard'
+    };
+    trackerSettings.preferences.startingPage = trackerSettings.dashboard.defaultPage;
+    saveTrackerSettings();
+    populateSettingsForm();
+    applyTrackerSettings();
+    showToast('Dashboard settings saved.', 'success');
+}
+
+function resetDashboardSettings() {
+    trackerSettings.dashboard = { ...defaultTrackerSettings.dashboard };
+    trackerSettings.preferences.startingPage = defaultTrackerSettings.preferences.startingPage;
+    saveTrackerSettings();
+    populateSettingsForm();
+    applyTrackerSettings();
+    showToast('Dashboard settings reset.', 'success');
+}
+
+function saveAppearanceSettings() {
+    trackerSettings.appearance = {
+        theme: document.getElementById('settingsTheme')?.value || 'light',
+        accentColor: document.getElementById('settingsAccentColor')?.value || 'blue',
+        cornerRadius: document.getElementById('settingsCornerRadius')?.value || 'rounded',
+        animationSpeed: document.getElementById('settingsAnimationSpeed')?.value || 'normal',
+        glassEffect: Boolean(document.getElementById('settingsGlassEffect')?.checked),
+        reducedMotion: Boolean(document.getElementById('settingsReducedMotion')?.checked)
+    };
+    saveTrackerSettings();
+    populateSettingsForm();
+    applyTrackerSettings();
+    showToast('Appearance settings saved.', 'success');
+}
+
+function resetAppearanceSettings() {
+    trackerSettings.appearance = { ...defaultTrackerSettings.appearance };
+    saveTrackerSettings();
+    populateSettingsForm();
+    applyTrackerSettings();
+    showToast('Appearance settings reset.', 'success');
+}
+
+function renderAboutSettings() {
+    setText('aboutStorageStatus', supabaseClient ? 'Local + Supabase' : 'Local only');
+    setText('aboutTransactionCount', String(transactions.length));
+    const lastBackup = trackerSettings.meta.lastBackupAt;
+    setText('aboutLastBackupTime', lastBackup ? new Date(lastBackup).toLocaleString() : 'Never');
+}
+
+function exportBackup() {
+    trackerSettings.meta.lastBackupAt = new Date().toISOString();
+    saveTrackerSettings();
+    const backup = {
+        transactions,
+        savingsTransactions,
+        savedMoney,
+        subscriptions,
+        jobs,
+        shifts,
+        settings: trackerSettings,
+        categories,
+        categoryBudgets,
+        exportedAt: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `finance-tracker-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    renderAboutSettings();
+    showToast('Backup exported.', 'success');
+}
+
+function importBackupFile(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+        try {
+            const backup = JSON.parse(String(reader.result || '{}'));
+            transactions = Array.isArray(backup.transactions) ? backup.transactions : [];
+            savingsTransactions = Array.isArray(backup.savingsTransactions) ? backup.savingsTransactions : [];
+            savedMoney = Number(backup.savedMoney || 0);
+            subscriptions = Array.isArray(backup.subscriptions) ? backup.subscriptions : [];
+            jobs = Array.isArray(backup.jobs) ? backup.jobs : [];
+            shifts = Array.isArray(backup.shifts) ? backup.shifts : [];
+            trackerSettings = mergeSettings(backup.settings || {});
+            categories = mergeCategoryList(categories, Array.isArray(backup.categories) ? backup.categories : [], Array.isArray(backup.customCategories) ? backup.customCategories : []);
+            categoryBudgets = backup.categoryBudgets && typeof backup.categoryBudgets === 'object' ? backup.categoryBudgets : {};
+            window.trackerCategories = categories;
+            categories = mergeCategoryList(categories, loadCategoriesFromTransactions());
+            window.trackerCategories = categories;
+
+            await migrateSavingsActivityToTransactions();
+            await syncSavedMoneyFromTransactions();
+            saveData();
+            saveSubscriptions();
+            saveTrackerSettings();
+            saveCategories();
+            saveCategoryBudgets();
+            applyCustomCategoriesToDropdowns();
+            renderTransactions({ refreshFilters: true, animate: false });
+            renderSavingsTransactions();
+            renderSubscriptions();
+            renderJobs();
+            renderShifts();
+            renderVisualCalendar();
+            renderCustomCategories();
+            renderBudgets();
+            updateDashboard({ animate: false });
+            applyTrackerSettings();
+            populateSettingsForm();
+            showToast('Backup imported.', 'success');
+        } catch (error) {
+            console.error('Backup import failed:', error);
+            showToast('Backup import failed.', 'error');
+        } finally {
+            event.target.value = '';
+        }
+    };
+    reader.readAsText(file);
+}
+
+async function runSettingsBalanceRepair() {
+    try {
+        if (typeof renderAnalytics !== 'function') {
+            window.renderAnalytics = () => drawChart({ animate: false });
+        }
+        await repairBalanceNow();
+        showToast('Balance repair finished.', 'success');
+    } catch (error) {
+        console.error('Balance repair failed:', error);
+        showToast('Balance repair failed.', 'error');
+    }
+}
+
+function refreshDashboardFromSettings() {
+    applyCustomCategoriesToDropdowns();
+    renderTransactions();
+    renderSavingsTransactions();
+    renderSubscriptions();
+    renderJobs();
+    renderShifts();
+    renderVisualCalendar();
+    renderCustomCategories();
+    renderBudgets();
+    updateDashboard();
+    renderAnalytics();
+    updateFinanceHealthCards();
+    showToast('UI refreshed.', 'success');
+}
+
+function getDuplicateSavingsTransferGroups() {
+    const groups = new Map();
+    transactions
+        .filter(isSavingsMigrationTransaction)
+        .forEach(transaction => {
+            const key = savingsMigrationSignature(transaction);
+            groups.set(key, [...(groups.get(key) || []), transaction]);
+        });
+
+    return [...groups.values()].filter(group => group.length > 1);
+}
+
+function getFinanceHealthSnapshot() {
+    const invalidAmounts = transactions.filter(transaction => {
+        const amount = Number(transaction.amount);
+        return !Number.isFinite(amount) || amount <= 0;
+    });
+    const missingDates = transactions.filter(transaction => !transaction.created_at && !transaction.date);
+    const duplicateSavingsGroups = getDuplicateSavingsTransferGroups();
+    const duplicateSavingsCount = duplicateSavingsGroups.reduce((sum, group) => sum + group.length - 1, 0);
+    const possibleIssues = invalidAmounts.length + missingDates.length + duplicateSavingsCount;
+
+    return {
+        calculatedBalance: calculateBalance(),
+        transactionCount: transactions.length,
+        savingsTransferCount: transactions.filter(isSavingsTransferRow).length,
+        invalidAmounts,
+        missingDates,
+        duplicateSavingsGroups,
+        duplicateSavingsCount,
+        possibleIssues
+    };
+}
+
+function updateFinanceHealthCards(snapshot = getFinanceHealthSnapshot()) {
+    setText('healthCalculatedBalance', formatMoney(snapshot.calculatedBalance));
+    setText('healthTransactionCount', String(snapshot.transactionCount));
+    setText('healthSavingsTransferCount', String(snapshot.savingsTransferCount));
+    setText('healthPossibleIssues', String(snapshot.possibleIssues));
+}
+
+function runDataHealthCheck() {
+    const snapshot = getFinanceHealthSnapshot();
+    const results = document.getElementById('settingsHealthResults');
+    updateFinanceHealthCards(snapshot);
+
+    if (results) {
+        results.innerHTML = `
+            <strong>Finance Health Check</strong><br>
+            Missing dates: ${snapshot.missingDates.length}<br>
+            Invalid amounts: ${snapshot.invalidAmounts.length}<br>
+            Duplicate savings transfer transactions: ${snapshot.duplicateSavingsCount}
+        `;
+    }
+
+    showToast(
+        snapshot.possibleIssues
+            ? 'Finance health check found issues.'
+            : 'Finance health check passed.',
+        snapshot.possibleIssues ? 'info' : 'success'
+    );
+}
+
+async function repairSavingsDuplicatesFromSettings() {
+    try {
+        const repaired = await repairDuplicateSavingsMigrationTransactions();
+        await syncSavedMoneyFromTransactions();
+        renderTransactions({ refreshFilters: true, animate: false });
+        renderSavingsTransactions();
+        updateDashboard({ animate: false });
+        renderAnalytics();
+        updateFinanceHealthCards();
+        showToast(repaired ? 'Savings duplicates repaired.' : 'No savings duplicates found.', repaired ? 'success' : 'info');
+    } catch (error) {
+        console.error('Savings duplicate repair failed:', error);
+        showToast('Savings duplicate repair failed.', 'error');
+    }
+}
+
+function clearLocalData() {
+    if (!confirm('Clear local finance data from this browser?')) return;
+    ['transactions', 'savingsTransactions', 'savedMoney', 'subscriptions', 'jobs', 'shifts', 'lastSelectedJobId'].forEach(key => localStorage.removeItem(key));
+    transactions = [];
+    savingsTransactions = [];
+    savedMoney = 0;
+    subscriptions = [];
+    jobs = [];
+    shifts = [];
+    lastSelectedJobId = null;
+    saveData();
+    saveSubscriptions();
+    renderTransactions({ refreshFilters: true, animate: false });
+    renderSavingsTransactions();
+    renderSubscriptions();
+    renderJobs();
+    renderShifts();
+    renderVisualCalendar();
+    updateDashboard({ animate: false });
+    showToast('Local data cleared.', 'success');
+}
+
+function openStartingPage() {
+    const targets = {
+        dashboard: 'body',
+        transactions: '#transactionHistoryCard',
+        savings: '#savingsCard',
+        hours: '#hoursTrackerCard',
+        subscriptions: '#subscriptionsCard',
+        calendar: '#visualCalendar',
+        analytics: '.analytics-section'
+    };
+    trackerSettings.preferences.startingPage = 'dashboard';
+    trackerSettings.dashboard.defaultPage = 'dashboard';
+    const selector = targets.dashboard;
+    if (selector) {
+        requestAnimationFrame(() => document.querySelector(selector)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    }
+}
+
+// --- Temporary Repair Tool for Savings Transfer Duplicates/Orphans ---
+function transactionDateKey(transaction) {
+    return String(transaction.date || transaction.created_at || '').slice(0, 10);
+}
+
+function transactionAmountKey(transaction) {
+    return Number(transaction.amount || 0).toFixed(2);
+}
+
+function isSavingsTransferDescription(description) {
+    const value = String(description || '').trim().toLowerCase();
+    return value === 'existing savings balance' ||
+        value === 'savings deposit' ||
+        value === 'moved to savings' ||
+        value === 'withdrawn from savings' ||
+        value === 'savings withdrawal' ||
+        value === 'deleted savings deposit reversal' ||
+        value === 'deleted savings withdrawal reversal';
+}
+
+function isSavingsTransferRow(transaction) {
+    return String(transaction.category || '').trim().toLowerCase() === 'savings transfer' ||
+        isSavingsTransferDescription(transaction.description);
+}
+
+function getSavingsTransferKey(transaction) {
+    return [
+        String(transaction.type || '').trim().toLowerCase(),
+        transactionAmountKey(transaction),
+        transactionDateKey(transaction)
+    ].join('|');
+}
+
+async function repairBalanceNow() {
+    const beforeBalance = Number(document.getElementById('balance')?.textContent || 0);
+    const savingsRows = transactions.filter(isSavingsTransferRow);
+    const normalRows = transactions.filter(transaction => !isSavingsTransferRow(transaction));
+    const keepSavings = [];
+    const removeSavings = [];
+    const seen = new Set();
+
+    for (const transaction of savingsRows) {
+        const description = String(transaction.description || '').trim().toLowerCase();
+        const key = getSavingsTransferKey(transaction);
+
+        if (description === 'existing savings balance') {
+            removeSavings.push(transaction);
+            continue;
+        }
+
+        if (seen.has(key)) {
+            removeSavings.push(transaction);
+            continue;
+        }
+
+        seen.add(key);
+        keepSavings.push(transaction);
+    }
+
+    if (supabaseClient && removeSavings.length) {
+        for (const transaction of removeSavings) {
+            if (transaction.id && /^\d+$/.test(String(transaction.id))) {
+                const { error } = await supabaseClient
+                    .from('transactions')
+                    .delete()
+                    .eq('id', transaction.id);
+
+                if (error) {
+                    console.error('Could not delete duplicate transaction:', transaction, error);
+                    showToast('Could not delete one duplicate: ' + error.message, 'error');
+                    return;
+                }
+            }
+        }
+    }
+
+    transactions = [...normalRows, ...keepSavings].sort((a, b) => new Date(b.created_at || b.date || 0) - new Date(a.created_at || a.date || 0));
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+
+    renderTransactions();
+    updateDashboard();
+    renderAnalytics();
+
+    const afterBalance = Number(document.getElementById('balance')?.textContent || 0);
+    console.table({
+        removed: removeSavings.length,
+        beforeBalance,
+        afterBalance,
+        savingsRowsBefore: savingsRows.length,
+        savingsRowsAfter: keepSavings.length
+    });
+
+    showToast(`Repair complete. Removed ${removeSavings.length} duplicate savings transfer${removeSavings.length === 1 ? '' : 's'}.`, removeSavings.length ? 'success' : 'info');
+}
+// --- End Repair Tool ---
 async function addJob() {
     const name = document.getElementById('jobName').value.trim();
     const rate = Number(document.getElementById('jobRate').value);
@@ -2757,61 +5048,12 @@ async function addSavings() {
         return;
     }
 
-    const currentIncome = transactions
-        .filter(t => t.type === 'income')
-        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-
-    const currentExpenses = transactions
-        .filter(t => t.type === 'expense')
-        .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-
-    const spendableBalance = currentIncome - currentExpenses;
+    const spendableBalance = calculateBalance();
 
     if (amount > spendableBalance) {
         showToast(`Not enough balance. You currently have $${spendableBalance.toFixed(2)} available.`, 'error');
         return;
     }
-
-    const transaction = {
-        id: createLocalId('save'),
-        description: 'Saved money',
-        amount,
-        type: 'deposit',
-        created_at: new Date().toISOString()
-    };
-
-    if (supabaseClient) {
-        const { data, error } = await supabaseClient
-            .from('savings_activity')
-            .insert({
-                description: transaction.description,
-                amount: transaction.amount,
-                type: transaction.type,
-                created_at: transaction.created_at
-            })
-            .select()
-            .single();
-
-        if (error) {
-            console.error('Savings activity insert failed:', error);
-            showToast('Savings activity sync failed: ' + error.message, 'error');
-            return;
-        }
-
-        savingsTransactions.unshift(data || transaction);
-    } else {
-        savingsTransactions.unshift(transaction);
-    }
-
-    savedMoney += amount;
-    if (!(await saveSavingsToSupabase())) {
-        savedMoney -= amount;
-        savingsTransactions = savingsTransactions.filter(item => item !== transaction && item.created_at !== transaction.created_at);
-        renderSavingsTransactions();
-        updateDashboard({ animate: false });
-        return;
-    }
-    document.getElementById('savingsAmount').value = '';
 
     const transferResult = await recordTransaction({
         id: createLocalId('tx'),
@@ -2822,9 +5064,12 @@ async function addSavings() {
         created_at: new Date().toISOString()
     });
     if (transferResult.error) {
-        showToast('Savings was updated, but transaction history failed to sync: ' + transferResult.error.message, 'error');
+        showToast('Savings transfer failed to sync: ' + transferResult.error.message, 'error');
+        return;
     }
 
+    await syncSavedMoneyFromTransactions();
+    document.getElementById('savingsAmount').value = '';
     saveData();
     renderSavingsTransactions();
     renderTransactions({ refreshFilters: true, animate: false });
@@ -2846,46 +5091,6 @@ async function withdrawSavings() {
         return;
     }
 
-    const transaction = {
-        id: createLocalId('save'),
-        description: 'Withdrew savings',
-        amount,
-        type: 'withdraw',
-        created_at: new Date().toISOString()
-    };
-
-    if (supabaseClient) {
-        const { data, error } = await supabaseClient
-            .from('savings_activity')
-            .insert({
-                description: transaction.description,
-                amount: transaction.amount,
-                type: transaction.type,
-                created_at: transaction.created_at
-            })
-            .select()
-            .single();
-
-        if (error) {
-            console.error('Savings activity insert failed:', error);
-            showToast('Savings activity sync failed: ' + error.message, 'error');
-            return;
-        }
-
-        savingsTransactions.unshift(data || transaction);
-    } else {
-        savingsTransactions.unshift(transaction);
-    }
-
-    savedMoney -= amount;
-    if (!(await saveSavingsToSupabase())) {
-        savedMoney += amount;
-        savingsTransactions = savingsTransactions.filter(item => item !== transaction && item.created_at !== transaction.created_at);
-        renderSavingsTransactions();
-        updateDashboard({ animate: false });
-        return;
-    }
-
     const transferResult = await recordTransaction({
         id: createLocalId('tx'),
         description: 'Withdrawn from Savings',
@@ -2895,9 +5100,11 @@ async function withdrawSavings() {
         created_at: new Date().toISOString()
     });
     if (transferResult.error) {
-        showToast('Savings was updated, but transaction history failed to sync: ' + transferResult.error.message, 'error');
+        showToast('Savings transfer failed to sync: ' + transferResult.error.message, 'error');
+        return;
     }
 
+    await syncSavedMoneyFromTransactions();
     document.getElementById('savingsAmount').value = '';
 
     saveData();
@@ -2943,9 +5150,36 @@ async function loadSavingsActivity() {
 
     if (data) {
         savingsTransactions = data;
-        await reconcileSavingsFromActivity();
+        await migrateSavingsActivityToTransactions();
+        await syncSavedMoneyFromTransactions();
         renderSavingsTransactions();
     }
+}
+
+async function clearLegacySavingsActivityRows(rows) {
+    if (!supabaseClient || !Array.isArray(rows) || rows.length === 0) return;
+
+    for (const row of rows.filter(isLegacySavingsActivity)) {
+        let query = supabaseClient.from('savings_activity').delete();
+        if (row.id) {
+            query = query.eq('id', row.id);
+        } else {
+            query = query
+                .eq('created_at', row.created_at)
+                .eq('type', row.type)
+                .eq('description', row.description)
+                .eq('amount', Number(row.amount || 0));
+        }
+        const { error } = await query;
+        if (error) {
+            console.error('Legacy savings activity cleanup failed:', error);
+        }
+    }
+}
+
+function isLegacySavingsActivity(row) {
+    return ['deposit', 'withdraw'].includes(String(row?.type || '')) ||
+        !isSavingsTransfer(row);
 }
 
 function renderSavingsTransactions() {
@@ -2953,6 +5187,7 @@ function renderSavingsTransactions() {
     if (!list) return;
 
     list.innerHTML = '';
+    savingsTransactions = getSavingsActivityFromTransactions();
 
     if (savingsTransactions.length === 0) {
         setEmptyState(list, 'No savings activity yet');
@@ -2960,26 +5195,35 @@ function renderSavingsTransactions() {
     }
 
     savingsTransactions
-        .map((transaction, index) => ({ transaction, index }))
-        .sort((a, b) => new Date(b.transaction.created_at) - new Date(a.transaction.created_at))
-        .forEach(({ transaction: t, index }) => {
+        .forEach((t, index) => {
             const card = document.createElement('div');
             card.className = 'transaction-card savings-row';
             card.style.marginBottom = '8px';
             const amount = Number(t.amount || 0);
             const savingsKey = t.id || index;
+            const isDeposit = isSavingsDepositTransaction(t);
+            const savingsType = isDeposit ? 'deposit' : 'withdraw';
+            if (savingsType === 'deposit') {
+                card.classList.add('savings-transfer-in');
+            }
+            if (savingsType === 'withdraw') {
+                card.classList.add('savings-transfer-out');
+            }
             card.innerHTML = `
                 <div class="transaction-card-content">
                     <div>
-                        <strong>${escapeHTML(t.description)}</strong><br>
+                        <div class="transaction-title-row">
+                            <strong>${isDeposit ? '🟢' : '🔵'} ${escapeHTML(t.description)}</strong>
+                            <span class="transaction-type-pill">${isDeposit ? 'Moved In' : 'Withdrawn'}</span>
+                        </div>
                         <span class="transaction-meta">${new Date(t.created_at).toLocaleDateString()}</span>
                     </div>
-                    <span class="transaction-amount" style="color:${t.type === 'deposit' ? 'green' : '#ef4444'}">
-                        ${t.type === 'deposit' ? '+' : '-'}$${amount.toFixed(2)}
+                    <span class="transaction-amount">
+                        ${isDeposit ? '+' : '-'}$${amount.toFixed(2)}
                     </span>
                 </div>
                 <div class="row-actions">
-                    <button class="edit-btn" onclick="editSavingsTransaction('${savingsKey}')" title="Edit savings activity">
+                    <button class="edit-btn" onclick="openEditTransactionPanel('${savingsKey}', this)" title="Edit savings activity">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 20h9"></path>
                             <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
@@ -2997,6 +5241,7 @@ function renderSavingsTransactions() {
                 </div>
             `;
             card.addEventListener('contextmenu', (event) => showContextMenu(event, [
+                { label: 'Edit', run: () => openEditTransactionPanel(savingsKey) },
                 { label: 'Delete', run: () => deleteSavingsTransaction(savingsKey) },
                 { label: 'Copy description', run: () => copyTextToClipboard(t.description, 'Savings description copied.') }
             ]));
@@ -3006,10 +5251,11 @@ function renderSavingsTransactions() {
 
 function savingsDelta(transaction) {
     const amount = Number(transaction?.amount || 0);
-    return transaction?.type === 'deposit' ? amount : -amount;
+    return isSavingsDepositTransaction(transaction) ? amount : -amount;
 }
 
 function getSavingsTransactionIndex(key) {
+    savingsTransactions = getSavingsActivityFromTransactions();
     const indexById = savingsTransactions.findIndex(transaction => sameId(transaction.id, key));
     if (indexById !== -1) return indexById;
 
@@ -3019,151 +5265,41 @@ function getSavingsTransactionIndex(key) {
         : -1;
 }
 
-function savingsDeleteReversalTransaction(transaction) {
-    const isDeposit = transaction?.type === 'deposit';
-    return {
-        id: createLocalId('tx'),
-        description: isDeposit ? 'Deleted Savings Deposit Reversal' : 'Deleted Savings Withdrawal Reversal',
-        amount: Number(transaction?.amount || 0),
-        category: 'Savings Transfer',
-        type: isDeposit ? 'income' : 'expense',
-        created_at: new Date().toISOString()
-    };
-}
-
-async function reconcileSavingsFromActivity() {
-    if (!savingsTransactions.length) return;
-
-    const reconciledSavedMoney = savingsTransactions
-        .reduce((sum, transaction) => sum + savingsDelta(transaction), 0);
-
-    if (Math.abs(Number(savedMoney || 0) - reconciledSavedMoney) < 0.01) return;
-
-    savedMoney = Math.max(0, reconciledSavedMoney);
-    await saveSavingsToSupabase();
-    saveData();
-    updateDashboard();
-}
-
-async function editSavingsTransaction(key) {
-    const index = getSavingsTransactionIndex(key);
-    const transaction = savingsTransactions[index];
-    if (!transaction) return;
-
-    const nextAmount = Number(prompt('Update savings activity amount', Number(transaction.amount || 0)));
-    if (!nextAmount || nextAmount <= 0) return;
-
-    const oldDelta = savingsDelta(transaction);
-    const updatedTransaction = { ...transaction, amount: nextAmount };
-    const newDelta = savingsDelta(updatedTransaction);
-    const nextSavedMoney = savedMoney + (newDelta - oldDelta);
-
-    if (supabaseClient) {
-        const { error } = await updateSavingsActivityRemote(transaction, { amount: nextAmount });
-        if (error) {
-            console.error('Savings activity update failed:', error);
-            showToast('Savings activity failed to update: ' + error.message, 'error');
-            return;
-        }
-    }
-
-    savedMoney = nextSavedMoney;
-    if (!(await saveSavingsToSupabase())) {
-        savedMoney -= newDelta - oldDelta;
-        return;
-    }
-
-    transaction.amount = nextAmount;
-    saveData();
-    renderSavingsTransactions();
-    updateDashboard();
-}
-
 async function deleteSavingsTransaction(key) {
     const index = getSavingsTransactionIndex(key);
     const transaction = savingsTransactions[index];
     if (!transaction || !confirm('Delete this savings activity?')) return;
+    await deleteSavingsTransferTransaction(transaction.id);
+}
 
-    const delta = savingsDelta(transaction);
-    const nextSavedMoney = savedMoney - delta;
+async function deleteSavingsTransferTransaction(transactionId, buttonElement) {
+    const transaction = transactions.find(item => sameId(item.id, transactionId));
+    if (!transaction || !isSavingsTransfer(transaction)) return;
 
-    if (supabaseClient) {
-        const { error } = await deleteSavingsActivityRemote(transaction);
+    const card = buttonElement?.closest('.transaction-card');
+    if (card) {
+        card.classList.add('deleting');
+        await new Promise(resolve => setTimeout(resolve, 400));
+    }
+
+    if (transaction.id && supabaseClient && /^\d+$/.test(String(transaction.id))) {
+        const { error } = await deleteTransactionRemote(transaction);
         if (error) {
-            console.error('Savings activity delete failed:', error);
-            showToast('Savings activity failed to delete: ' + error.message, 'error');
+            console.error('Savings transfer delete failed:', error);
+            showToast('Savings transfer failed to delete: ' + error.message, 'error');
             return;
         }
     }
 
-    savedMoney = nextSavedMoney;
-    if (!(await saveSavingsToSupabase())) {
-        savedMoney += delta;
-        return;
-    }
-
-    const reversalTransaction = savingsDeleteReversalTransaction(transaction);
-    const reversalResult = await recordTransaction(reversalTransaction);
-    if (reversalResult.error) {
-        transactions.unshift(reversalTransaction);
-        syncTransactionTotals();
-        showToast('Savings activity was deleted, but transaction history failed to sync: ' + reversalResult.error.message, 'error');
-    }
-
-    savingsTransactions.splice(index, 1);
+    transactions = transactions.filter(item => !sameId(item.id, transactionId));
+    savingsTransactions = getSavingsActivityFromTransactions();
+    await syncSavedMoneyFromTransactions();
+    calculateBalance();
     saveData();
     renderSavingsTransactions();
     renderTransactions({ refreshFilters: true, animate: false });
-    updateDashboard();
-}
-
-async function updateSavingsActivityRemote(transaction, changes) {
-    if (transaction.id) {
-        const result = await supabaseClient
-            .from('savings_activity')
-            .update(changes)
-            .eq('id', transaction.id);
-        if (result.error) return result;
-    }
-
-    return supabaseClient
-        .from('savings_activity')
-        .update(changes)
-        .eq('created_at', transaction.created_at)
-        .eq('type', transaction.type)
-        .eq('description', transaction.description)
-        .eq('amount', Number(transaction.amount || 0));
-}
-
-async function deleteSavingsActivityRemote(transaction) {
-    if (!supabaseClient) return { error: null };
-
-    // Try deleting by ID first.
-    if (transaction.id) {
-        const { data, error } = await supabaseClient
-            .from('savings_activity')
-            .delete()
-            .eq('id', transaction.id)
-            .select();
-
-        if (error) return { error };
-
-        if (data && data.length > 0) {
-            return { error: null };
-        }
-    }
-
-    // Fallback delete.
-    const result = await supabaseClient
-        .from('savings_activity')
-        .delete()
-        .eq('created_at', transaction.created_at)
-        .eq('type', transaction.type)
-        .eq('description', transaction.description)
-        .eq('amount', Number(transaction.amount || 0))
-        .select();
-
-    return result;
+    updateDashboard({ animate: false });
+    showToast('Savings transfer deleted.', 'success');
 }
 
 async function loadSettings() {
@@ -3231,22 +5367,27 @@ async function loadFromSupabase() {
         created_at: t.created_at
     }));
 
-    syncTransactionTotals();
+    categories = mergeCategoryList(categories, loadCategoriesFromTransactions());
+    saveCategories();
+    await repairDuplicateSavingsMigrationTransactions();
+    await syncSavedMoneyFromTransactions();
+    calculateBalance();
     saveData();
     renderTransactions({ refreshFilters: true, animate: false });
+    renderSavingsTransactions();
     updateDashboard({ animate: false });
+    logBalanceConsistency();
 }
 
 function updateDashboard(options = {}) {
     const animate = options.animate !== false;
-    syncTransactionTotals();
+    const balance = calculateBalance();
     updateAnalyticsFilterGlow();
     const spendingExpenses = getSpendingExpenseTotal();
     animateValue('income', Number(document.getElementById('income').textContent || 0), income, animate ? 600 : 0);
     animateValue('expenses', Number(document.getElementById('expenses').textContent || 0), spendingExpenses, animate ? 600 : 0);
     animateValue('savedMoney', Number(document.getElementById('savedMoney').textContent || 0), savedMoney, animate ? 600 : 0);
 
-    const balance = income - expenses;
     animateValue('balance', Number(document.getElementById('balance').textContent || 0), balance, animate ? 600 : 0);
     animateValue('savedAmount', Number(document.getElementById('savedAmount').textContent || 0), savedMoney, animate ? 600 : 0);
 
@@ -3260,6 +5401,7 @@ function updateDashboard(options = {}) {
 
     updateDashboardInsights();
     drawChart({ animate });
+    drawTopCategoriesChart(1);
 }
 
 function updateDashboardInsights() {
@@ -3336,7 +5478,7 @@ function ensureTransactionIds() {
     return changed;
 }
 
-function syncTransactionTotals() {
+function calculateBalance() {
     income = transactions
         .filter(t => t.type === 'income')
         .reduce((sum, t) => sum + Number(t.amount || 0), 0);
@@ -3344,10 +5486,50 @@ function syncTransactionTotals() {
     expenses = transactions
         .filter(t => t.type === 'expense')
         .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+    return income - expenses;
 }
 
 function isSavingsTransfer(transaction) {
     return transaction?.category === 'Savings Transfer';
+}
+
+function isSavingsDepositTransaction(transaction) {
+    return isSavingsTransfer(transaction) && transaction?.type === 'expense';
+}
+
+function isSavingsWithdrawalTransaction(transaction) {
+    return isSavingsTransfer(transaction) && transaction?.type === 'income';
+}
+
+function getSavingsActivityFromTransactions() {
+    return transactions
+        .filter(isSavingsTransfer)
+        .map(transaction => ({
+            ...transaction,
+            savingsType: isSavingsDepositTransaction(transaction) ? 'deposit' : 'withdraw',
+            type: transaction.type
+        }))
+        .sort((a, b) => getTransactionDate(b) - getTransactionDate(a));
+}
+
+function getSavedMoneyFromTransferTransactions() {
+    return transactions
+        .filter(isSavingsTransfer)
+        .reduce((sum, transaction) => {
+            const amount = Number(transaction.amount || 0);
+            return sum + (isSavingsDepositTransaction(transaction) ? amount : -amount);
+        }, 0);
+}
+
+async function syncSavedMoneyFromTransactions(options = {}) {
+    const nextSavedMoney = Math.max(0, getSavedMoneyFromTransferTransactions());
+    if (Math.abs(Number(savedMoney || 0) - nextSavedMoney) < 0.01) return true;
+
+    savedMoney = nextSavedMoney;
+    if (options.remote !== false && !(await saveSavingsToSupabase())) return false;
+    saveData();
+    return true;
 }
 
 function isSpendingExpense(transaction) {
@@ -3358,6 +5540,135 @@ function getSpendingExpenseTotal(source = transactions) {
     return source
         .filter(isSpendingExpense)
         .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+}
+
+function isSavingsMigrationTransaction(transaction) {
+    const description = String(transaction?.description || '');
+    return transaction?.category === 'Savings Transfer' && [
+        'Existing Savings Balance',
+        'Savings Deposit',
+        'Savings Withdrawal',
+        'Moved to Savings',
+        'Withdrawn from Savings'
+    ].includes(description);
+}
+
+function savingsMigrationSignature(transaction) {
+    const date = transaction?.created_at
+        ? new Date(transaction.created_at).toISOString()
+        : '';
+    return [
+        transaction?.description || '',
+        transaction?.category || '',
+        transaction?.type || '',
+        Number(transaction?.amount || 0).toFixed(2),
+        date
+    ].join('|');
+}
+
+function savingsMigrationDaySignature(transaction) {
+    const description = String(transaction?.description || '');
+    const canonicalDescription = ['Savings Deposit', 'Moved to Savings'].includes(description)
+        ? 'Savings Deposit'
+        : ['Savings Withdrawal', 'Withdrawn from Savings'].includes(description)
+            ? 'Savings Withdrawal'
+            : description;
+    const date = transaction?.created_at
+        ? new Date(transaction.created_at).toISOString().slice(0, 10)
+        : '';
+    return [
+        canonicalDescription,
+        transaction?.category || '',
+        transaction?.type || '',
+        Number(transaction?.amount || 0).toFixed(2),
+        date
+    ].join('|');
+}
+
+async function deleteTransactionRemote(transaction) {
+    if (!supabaseClient || !transaction?.id || !/^\d+$/.test(String(transaction.id))) {
+        return { error: null };
+    }
+
+    const { error } = await supabaseClient
+        .from('transactions')
+        .delete()
+        .eq('id', transaction.id);
+
+    return { error };
+}
+
+async function repairDuplicateSavingsMigrationTransactions() {
+    const seen = new Map();
+    const duplicates = [];
+    const existingSavings = transactions
+        .filter(item => item.description === 'Existing Savings Balance')
+        .sort((a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+    const automaticTransferKeys = new Set(transactions
+        .filter(item => ['Moved to Savings', 'Withdrawn from Savings'].includes(item.description))
+        .map(savingsMigrationDaySignature));
+    const hasDetailedSavingsHistory = transactions.some(item =>
+        item.category === 'Savings Transfer' &&
+        ['Savings Deposit', 'Savings Withdrawal', 'Moved to Savings', 'Withdrawn from Savings'].includes(item.description)
+    );
+
+    transactions.forEach(transaction => {
+        if (!isSavingsMigrationTransaction(transaction)) return;
+
+        if (transaction.description === 'Existing Savings Balance') {
+            const keepExisting = !hasDetailedSavingsHistory && existingSavings[0] && sameId(transaction.id, existingSavings[0].id);
+            if (!keepExisting) duplicates.push(transaction);
+            return;
+        }
+
+        if (['Savings Deposit', 'Savings Withdrawal'].includes(transaction.description) &&
+            automaticTransferKeys.has(savingsMigrationDaySignature(transaction))) {
+            duplicates.push(transaction);
+            return;
+        }
+
+        const signature = savingsMigrationSignature(transaction);
+        if (seen.has(signature)) {
+            duplicates.push(transaction);
+            return;
+        }
+        seen.set(signature, transaction);
+    });
+
+    if (duplicates.length === 0) return false;
+
+    for (const duplicate of duplicates) {
+        const { error } = await deleteTransactionRemote(duplicate);
+        if (error) {
+            console.error('Duplicate savings transfer cleanup failed:', error);
+        }
+    }
+
+    const duplicateRefs = new Set(duplicates);
+    transactions = transactions.filter(item => !duplicateRefs.has(item));
+    calculateBalance();
+    saveData();
+    return true;
+}
+
+function logBalanceConsistency() {
+    const calculatedBalance = calculateBalance();
+    const balanceElement = document.getElementById('balance');
+    const displayedBalance = Number(balanceElement?.textContent || 0);
+
+    if (localStorage.getItem('debugFinanceTracker') === 'true') {
+        console.info('Finance tracker balance check', {
+            income,
+            expenses,
+            savedMoney,
+            calculatedBalance,
+            displayedBalance
+        });
+    }
+
+    if (balanceElement && Math.abs(displayedBalance - calculatedBalance) >= 0.01) {
+        balanceElement.textContent = calculatedBalance.toFixed(2);
+    }
 }
 
 function closeEditTransactionPanel() {
@@ -3441,6 +5752,7 @@ function openEditTransactionPanel(transactionId, triggerElement) {
         y: window.scrollY
     };
 
+    applyCustomCategoriesToDropdowns();
     document.getElementById('editTransactionId').value = transaction.id || '';
     document.getElementById('editTransactionDescription').value = transaction.description || '';
     document.getElementById('editTransactionAmount').value = Number(transaction.amount || 0);
@@ -3526,8 +5838,10 @@ async function saveTransactionEdit() {
     };
 
     transactions = transactions.map((item) => (sameId(item.id, transactionId) ? updatedTransaction : item));
-    syncTransactionTotals();
+    await syncSavedMoneyFromTransactions();
+    calculateBalance();
     saveData();
+    renderSavingsTransactions();
     renderTransactions({ refreshFilters: true, animate: false });
     updateDashboard({ animate: false });
     closeEditTransactionPanel();
@@ -3559,6 +5873,7 @@ function renderTransactions(options = {}) {
         empty.className = 'transaction-empty-state empty-state';
         empty.textContent = 'No transactions found';
         list.appendChild(empty);
+        renderBudgets();
         return;
     }
 
@@ -3620,6 +5935,7 @@ function renderTransactions(options = {}) {
     });
 
     list.appendChild(fragment);
+    renderBudgets();
 }
 
 function getFilteredTransactions(){
@@ -3648,9 +5964,15 @@ function getFilteredTransactions(){
 const debouncedRenderTransactions = debounce(renderTransactions, 150);
 
 function handleTransactionFilterChange() {
-    updateAnalyticsFilterGlow();
-    renderTransactions({ animate: false });
-    updateDashboard({ animate: false });
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+
+    renderTransactions();
+    updateCategoryFilterUI(document.getElementById('filterCategory')?.value || '');
+
+    requestAnimationFrame(() => {
+        window.scrollTo(scrollX, scrollY);
+    });
 }
 
 function updateAnalyticsFilterGlow() {
@@ -3679,6 +6001,11 @@ async function deleteTransaction(transactionId, buttonElement) {
     const t = transactions.find((item) => sameId(item.id, transactionId));
     if (!t) return;
 
+    if (isSavingsTransfer(t)) {
+        await deleteSavingsTransferTransaction(transactionId, buttonElement);
+        return;
+    }
+
     const card = buttonElement?.closest('.transaction-card');
     if (card) {
         card.classList.add('deleting');
@@ -3702,13 +6029,14 @@ async function deleteTransaction(transactionId, buttonElement) {
     }
 
     transactions = transactions.filter((item) => !sameId(item.id, transactionId));
-    syncTransactionTotals();
+    calculateBalance();
     saveData();
     renderTransactions({ animate: false });
     updateDashboard({ animate: false });
 }
 
 async function recordTransaction(transaction) {
+    if (!transaction.id) transaction.id = createLocalId('tx');
     if (supabaseClient) {
         const { error } = await supabaseClient
             .from('transactions')
@@ -3730,7 +6058,7 @@ async function recordTransaction(transaction) {
     }
 
     transactions.unshift(transaction);
-    syncTransactionTotals();
+    calculateBalance();
     saveData();
     renderTransactions({ refreshFilters: true, animate: false });
     updateDashboard({ animate: false });
@@ -3750,49 +6078,28 @@ function savingsActivityMigrationTransaction(activity) {
 }
 
 function hasMatchingSavingsMigrationTransaction(transaction) {
+    const signature = savingsMigrationSignature(transaction);
+    const daySignature = savingsMigrationDaySignature(transaction);
     return transactions.some(item =>
-        item.description === transaction.description &&
-        item.category === transaction.category &&
-        item.type === transaction.type &&
-        Number(item.amount || 0) === Number(transaction.amount || 0) &&
-        String(item.created_at || '') === String(transaction.created_at || '')
+        isSavingsMigrationTransaction(item) &&
+        (savingsMigrationSignature(item) === signature || savingsMigrationDaySignature(item) === daySignature)
     );
 }
 
 async function removeExistingSavingsBalanceTransaction() {
-    const lumpTransactions = transactions.filter(item => item.description === 'Existing Savings Balance');
-    if (lumpTransactions.length === 0) return true;
-
-    for (const transaction of lumpTransactions) {
-        if (supabaseClient && transaction.id && /^\d+$/.test(String(transaction.id))) {
-            const { error } = await supabaseClient
-                .from('transactions')
-                .delete()
-                .eq('id', transaction.id);
-
-            if (error) {
-                console.error('Existing savings balance cleanup failed:', error);
-                return false;
-            }
-        }
-    }
-
-    transactions = transactions.filter(item => item.description !== 'Existing Savings Balance');
-    saveData();
-    if (supabaseClient) await loadFromSupabase();
+    await repairDuplicateSavingsMigrationTransactions();
     return true;
 }
 
 async function migrateSavingsActivityToTransactions() {
     const migrationKey = 'savingsActivityMigratedToTransactions';
+    const legacySavingsRows = savingsTransactions.slice();
 
     const removedLumpTransaction = await removeExistingSavingsBalanceTransaction();
     if (!removedLumpTransaction) return;
     localStorage.removeItem('existingSavingsMigratedToTransactions');
 
-    if (localStorage.getItem(migrationKey) === 'true') return;
-
-    for (const activity of savingsTransactions) {
+    for (const activity of savingsTransactions.filter(isLegacySavingsActivity)) {
         const transaction = savingsActivityMigrationTransaction(activity);
         if (transaction.amount <= 0 || hasMatchingSavingsMigrationTransaction(transaction)) continue;
 
@@ -3804,7 +6111,12 @@ async function migrateSavingsActivityToTransactions() {
     }
 
     localStorage.setItem(migrationKey, 'true');
+    await repairDuplicateSavingsMigrationTransactions();
+    await syncSavedMoneyFromTransactions();
+    await clearLegacySavingsActivityRows(legacySavingsRows);
+    savingsTransactions = getSavingsActivityFromTransactions();
     saveData();
+    renderSavingsTransactions();
     renderTransactions({ refreshFilters: true, animate: false });
     updateDashboard({ animate: false });
 }
@@ -3835,6 +6147,8 @@ async function addTransaction() {
         return;
     }
 
+    await syncSavedMoneyFromTransactions();
+    renderSavingsTransactions();
     document.getElementById('description').value = '';
     document.getElementById('amount').value = '';
     showToast('Transaction added.', 'success');
@@ -3855,7 +6169,6 @@ const analyticsColors = {
     muted: '#64748b',
     surface: '#ffffff'
 };
-const categoryPalette = ['#2563eb', '#16a34a', '#f59e0b', '#dc2626', '#7c3aed', '#0891b2', '#db2777', '#475569', '#0f766e', '#9333ea'];
 let analyticsPeriod = localStorage.getItem('analyticsPeriod') || 'monthly';
 let analyticsHoverTargets = {};
 let analyticsAnimationFrame = null;
@@ -3882,6 +6195,10 @@ function drawChart(options = {}) {
     analyticsAnimationFrame = requestAnimationFrame(frame);
 }
 
+function renderAnalytics() {
+    drawChart({ animate: false });
+}
+
 function setupChartInteractions() {
     document.querySelectorAll('.segmented-control [data-period]').forEach(button => {
         button.classList.toggle('active', button.dataset.period === analyticsPeriod);
@@ -3905,7 +6222,7 @@ function setupChartInteractions() {
 
         canvas.addEventListener('click', event => {
             const target = getAnalyticsTargetAtEvent(canvas, event);
-            if (target?.category) filterTransactionsByAnalyticsCategory(target.category);
+            if (target?.category) applyCategoryFilter(target.category, event);
         });
     });
 
@@ -4041,7 +6358,8 @@ function drawCategoryDonutChart(progress) {
     let startAngle = -Math.PI / 2;
 
     categories.forEach((item, index) => {
-        const color = categoryPalette[index % categoryPalette.length];
+        const categoryName = item.label;
+        const color = getCategoryChartColor(categoryName, index);
         const slice = (item.value / total) * Math.PI * 2 * progress;
         const endAngle = startAngle + slice;
         const percent = (item.value / total) * 100;
@@ -4056,16 +6374,28 @@ function drawCategoryDonutChart(progress) {
         chartSlices.push({ label: item.label, value: item.value, percent, color, startAngle, endAngle, centerX, centerY, radius, innerRadius });
         analyticsHoverTargets[canvas.id].push({ type: 'arc', category: item.label, label: item.label, value: item.value, percent, startAngle, endAngle, centerX, centerY, radius, innerRadius });
         startAngle += (item.value / total) * Math.PI * 2;
-
-        if (legend) {
-            const row = document.createElement('button');
-            row.type = 'button';
-            row.className = 'legend-row analytics-legend-row';
-            row.onclick = () => filterTransactionsByAnalyticsCategory(item.label);
-            row.innerHTML = `<span class="legend-color" style="background:${color}"></span><span>${escapeHTML(item.label)}</span><strong>${percent.toFixed(0)}% ${formatMoney(item.value)}</strong>`;
-            legend.appendChild(row);
-        }
     });
+
+    if (legend) {
+        const entries = categories.map(item => [item.label, item.value]);
+        legend.innerHTML = entries.map(([categoryName, amount], index) => {
+            const color = getCategoryChartColor(categoryName, index);
+            const percent = total ? Math.round((amount / total) * 100) : 0;
+            const safeName = typeof escapeHTML === 'function'
+                ? escapeHTML(categoryName)
+                : String(categoryName);
+
+            return `
+                <div class="legend-row" style="--category-color:${color}">
+                    <div class="legend-main">
+                        <span class="legend-color" style="background:${color}"></span>
+                        <span class="legend-name" style="color:${color}">${safeName} · ${percent}%</span>
+                    </div>
+                    <span class="legend-amount" style="color:${color}">$${Number(amount || 0).toFixed(2)}</span>
+                </div>
+            `;
+        }).join('');
+    }
 
     const dominantPercent = categories[0] ? (categories[0].value / total) * 100 : 0;
     ctx.fillStyle = getThemeColor('--text', analyticsColors.text);
@@ -4075,7 +6405,7 @@ function drawCategoryDonutChart(progress) {
     ctx.fillText(`${dominantPercent.toFixed(0)}%`, centerX, centerY - 16);
     ctx.fillStyle = getThemeColor('--muted', analyticsColors.muted);
     ctx.font = '800 12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
-    ctx.fillText(categories[0]?.label || 'top category', centerX, centerY + 12);
+    ctx.fillText(categories[0] ? getCategoryLabel(categories[0].label) : 'top category', centerX, centerY + 12);
     ctx.fillText(formatMoney(total), centerX, centerY + 32);
 }
 
@@ -4104,11 +6434,46 @@ function drawCashFlowChart(progress) {
 }
 
 function drawTopCategoriesChart(progress) {
-    const canvas = document.getElementById('topCategoriesChart');
-    const chart = prepareChart(canvas);
-    if (!chart) return;
+    const container = document.getElementById('topSpendingCategories');
+    if (!container) return;
     const rows = aggregateByCategory(getAnalyticsTransactions().filter(isSpendingExpense)).slice(0, 8);
-    drawHorizontalBars(chart, rows, progress);
+    renderTopSpendingCategories(container, rows, progress);
+}
+
+function renderTopSpendingCategories(container, rows, progress = 1) {
+    container.innerHTML = '';
+
+    if (!rows.length) {
+        container.innerHTML = '<p class="empty-state">Add expenses to rank categories</p>';
+        return;
+    }
+
+    const maxValue = Math.max(...rows.map(row => row.value), 1);
+    rows.forEach((row, index) => {
+        const categoryName = row.label;
+        const amount = row.value;
+        const percent = (amount / maxValue) * 100 * progress;
+        const color = getCategoryChartColor(categoryName, index);
+
+        const template = document.createElement('template');
+        template.innerHTML = `
+            <div class="mini-chart-row" style="--category-color:${color}">
+                <span class="category-color-dot" style="background:${color}"></span>
+                <div class="mini-chart-label">
+                    <strong style="color:${color}">${escapeHTML(categoryName)}</strong>
+                </div>
+                <div class="mini-chart-amount" style="color:${color}">
+                    $${amount.toFixed(2)}
+                </div>
+                <div class="mini-chart-track">
+                    <div class="mini-chart-fill" style="width:${percent}%; background:${color};"></div>
+                </div>
+            </div>
+        `;
+        const item = template.content.firstElementChild;
+        item.onclick = (event) => applyCategoryFilter(categoryName, event);
+        container.appendChild(item);
+    });
 }
 
 function prepareChart(canvas) {
@@ -4290,11 +6655,11 @@ function drawHorizontalBars(chart, rows, progress) {
         const x = plot.left + 112;
         const available = width - x - plot.right;
         const barWidth = (row.value / maxValue) * available * progress;
-        const color = categoryPalette[index % categoryPalette.length];
+        const color = getCategoryChartColor(row.label, index);
         ctx.fillStyle = getThemeColor('--text', analyticsColors.text);
         ctx.font = '700 12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
         ctx.textAlign = 'right';
-        ctx.fillText(row.label, x - 12, y + barHeight / 2 + 4);
+        ctx.fillText(getCategoryLabel(row.label), x - 12, y + barHeight / 2 + 4);
         ctx.fillStyle = 'rgba(148, 163, 184, 0.16)';
         roundRect(ctx, x, y, available, barHeight, 9);
         ctx.fill();
@@ -4513,14 +6878,50 @@ function calculateNoSpendStreak() {
     return streak;
 }
 
-function filterTransactionsByAnalyticsCategory(category) {
-    const catSelect = document.getElementById('filterCategory');
-    if (!catSelect) return;
-    populateTransactionFilters({ force: true });
-    catSelect.value = category;
-    renderTransactions({ animate: false });
-    updateDashboard({ animate: false });
-    document.getElementById('transactionList')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+function preserveScroll(callback) {
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    callback();
+    requestAnimationFrame(() => window.scrollTo(scrollX, scrollY));
+}
+
+function updateCategoryFilterUI(category) {
+    const status = document.getElementById('categoryFilterStatus');
+    const clearButton = document.getElementById('clearCategoryFilterButton');
+
+    if (status) {
+        status.textContent = category ? `Filtering: ${category}` : 'Click a category to filter';
+    }
+
+    if (clearButton) {
+        clearButton.style.display = category ? '' : 'none';
+    }
+}
+
+function applyCategoryFilter(category, event) {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+
+    preserveScroll(() => {
+        const filter = document.getElementById('filterCategory');
+        if (filter) filter.value = category || '';
+
+        renderTransactions();
+        updateCategoryFilterUI(category || '');
+    });
+}
+
+function clearCategoryFilter(event) {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+
+    preserveScroll(() => {
+        const filter = document.getElementById('filterCategory');
+        if (filter) filter.value = '';
+
+        renderTransactions();
+        updateCategoryFilterUI('');
+    });
 }
 
 function getAnalyticsTargetAtEvent(canvas, event) {
@@ -4552,7 +6953,10 @@ function showAnalyticsTooltip(event, target) {
     tooltip.style.display = 'block';
     tooltip.style.left = `${event.clientX + 14}px`;
     tooltip.style.top = `${event.clientY + 14}px`;
-    const label = target.series ? `${target.series} • ${target.label}` : target.label;
+    const displayLabel = target.category && target.label === target.category
+        ? getCategoryLabel(target.label)
+        : target.label;
+    const label = target.series ? `${target.series} • ${displayLabel}` : displayLabel;
     const percent = typeof target.percent === 'number' ? `<br>${target.percent.toFixed(1)}% of spending` : '';
     tooltip.innerHTML = `<strong>${escapeHTML(label)}</strong><br>${formatMoney(target.value)}${percent}`;
 }
@@ -4687,7 +7091,7 @@ function populateTransactionFilters(options = {}) {
 
     const nextSignature = transactions
         .map(t => `${t.created_at || ''}|${t.category || ''}`)
-        .join('||');
+        .join('||') + '::' + (window.trackerCategories || []).map(category => `${category.name}|${category.order}`).join('||');
 
     if (!options.force && nextSignature === transactionFilterSignature) return;
 
@@ -4709,6 +7113,9 @@ function populateTransactionFilters(options = {}) {
             years[y] = true;
         }
         if (t.category) categories[t.category] = true;
+    });
+    (window.trackerCategories || []).forEach(category => {
+        if (category.name) categories[category.name] = true;
     });
 
     // clear then add
@@ -4733,14 +7140,16 @@ function populateTransactionFilters(options = {}) {
 
 async function initializeApp() {
     await loadSettings();
-    await loadSavingsActivity();
     await loadFromSupabase();
+    await loadSavingsActivity();
     await migrateSavingsActivityToTransactions();
+    await repairDuplicateSavingsMigrationTransactions();
     await loadSubscriptions();
     await loadJobsFromSupabase();
     await loadShiftsFromSupabase();
 
     setTodayDate();
+    applyCustomCategoriesToDropdowns();
     renderJobs();
     renderTransactions({ refreshFilters: true, animate: true });
     renderSavingsTransactions();
@@ -4748,11 +7157,16 @@ async function initializeApp() {
     renderVisualCalendar();
     setupChartInteractions();
     setupKeyboardShortcuts();
+    populateSettingsCategoryOptions();
+    renderCustomCategories();
+    renderBudgets();
+    applyTrackerSettings();
     updateDashboard({ animate: true });
-    showToast('Polish features loaded.', 'success');
+    logBalanceConsistency();
 
     // populate filter selects
     populateTransactionFilters();
+    updateCategoryFilterUI(document.getElementById('filterCategory')?.value || '');
 
     const subscriptionButton = document.querySelector('button[onclick="toggleSection(\'subscriptionCalendarWrapper\', this)"]');
     if (subscriptionButton) {
@@ -4760,7 +7174,8 @@ async function initializeApp() {
     }
     const subState = localStorage.getItem('section_subscriptionCalendarWrapper');
     if (subState === 'hidden') {
-        document.getElementById('subscriptionCalendarWrapper').style.display = 'none';
+        const subscriptionWrapper = document.getElementById('subscriptionCalendarWrapper');
+        if (subscriptionWrapper) subscriptionWrapper.style.display = 'none';
     }
 
     restoreSectionState(
@@ -4772,6 +7187,8 @@ async function initializeApp() {
         'shiftListWrapper',
         'button[onclick*="shiftListWrapper"]'
     );
+
+    openStartingPage();
 }
 
 initializeApp();
@@ -4781,13 +7198,13 @@ async function refreshAppData() {
     if (refreshInProgress || document.hidden) return;
     refreshInProgress = true;
     try {
+        await loadSettings();
+        await loadFromSupabase();
+        await loadSavingsActivity();
         await Promise.all([
-            loadFromSupabase(),
             loadSubscriptions(),
             loadJobsFromSupabase(),
-            loadShiftsFromSupabase(),
-            loadSettings(),
-            loadSavingsActivity()
+            loadShiftsFromSupabase()
         ]);
     } finally {
         refreshInProgress = false;
@@ -4851,51 +7268,7 @@ document.addEventListener('visibilitychange', () => {
             <input type="number" id="editTransactionAmount" placeholder="Amount" step="0.01" onkeydown="handleEditTransactionKeydown(event)">
         </div>
 
-        <select id="editTransactionCategory" onkeydown="handleEditTransactionKeydown(event)">
-            <optgroup label="Income">
-                <option value="Paycheck">💼 Paycheck</option>
-                <option value="Bonus">🎉 Bonus</option>
-                <option value="Refund">↩️ Refund</option>
-                <option value="Gift">🎁 Gift</option>
-                <option value="Interest">💰 Interest</option>
-                <option value="Investment">📈 Investment</option>
-                <option value="Side Hustle">🛠️ Side Hustle</option>
-                <option value="Selling Items">📦 Selling Items</option>
-                <option value="Cash">💵 Cash</option>
-                <option value="Other Income">🔸 Other Income</option>
-            </optgroup>
-            <optgroup label="Expenses">
-                <option value="Groceries">🛒 Groceries</option>
-                <option value="Restaurants">🍔 Restaurants</option>
-                <option value="Fast Food">🍟 Fast Food</option>
-                <option value="Coffee">☕ Coffee</option>
-                <option value="Gas">⛽ Gas</option>
-                <option value="Parking">🅿️ Parking</option>
-                <option value="Toll">🛣️ Toll</option>
-                <option value="Uber/Lyft">🚕 Uber/Lyft</option>
-                <option value="Car Maintenance">🔧 Car Maintenance</option>
-                <option value="Phone">📱 Phone</option>
-                <option value="Clothing">👕 Clothing</option>
-                <option value="Electronics">🔌 Electronics</option>
-                <option value="Amazon">🛍️ Amazon</option>
-                <option value="Home Goods">🧺 Home Goods</option>
-                <option value="Gifts">🎁 Gifts</option>
-                <option value="Movies">🎬 Movies</option>
-                <option value="Games">🎮 Games</option>
-                <option value="Music">🎵 Music</option>
-                <option value="Streaming">📺 Streaming</option>
-                <option value="Hobbies">🎨 Hobbies</option>
-                <option value="Doctor">🩺 Doctor</option>
-                <option value="Dentist">🦷 Dentist</option>
-                <option value="Pharmacy">💊 Pharmacy</option>
-                <option value="Gym">🏋️‍♂️ Gym</option>
-                <option value="Books">📚 Books</option>
-                <option value="School">🏫 School</option>
-                <option value="Savings Transfer">🏦 Savings Transfer</option>
-                <option value="Pets">🐶 Pets</option>
-                <option value="Other">🔸 Other</option>
-            </optgroup>
-        </select>
+        <select id="editTransactionCategory" onkeydown="handleEditTransactionKeydown(event)"></select>
 
         <select id="editTransactionType" onkeydown="handleEditTransactionKeydown(event)">
             <option value="income">Income</option>
