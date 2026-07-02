@@ -21,6 +21,1078 @@
   --radius-sm: 12px;
 }
 
+/* Premium app refresh: cohesive desktop + mobile visual system. */
+:root {
+    --app-bg: #f5f7fb;
+    --app-bg-2: #eef4fb;
+    --app-panel: rgba(255, 255, 255, 0.92);
+    --app-panel-solid: #ffffff;
+    --app-panel-soft: #f8fafc;
+    --app-ink: #0f172a;
+    --app-muted: #64748b;
+    --app-faint: #94a3b8;
+    --app-line: rgba(148, 163, 184, 0.22);
+    --app-line-strong: rgba(100, 116, 139, 0.24);
+    --app-blue: #2563eb;
+    --app-blue-2: #60a5fa;
+    --app-green: #16a34a;
+    --app-green-2: #4ade80;
+    --app-red: #ef4444;
+    --app-red-2: #fb7185;
+    --app-cyan: #0891b2;
+    --app-purple: #7c3aed;
+    --app-amber: #d97706;
+    --app-radius-xl: 24px;
+    --app-radius-lg: 18px;
+    --app-radius-md: 14px;
+    --app-radius-sm: 10px;
+    --app-shadow-sm: 0 10px 28px rgba(15, 23, 42, 0.06);
+    --app-shadow-md: 0 18px 46px rgba(15, 23, 42, 0.10);
+    --app-shadow-lg: 0 28px 70px rgba(15, 23, 42, 0.14);
+    --app-focus: 0 0 0 4px rgba(37, 99, 235, 0.14);
+    --app-speed: 180ms;
+}
+
+html {
+    background: var(--app-bg);
+}
+
+body {
+    background:
+        radial-gradient(circle at 8% -10%, rgba(96, 165, 250, 0.28), transparent 34rem),
+        radial-gradient(circle at 92% 0%, rgba(74, 222, 128, 0.18), transparent 28rem),
+        linear-gradient(180deg, #fbfdff 0%, var(--app-bg) 38%, var(--app-bg-2) 100%) !important;
+    color: var(--app-ink) !important;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif !important;
+}
+
+.container {
+    max-width: 1480px !important;
+    margin: 0 auto !important;
+    padding: 28px clamp(18px, 3vw, 42px) 48px !important;
+}
+
+.app-header {
+    position: relative !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: end !important;
+    gap: 14px !important;
+    min-height: 0 !important;
+    margin: 0 0 18px !important;
+    padding: 10px 0 0 !important;
+}
+
+.app-header h1 {
+    margin: 0 !important;
+    font-size: clamp(34px, 4vw, 58px) !important;
+    line-height: 1.02 !important;
+    font-weight: 850 !important;
+    letter-spacing: 0 !important;
+    background: linear-gradient(90deg, #0f172a 0%, #1d4ed8 54%, #16a34a 100%) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    text-align: left !important;
+}
+
+.app-header p {
+    grid-column: 1 !important;
+    margin: 4px 0 0 !important;
+    color: var(--app-muted) !important;
+    font-size: 16px !important;
+    line-height: 1.35 !important;
+    text-align: left !important;
+}
+
+.settings-button {
+    position: static !important;
+    grid-column: 2 !important;
+    grid-row: 1 / span 2 !important;
+    align-self: center !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 16px !important;
+    border: 1px solid var(--app-line) !important;
+    border-radius: 999px !important;
+    background: rgba(255, 255, 255, 0.82) !important;
+    color: var(--app-ink) !important;
+    box-shadow: var(--app-shadow-sm) !important;
+    backdrop-filter: blur(18px);
+}
+
+.cards {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+    margin-bottom: 12px !important;
+}
+
+.card {
+    position: relative !important;
+    min-height: 122px !important;
+    padding: 18px !important;
+    border: 1px solid rgba(255, 255, 255, 0.38) !important;
+    border-radius: var(--app-radius-lg) !important;
+    overflow: hidden !important;
+    box-shadow: var(--app-shadow-sm) !important;
+    isolation: isolate;
+    transition: transform var(--app-speed) ease, box-shadow var(--app-speed) ease, filter var(--app-speed) ease !important;
+}
+
+.card::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: -1 !important;
+    background:
+        radial-gradient(circle at 90% 8%, rgba(255, 255, 255, 0.34), transparent 8rem),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0)) !important;
+}
+
+.card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--app-shadow-md) !important;
+}
+
+.balance-card {
+    background: linear-gradient(135deg, #2563eb, #60a5fa) !important;
+}
+
+.income-card {
+    background: linear-gradient(135deg, #16a34a, #4ade80) !important;
+}
+
+.expense-card {
+    background: linear-gradient(135deg, #ef4444, #fb7185) !important;
+}
+
+.savings-card,
+.goal-card {
+    background: linear-gradient(135deg, #0f766e, #14b8a6) !important;
+}
+
+.card h2 {
+    margin: 0 0 12px !important;
+    color: rgba(255, 255, 255, 0.88) !important;
+    font-size: 13px !important;
+    line-height: 1.1 !important;
+    font-weight: 850 !important;
+}
+
+.stat-value {
+    margin: 0 !important;
+    color: #ffffff !important;
+    font-size: clamp(25px, 2.6vw, 35px) !important;
+    line-height: 1.02 !important;
+    font-weight: 850 !important;
+    letter-spacing: 0 !important;
+}
+
+.insight-strip {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+    margin-bottom: 12px !important;
+}
+
+.insight-card,
+.mini-card {
+    border: 1px solid var(--app-line) !important;
+    border-radius: var(--app-radius-md) !important;
+    background: rgba(255, 255, 255, 0.82) !important;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.045) !important;
+    backdrop-filter: blur(16px);
+}
+
+.insight-card {
+    padding: 14px 16px !important;
+}
+
+.insight-label {
+    color: var(--app-muted) !important;
+    font-size: 11px !important;
+    line-height: 1.1 !important;
+    font-weight: 850 !important;
+}
+
+.insight-value {
+    margin-top: 6px !important;
+    color: var(--app-ink) !important;
+    font-size: 18px !important;
+    line-height: 1.1 !important;
+    font-weight: 850 !important;
+}
+
+.dashboard-row,
+.two-column-row {
+    gap: 12px !important;
+    margin-bottom: 12px !important;
+    align-items: start !important;
+    grid-auto-rows: auto !important;
+}
+
+.dashboard-row.two-column-row {
+    grid-template-columns: minmax(360px, 0.9fr) minmax(420px, 1.35fr) !important;
+}
+
+.dashboard-row[style*="grid-template-columns:1fr 2fr"] {
+    grid-template-columns: minmax(360px, 0.95fr) minmax(500px, 1.45fr) !important;
+}
+
+.dashboard-row[style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.transactions,
+.form,
+.analytics-section,
+.analytics-card,
+.analytics-insight-card {
+    position: relative !important;
+    border: 1px solid var(--app-line) !important;
+    border-radius: var(--app-radius-xl) !important;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.91)) !important;
+    box-shadow: var(--app-shadow-sm) !important;
+    backdrop-filter: blur(18px);
+}
+
+.transactions,
+.form {
+    padding: 18px !important;
+}
+
+.transactions h2,
+.form h2,
+.analytics-header h2,
+.analytics-card-header h3 {
+    margin: 0 0 12px !important;
+    color: var(--app-ink) !important;
+    font-size: clamp(19px, 1.75vw, 24px) !important;
+    line-height: 1.12 !important;
+    font-weight: 850 !important;
+    letter-spacing: 0 !important;
+}
+
+.transactions h3,
+.form h3 {
+    color: var(--app-muted) !important;
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+    font-weight: 850 !important;
+}
+
+input,
+select {
+    height: 42px !important;
+    min-height: 42px !important;
+    margin-top: 8px !important;
+    padding: 9px 12px !important;
+    border: 1px solid var(--app-line-strong) !important;
+    border-radius: var(--app-radius-md) !important;
+    background: rgba(255, 255, 255, 0.94) !important;
+    color: var(--app-ink) !important;
+    font-size: 14px !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
+    transition: border-color var(--app-speed) ease, box-shadow var(--app-speed) ease, background var(--app-speed) ease !important;
+}
+
+input:focus,
+select:focus {
+    border-color: rgba(37, 99, 235, 0.62) !important;
+    box-shadow: var(--app-focus) !important;
+    outline: none !important;
+}
+
+.input-with-dollar {
+    margin-top: 8px !important;
+}
+
+.input-with-dollar span {
+    left: 13px !important;
+    color: var(--app-faint) !important;
+    font-size: 13px !important;
+}
+
+.input-with-dollar input {
+    padding-left: 32px !important;
+}
+
+button {
+    min-height: 42px !important;
+    height: 42px !important;
+    border-radius: var(--app-radius-md) !important;
+    font-weight: 850 !important;
+    letter-spacing: 0 !important;
+    transition: transform var(--app-speed) ease, box-shadow var(--app-speed) ease, filter var(--app-speed) ease, background var(--app-speed) ease !important;
+}
+
+.income-btn {
+    background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.20) !important;
+}
+
+.expense-btn {
+    background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 24px rgba(220, 38, 38, 0.18) !important;
+}
+
+.secondary-btn {
+    background: #eef2f7 !important;
+    color: #334155 !important;
+    border: 1px solid rgba(148, 163, 184, 0.24) !important;
+}
+
+button:hover {
+    transform: translateY(-1px) !important;
+    filter: saturate(1.04) !important;
+}
+
+button:focus-visible,
+.settings-tab:focus-visible {
+    outline: none !important;
+    box-shadow: var(--app-focus) !important;
+}
+
+.transaction-select-row,
+.transaction-filters,
+.hours-grid,
+.subscription-form-grid {
+    display: grid !important;
+    gap: 8px !important;
+}
+
+.transaction-select-row {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr) !important;
+    margin-top: 8px !important;
+}
+
+.transaction-select-row select {
+    margin-top: 0 !important;
+}
+
+.transaction-filters {
+    grid-template-columns: minmax(180px, 1.3fr) repeat(4, minmax(110px, 0.75fr)) !important;
+    align-items: center !important;
+    margin-bottom: 10px !important;
+}
+
+.transaction-filters input,
+.transaction-filters select {
+    margin-top: 0 !important;
+}
+
+#transactionList,
+#savingsList,
+#shiftListWrapper,
+#subscriptionCalendarWrapper {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.42) transparent;
+}
+
+.transaction-card,
+.subscription-item,
+.job-row,
+.subscription-row,
+.paycheck-row,
+#savingsCard .savings-row {
+    border: 1px solid rgba(226, 232, 240, 0.88) !important;
+    border-radius: var(--app-radius-md) !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.045) !important;
+    transition: transform var(--app-speed) ease, border-color var(--app-speed) ease, box-shadow var(--app-speed) ease !important;
+}
+
+.transaction-card:hover,
+.subscription-item:hover,
+.job-row:hover,
+.subscription-row:hover,
+.paycheck-row:hover,
+#savingsCard .savings-row:hover {
+    transform: translateY(-1px) !important;
+    border-color: rgba(37, 99, 235, 0.24) !important;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.075) !important;
+}
+
+#transactionHistoryCard #transactionList {
+    max-height: 310px !important;
+    overflow-y: auto !important;
+}
+
+#transactionHistoryCard .transaction-history-card {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 11px 12px !important;
+    margin-bottom: 7px !important;
+}
+
+.transaction-title-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    min-width: 0 !important;
+}
+
+.transaction-title-row strong {
+    color: var(--app-ink) !important;
+    font-size: 14px !important;
+    line-height: 1.18 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.transaction-info-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    margin-top: 4px !important;
+}
+
+.transaction-meta,
+.transaction-date {
+    color: var(--app-muted) !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+}
+
+.transaction-type-pill {
+    border-radius: 999px !important;
+    padding: 3px 7px !important;
+    font-size: 9px !important;
+    line-height: 1 !important;
+    font-weight: 850 !important;
+}
+
+.transaction-type-pill.income {
+    background: #dcfce7 !important;
+    color: #15803d !important;
+}
+
+.transaction-type-pill.expense {
+    background: #fee2e2 !important;
+    color: #b91c1c !important;
+}
+
+.transaction-amount {
+    font-size: 16px !important;
+    font-weight: 850 !important;
+}
+
+.edit-btn,
+.delete-btn {
+    width: 32px !important;
+    min-width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    border-radius: 11px !important;
+}
+
+.edit-btn {
+    background: #eef6ff !important;
+    color: var(--app-blue) !important;
+}
+
+.delete-btn {
+    background: #fff1f2 !important;
+    color: var(--app-red) !important;
+}
+
+.edit-btn svg,
+.delete-btn svg {
+    width: 15px !important;
+    height: 15px !important;
+}
+
+#savingsCard {
+    overflow: hidden !important;
+}
+
+#savingsCard::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    pointer-events: none !important;
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.10), transparent 45%) !important;
+    border-radius: inherit !important;
+}
+
+#savingsCard .input-with-dollar,
+#savingsCard .savings-actions,
+#savingsCard .savings-activity {
+    position: relative !important;
+}
+
+#savingsCard .savings-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin-top: 8px !important;
+}
+
+#savingsCard .savings-row {
+    padding: 10px 11px !important;
+    margin-bottom: 7px !important;
+    border-left-width: 4px !important;
+}
+
+#savingsCard .savings-row .transaction-amount {
+    font-size: 17px !important;
+}
+
+#hoursTrackerCard > div > div:first-child {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+}
+
+#hoursTrackerCard > div > div:first-child select,
+#hoursTrackerCard > div > div:first-child button {
+    margin-top: 0 !important;
+}
+
+.hours-grid {
+    grid-template-columns: 1fr 0.7fr 0.75fr auto auto !important;
+}
+
+.subscription-form-grid {
+    grid-template-columns: 1fr 0.8fr 0.8fr auto !important;
+}
+
+#shiftSummary,
+#nextBillCard,
+#paydayCountdown,
+#calendarDayDetails {
+    border: 1px solid var(--app-line) !important;
+    border-radius: var(--app-radius-md) !important;
+    background: linear-gradient(180deg, #ffffff, #f8fafc) !important;
+}
+
+#subscriptionCalendar {
+    display: grid !important;
+    gap: 6px !important;
+}
+
+.calendar-day {
+    border: 1px solid rgba(226, 232, 240, 0.92) !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: none !important;
+}
+
+.calendar-day:hover {
+    border-color: rgba(37, 99, 235, 0.28) !important;
+    transform: translateY(-1px);
+}
+
+.analytics-section {
+    margin-top: 12px !important;
+    padding: 18px !important;
+    overflow: hidden !important;
+}
+
+.analytics-section::before,
+.analytics-section::after {
+    display: none !important;
+}
+
+.analytics-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 14px !important;
+    margin-bottom: 12px !important;
+    padding: 16px !important;
+    border: 1px solid var(--app-line) !important;
+    border-radius: var(--app-radius-lg) !important;
+    background:
+        radial-gradient(circle at 8% 0%, rgba(37, 99, 235, 0.16), transparent 18rem),
+        linear-gradient(135deg, #ffffff, #f8fafc) !important;
+}
+
+.analytics-header h2 {
+    margin-bottom: 4px !important;
+}
+
+.analytics-header p,
+.analytics-card-header p {
+    margin: 0 !important;
+    color: var(--app-muted) !important;
+    font-size: 13px !important;
+    line-height: 1.25 !important;
+}
+
+.analytics-insights {
+    display: grid !important;
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    margin-bottom: 12px !important;
+}
+
+.analytics-insight-card {
+    min-height: 116px !important;
+    padding: 13px !important;
+    border-radius: var(--app-radius-lg) !important;
+}
+
+.insight-icon {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+}
+
+.analytics-insight-card span {
+    margin-top: 9px !important;
+    color: var(--app-muted) !important;
+    font-size: 11px !important;
+    line-height: 1.1 !important;
+    font-weight: 850 !important;
+}
+
+.analytics-insight-card strong {
+    margin-top: 5px !important;
+    color: var(--app-ink) !important;
+    font-size: 17px !important;
+    line-height: 1.1 !important;
+}
+
+.analytics-insight-card em {
+    color: var(--app-muted) !important;
+    font-size: 10px !important;
+    line-height: 1.15 !important;
+}
+
+.analytics-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+}
+
+.analytics-card {
+    padding: 16px !important;
+    min-height: 0 !important;
+}
+
+.analytics-card-wide {
+    grid-column: span 1 !important;
+}
+
+.analytics-card-header {
+    display: flex !important;
+    align-items: start !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    margin-bottom: 10px !important;
+    padding: 0 0 10px !important;
+    border-bottom: 1px solid var(--app-line) !important;
+}
+
+.analytics-canvas,
+canvas.analytics-canvas,
+#pieChart.analytics-canvas {
+    height: 300px !important;
+    border: 1px solid rgba(226, 232, 240, 0.76) !important;
+    border-radius: var(--app-radius-lg) !important;
+    background: linear-gradient(180deg, #ffffff, #f8fafc) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82) !important;
+}
+
+.donut-layout {
+    grid-template-columns: minmax(220px, 0.9fr) minmax(190px, 1fr) !important;
+    gap: 10px !important;
+    padding: 8px !important;
+    border: 1px solid var(--app-line) !important;
+    border-radius: var(--app-radius-lg) !important;
+    background: #f8fafc !important;
+}
+
+.donut-layout .analytics-canvas,
+#pieChart.analytics-canvas {
+    height: 275px !important;
+}
+
+.analytics-legend,
+#pieLegend {
+    gap: 7px !important;
+}
+
+.analytics-legend-row,
+.legend-row {
+    min-height: 38px !important;
+    padding: 8px 9px !important;
+    border: 1px solid rgba(226, 232, 240, 0.86) !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: none !important;
+}
+
+.top-spending-list,
+.settings-list,
+.category-manager-section {
+    gap: 8px !important;
+}
+
+.mini-chart-row,
+.category-manager-card {
+    border: 1px solid var(--app-line) !important;
+    border-radius: var(--app-radius-md) !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    box-shadow: 0 7px 18px rgba(15, 23, 42, 0.045) !important;
+}
+
+#settingsPanel {
+    background: rgba(15, 23, 42, 0.34) !important;
+    backdrop-filter: blur(18px) !important;
+}
+
+.settings-content {
+    border: 1px solid rgba(226, 232, 240, 0.95) !important;
+    border-radius: 26px !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    box-shadow: var(--app-shadow-lg) !important;
+}
+
+.settings-header {
+    background: linear-gradient(135deg, #ffffff, #eef5ff) !important;
+}
+
+.settings-tabs {
+    background: linear-gradient(180deg, #f8fafc, #eef4ff) !important;
+}
+
+.settings-tab {
+    border-radius: 13px !important;
+}
+
+.settings-tab.active {
+    background: #ffffff !important;
+    color: var(--app-blue) !important;
+}
+
+.settings-field,
+.settings-toggle,
+.settings-list-row,
+.budget-row,
+.category-modal-content {
+    border: 1px solid var(--app-line) !important;
+    border-radius: var(--app-radius-md) !important;
+    background: linear-gradient(180deg, #ffffff, #f8fafc) !important;
+    box-shadow: 0 7px 20px rgba(15, 23, 42, 0.045) !important;
+}
+
+@media (max-width: 1180px) {
+    .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .dashboard-row,
+    .dashboard-row.two-column-row,
+    .dashboard-row[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    .analytics-insights {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+
+    .analytics-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 8px 7px 18px !important;
+    }
+
+    .app-header {
+        grid-template-columns: 1fr auto !important;
+        align-items: start !important;
+        gap: 6px !important;
+        margin-bottom: 8px !important;
+        padding-top: 4px !important;
+        position: relative !important;
+    }
+
+    .app-header h1 {
+        grid-column: 1 / -1 !important;
+        padding-right: 78px !important;
+        font-size: clamp(23px, 6.6vw, 29px) !important;
+        line-height: 1.02 !important;
+    }
+
+    .app-header p {
+        font-size: 12px !important;
+        line-height: 1.22 !important;
+        margin-top: 3px !important;
+    }
+
+    .settings-button {
+        position: absolute !important;
+        top: 2px !important;
+        right: 0 !important;
+        height: 32px !important;
+        min-height: 32px !important;
+        padding: 0 10px !important;
+        font-size: 11px !important;
+    }
+
+    .cards,
+    .insight-strip,
+    .dashboard-row,
+    .two-column-row,
+    .analytics-grid,
+    .analytics-insights {
+        gap: 7px !important;
+        margin-bottom: 7px !important;
+    }
+
+    .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .card {
+        min-height: 76px !important;
+        padding: 10px !important;
+        border-radius: 15px !important;
+    }
+
+    .card h2 {
+        margin-bottom: 7px !important;
+        font-size: 11px !important;
+    }
+
+    .stat-value,
+    .card .stat-value,
+    .cards .stat-value {
+        font-size: 19px !important;
+    }
+
+    .insight-strip {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+
+    .insight-card {
+        padding: 8px !important;
+        border-radius: 12px !important;
+    }
+
+    .insight-label {
+        font-size: 8px !important;
+    }
+
+    .insight-value {
+        font-size: 13px !important;
+        margin-top: 4px !important;
+    }
+
+    .transactions,
+    .form,
+    .analytics-section,
+    .analytics-card,
+    .analytics-insight-card {
+        padding: 10px !important;
+        border-radius: 15px !important;
+    }
+
+    .transactions h2,
+    .form h2,
+    .analytics-header h2,
+    .analytics-card-header h3 {
+        font-size: 16px !important;
+        margin-bottom: 7px !important;
+    }
+
+    input,
+    select {
+        height: 36px !important;
+        min-height: 36px !important;
+        padding: 7px 9px !important;
+        border-radius: 11px !important;
+        font-size: 12px !important;
+    }
+
+    button {
+        height: 36px !important;
+        min-height: 36px !important;
+        border-radius: 11px !important;
+        font-size: 12px !important;
+    }
+
+    .input-with-dollar input,
+    .form .input-with-dollar input,
+    .transactions .input-with-dollar input,
+    .dashboard-row.two-column-row > .form .input-with-dollar input {
+        padding-left: 28px !important;
+    }
+
+    .transaction-select-row,
+    .hours-grid,
+    .subscription-form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 6px !important;
+    }
+
+    .transaction-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 6px !important;
+    }
+
+    .transaction-filters input {
+        grid-column: 1 / -1 !important;
+    }
+
+    #transactionHistoryCard #transactionList {
+        max-height: 166px !important;
+    }
+
+    #transactionHistoryCard .transaction-history-card,
+    #savingsCard .savings-row,
+    .transaction-card:not(.savings-row),
+    .job-row,
+    .subscription-row,
+    .subscription-item,
+    .paycheck-row {
+        padding: 8px !important;
+        gap: 6px !important;
+        border-radius: 12px !important;
+        margin-bottom: 5px !important;
+    }
+
+    .transaction-title-row strong {
+        font-size: 12px !important;
+    }
+
+    .transaction-meta,
+    .transaction-date {
+        font-size: 9px !important;
+    }
+
+    .transaction-amount,
+    #savingsCard .savings-row .transaction-amount,
+    #transactionHistoryCard .transaction-history-card .transaction-amount {
+        font-size: 14px !important;
+    }
+
+    .edit-btn,
+    .delete-btn,
+    #savingsCard .savings-row .edit-btn,
+    #savingsCard .savings-row .delete-btn,
+    #transactionHistoryCard .transaction-history-card .edit-btn,
+    #transactionHistoryCard .transaction-history-card .delete-btn {
+        width: 28px !important;
+        min-width: 28px !important;
+        height: 28px !important;
+        min-height: 28px !important;
+        border-radius: 9px !important;
+    }
+
+    #savingsCard .savings-actions {
+        gap: 6px !important;
+    }
+
+    #hoursTrackerCard > div > div:first-child {
+        grid-template-columns: minmax(0, 1fr) auto !important;
+        gap: 6px !important;
+    }
+
+    #hoursTrackerCard > div > div:first-child button {
+        width: auto !important;
+        min-width: 82px !important;
+        padding: 0 8px !important;
+    }
+
+    .analytics-section {
+        margin-top: 7px !important;
+    }
+
+    .analytics-header {
+        padding: 10px !important;
+        border-radius: 14px !important;
+    }
+
+    .analytics-header p,
+    .analytics-card-header p {
+        font-size: 10px !important;
+    }
+
+    .analytics-insights {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .analytics-insight-card {
+        min-height: 88px !important;
+        padding: 9px !important;
+    }
+
+    .insight-icon {
+        width: 26px !important;
+        height: 26px !important;
+    }
+
+    .analytics-insight-card strong {
+        font-size: 13px !important;
+    }
+
+    .analytics-card-header {
+        margin-bottom: 7px !important;
+        padding-bottom: 7px !important;
+    }
+
+    .analytics-canvas,
+    canvas.analytics-canvas,
+    #pieChart.analytics-canvas {
+        height: 205px !important;
+        border-radius: 13px !important;
+    }
+
+    .donut-layout {
+        grid-template-columns: 1fr !important;
+        gap: 6px !important;
+        padding: 6px !important;
+        border-radius: 13px !important;
+    }
+
+    .donut-layout .analytics-canvas,
+    #pieChart.analytics-canvas {
+        height: 170px !important;
+    }
+
+    #pieLegend {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        max-height: 168px !important;
+        overflow-y: auto !important;
+    }
+
+    .calendar-day {
+        min-height: 36px !important;
+        padding: 4px !important;
+    }
+
+    .settings-content {
+        border-radius: 14px !important;
+    }
+}
+
+@media (max-width: 430px) {
+    .container {
+        padding-left: 6px !important;
+        padding-right: 6px !important;
+    }
+
+    .analytics-insights {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -131,6 +1203,16 @@ body {
 .transactions,
 .form {
   padding: 20px !important;
+}
+
+@media (min-width: 769px) {
+  .dashboard-row.two-column-row > #savingsCard {
+    order: 1;
+  }
+
+  .dashboard-row.two-column-row > .form {
+    order: 2;
+  }
 }
 
 .transactions h2,
@@ -318,6 +1400,31 @@ li {
 
 .progress-fill {
   background: linear-gradient(90deg, #22c55e, #86efac) !important;
+}
+
+.savings-goal-status {
+  align-items: stretch !important;
+}
+
+.savings-goal-status > div {
+  width: 100%;
+}
+
+.savings-goal-status strong {
+  display: block;
+  margin: 4px 0 2px;
+  font-size: 18px;
+  color: var(--text);
+}
+
+.savings-goal-status span {
+  display: block;
+  color: var(--muted);
+}
+
+.savings-goal-status .progress-bar {
+  margin-top: 8px;
+  background: #e5e7eb !important;
 }
 
 canvas,
@@ -2023,4 +3130,1931 @@ canvas.analytics-canvas,
 .mini-chart-amount {
     font-weight: 900;
     white-space: nowrap;
+}
+
+#savingsCard .savings-row {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    padding: 12px !important;
+    border-radius: 14px !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+}
+
+#savingsCard .savings-row.savings-transfer-in {
+    border-left: 5px solid #22c55e !important;
+}
+
+#savingsCard .savings-row.savings-transfer-out {
+    border-left: 5px solid #3b82f6 !important;
+}
+
+#savingsCard .savings-row .savings-row-details {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+
+#savingsCard .savings-row .transaction-title-row {
+    align-items: center !important;
+    flex-wrap: wrap !important;
+}
+
+#savingsCard .savings-row .transaction-meta {
+    display: block !important;
+    margin-top: 4px !important;
+}
+
+#savingsCard .savings-row .transaction-amount {
+    flex-shrink: 0 !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    margin-left: auto !important;
+    text-align: right !important;
+    white-space: nowrap !important;
+}
+
+#savingsCard .savings-row.savings-transfer-in .transaction-amount {
+    color: #16a34a !important;
+}
+
+#savingsCard .savings-row.savings-transfer-out .transaction-amount {
+    color: #2563eb !important;
+}
+
+#savingsCard .savings-row.savings-transfer-in .transaction-type-pill {
+    background: #dcfce7 !important;
+    color: #15803d !important;
+}
+
+#savingsCard .savings-row.savings-transfer-out .transaction-type-pill {
+    background: #dbeafe !important;
+    color: #1d4ed8 !important;
+}
+
+#savingsCard .savings-row .row-actions {
+    width: auto !important;
+    margin-left: 0 !important;
+    justify-content: flex-end !important;
+    flex-shrink: 0 !important;
+}
+
+#savingsCard .savings-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    margin-top: 10px !important;
+}
+
+#savingsCard .savings-actions button {
+    width: 100% !important;
+    margin-top: 0 !important;
+}
+
+@media (max-width: 768px) {
+    #savingsCard {
+        padding: 14px !important;
+        min-height: 0 !important;
+    }
+
+    #savingsCard h2 {
+        margin-bottom: 10px !important;
+    }
+
+    #savingsCard .input-with-dollar {
+        margin-top: 0 !important;
+        margin-bottom: 8px !important;
+    }
+
+    #savingsCard .savings-actions {
+        gap: 8px !important;
+        margin-top: 8px !important;
+    }
+
+    #savingsCard .savings-actions button {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-height: 42px !important;
+        height: 42px !important;
+        margin-top: 0 !important;
+        padding: 0 10px !important;
+        font-size: 12px !important;
+        vertical-align: top !important;
+    }
+
+    #savingsCard .savings-activity h3 {
+        margin-top: 14px !important;
+        margin-bottom: 8px !important;
+    }
+
+    #savingsList {
+        padding-top: 8px !important;
+    }
+
+    #savingsCard .savings-row {
+        gap: 6px !important;
+        padding: 8px 9px !important;
+        margin-bottom: 5px !important;
+    }
+
+    #savingsCard .savings-row .transaction-title-row {
+        gap: 5px !important;
+    }
+
+    #savingsCard .savings-row .transaction-title-row strong {
+        font-size: 13px !important;
+        line-height: 1.15 !important;
+    }
+
+    #savingsCard .savings-row .transaction-meta {
+        margin-top: 2px !important;
+        font-size: 10px !important;
+    }
+
+    #savingsCard .savings-row .transaction-type-pill {
+        padding: 2px 5px !important;
+        font-size: 8px !important;
+    }
+
+    #savingsCard .savings-row .transaction-amount {
+        font-size: 15px !important;
+    }
+
+    #savingsCard .savings-row .row-actions {
+        gap: 5px !important;
+    }
+
+    #savingsCard .savings-row .edit-btn,
+    #savingsCard .savings-row .delete-btn {
+        width: 28px !important;
+        min-width: 28px !important;
+        height: 28px !important;
+        min-height: 28px !important;
+        border-radius: 9px !important;
+    }
+
+    #savingsCard .savings-row .edit-btn svg,
+    #savingsCard .savings-row .delete-btn svg {
+        width: 14px !important;
+        height: 14px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 8px !important;
+    }
+
+    .app-header {
+        min-height: 0 !important;
+        gap: 4px !important;
+        margin-bottom: 8px !important;
+        padding-top: 42px !important;
+    }
+
+    .app-header h1 {
+        font-size: clamp(26px, 8vw, 34px) !important;
+        margin-bottom: 4px !important;
+        line-height: 1.02 !important;
+    }
+
+    .app-header p {
+        font-size: 14px !important;
+        line-height: 1.25 !important;
+        margin: 0 !important;
+    }
+
+    .cards,
+    .dashboard-row,
+    .two-column-row,
+    .insight-strip,
+    .analytics-grid,
+    .analytics-insights {
+        gap: 8px !important;
+        margin-bottom: 8px !important;
+    }
+
+    .dashboard-row,
+    .two-column-row {
+        grid-auto-rows: auto !important;
+        align-items: start !important;
+    }
+
+    .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .card {
+        min-height: 86px !important;
+        padding: 10px !important;
+        border-radius: 14px !important;
+    }
+
+    .goal-card > div {
+        grid-template-columns: 0.9fr 1.1fr !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+
+    .goal-card p {
+        margin-top: 6px !important;
+        margin-bottom: 5px !important;
+        font-size: 12px !important;
+    }
+
+    .goal-card input {
+        height: 34px !important;
+        min-height: 34px !important;
+        margin-top: 0 !important;
+        padding: 6px 9px !important;
+    }
+
+    .progress-bar {
+        height: 9px !important;
+    }
+
+    .stat-value {
+        font-size: 20px !important;
+    }
+
+    .insight-card,
+    .mini-card,
+    .transactions,
+    .form,
+    .analytics-section,
+    .analytics-card,
+    .analytics-insight-card {
+        padding: 10px !important;
+        border-radius: 14px !important;
+    }
+
+    .insight-strip {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+
+    .insight-card {
+        padding: 8px !important;
+    }
+
+    .insight-label {
+        font-size: 9px !important;
+        line-height: 1.1 !important;
+    }
+
+    .insight-value {
+        font-size: 14px !important;
+        line-height: 1.15 !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    .transactions h2,
+    .form h2,
+    .analytics-header h2,
+    .analytics-card-header h3 {
+        font-size: 19px !important;
+        margin-bottom: 8px !important;
+    }
+
+    .transactions h3,
+    .form h3 {
+        margin-top: 12px !important;
+        margin-bottom: 8px !important;
+    }
+
+    input,
+    select,
+    button {
+        min-height: 40px !important;
+        height: 40px !important;
+        margin-top: 7px !important;
+        padding: 8px 10px !important;
+    }
+
+    .settings-button {
+        position: absolute !important;
+        top: 0 !important;
+        right: 0 !important;
+        left: auto !important;
+        width: auto !important;
+        min-width: 0 !important;
+        min-height: 34px !important;
+        height: 34px !important;
+        margin: 0 !important;
+        padding: 0 12px !important;
+        font-size: 12px !important;
+    }
+
+    .input-with-dollar {
+        margin-top: 7px !important;
+    }
+
+    .transaction-card:not(.savings-row),
+    .subscription-item,
+    .job-row,
+    .subscription-row,
+    .paycheck-row {
+        gap: 7px !important;
+        padding: 9px !important;
+        border-radius: 12px !important;
+    }
+
+    .transaction-main {
+        gap: 6px !important;
+    }
+
+    .transaction-card .transaction-amount {
+        font-size: 18px !important;
+    }
+
+    .edit-btn,
+    .delete-btn {
+        width: 34px !important;
+        min-width: 34px !important;
+        height: 34px !important;
+        min-height: 34px !important;
+    }
+
+    #transactionList,
+    #shiftListWrapper,
+    #subscriptionCalendarWrapper,
+    #savingsList {
+        padding-right: 0 !important;
+    }
+
+    .analytics-header {
+        padding: 12px !important;
+        gap: 10px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .analytics-card-header {
+        gap: 8px !important;
+        margin-bottom: 6px !important;
+        padding-bottom: 8px !important;
+    }
+
+    .analytics-canvas,
+    canvas.analytics-canvas,
+    #pieChart.analytics-canvas {
+        height: 260px !important;
+    }
+
+    .calendar-day {
+        min-height: 42px !important;
+        padding: 6px !important;
+    }
+
+    #calendarDayDetails,
+    #nextBillCard,
+    #paydayCountdown,
+    #shiftSummary {
+        padding: 9px !important;
+    }
+}
+
+@media (max-width: 430px) {
+    .container {
+        padding: 7px !important;
+    }
+
+    .card {
+        min-height: 78px !important;
+        padding: 9px !important;
+    }
+
+    .transactions,
+    .form,
+    .analytics-section,
+    .analytics-card,
+    .analytics-insight-card {
+        padding: 9px !important;
+    }
+
+    .analytics-canvas,
+    canvas.analytics-canvas,
+    #pieChart.analytics-canvas {
+        height: 230px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-row.two-column-row > .form {
+        padding: 8px 9px 9px !important;
+        margin-bottom: 0 !important;
+    }
+
+    .dashboard-row.two-column-row > .form h2 {
+        font-size: 18px !important;
+        line-height: 1.15 !important;
+        margin-bottom: 6px !important;
+    }
+
+    .dashboard-row.two-column-row > .form input,
+    .dashboard-row.two-column-row > .form select {
+        min-height: 36px !important;
+        height: 36px !important;
+        margin-top: 5px !important;
+        padding: 7px 10px !important;
+        font-size: 13px !important;
+    }
+
+    .dashboard-row.two-column-row > .form .input-with-dollar {
+        margin-top: 5px !important;
+    }
+
+    .dashboard-row.two-column-row > .form .input-with-dollar span {
+        height: 36px !important;
+        line-height: 36px !important;
+        font-size: 13px !important;
+    }
+
+    .dashboard-row.two-column-row > .form .transaction-select-row {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr) !important;
+        gap: 6px !important;
+        margin-top: 5px !important;
+    }
+
+    .dashboard-row.two-column-row > .form .transaction-select-row select {
+        min-width: 0 !important;
+        margin-top: 0 !important;
+    }
+
+    .dashboard-row.two-column-row > .form button {
+        min-height: 38px !important;
+        height: 38px !important;
+        margin-top: 6px !important;
+        padding: 7px 10px !important;
+        font-size: 13px !important;
+    }
+}
+
+#transactionHistoryCard #transactionList {
+    max-height: 255px !important;
+    overflow-y: auto !important;
+    padding-right: 4px !important;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+}
+
+@media (max-width: 768px) {
+    #transactionHistoryCard #transactionList {
+        max-height: 162px !important;
+        overflow-y: auto !important;
+    }
+
+    #transactionHistoryCard .transaction-history-card {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 8px !important;
+        padding: 8px 9px !important;
+        margin-bottom: 5px !important;
+    }
+
+    #transactionHistoryCard .transaction-history-card .transaction-card-content {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+    }
+
+    #transactionHistoryCard .transaction-history-card .transaction-main {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+    }
+
+    #transactionHistoryCard .transaction-history-card .transaction-title-row {
+        gap: 5px !important;
+        align-items: center !important;
+    }
+
+    #transactionHistoryCard .transaction-history-card .transaction-title-row strong {
+        font-size: 13px !important;
+        line-height: 1.15 !important;
+    }
+
+    #transactionHistoryCard .transaction-history-card .transaction-info-row {
+        gap: 5px !important;
+        margin-top: 2px !important;
+    }
+
+    #transactionHistoryCard .transaction-history-card .transaction-meta,
+    #transactionHistoryCard .transaction-history-card .transaction-date {
+        font-size: 10px !important;
+    }
+
+    #transactionHistoryCard .transaction-history-card .transaction-type-pill {
+        padding: 2px 5px !important;
+        font-size: 8px !important;
+    }
+
+    #transactionHistoryCard .transaction-history-card .transaction-amount-wrap {
+        flex: 0 0 auto !important;
+        align-items: flex-end !important;
+        text-align: right !important;
+    }
+
+    #transactionHistoryCard .transaction-history-card .transaction-amount {
+        font-size: 15px !important;
+        white-space: nowrap !important;
+    }
+
+    #transactionHistoryCard .transaction-history-card .transaction-card-actions {
+        width: auto !important;
+        flex: 0 0 auto !important;
+        gap: 5px !important;
+        margin-left: 0 !important;
+    }
+
+    #transactionHistoryCard .transaction-history-card .edit-btn,
+    #transactionHistoryCard .transaction-history-card .delete-btn {
+        width: 28px !important;
+        min-width: 28px !important;
+        height: 28px !important;
+        min-height: 28px !important;
+        border-radius: 9px !important;
+    }
+
+    #transactionHistoryCard .transaction-history-card .edit-btn svg,
+    #transactionHistoryCard .transaction-history-card .delete-btn svg {
+        width: 14px !important;
+        height: 14px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .transactions,
+    .form,
+    .analytics-section,
+    .analytics-card,
+    .analytics-insight-card,
+    .mini-card,
+    .settings-panel,
+    .settings-section {
+        padding: 8px 9px !important;
+        border-radius: 13px !important;
+        margin-bottom: 0 !important;
+    }
+
+    .cards,
+    .dashboard-row,
+    .two-column-row,
+    .insight-strip,
+    .analytics-grid,
+    .analytics-insights,
+    .transaction-filters,
+    .hours-grid,
+    .subscription-form-grid {
+        gap: 6px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .transactions h2,
+    .form h2,
+    .analytics-header h2,
+    .analytics-card-header h3 {
+        font-size: 18px !important;
+        line-height: 1.15 !important;
+        margin-bottom: 6px !important;
+    }
+
+    .transactions h3,
+    .form h3,
+    .analytics-card-header p {
+        margin-top: 8px !important;
+        margin-bottom: 6px !important;
+        line-height: 1.25 !important;
+    }
+
+    .form input,
+    .form select,
+    .transactions input,
+    .transactions select,
+    .transaction-filters input,
+    .transaction-filters select,
+    .subscription-form-grid input,
+    .subscription-form-grid select,
+    .hours-grid input,
+    .hours-grid select,
+    .settings-field input,
+    .settings-field select {
+        min-height: 36px !important;
+        height: 36px !important;
+        margin-top: 5px !important;
+        padding: 7px 10px !important;
+        font-size: 13px !important;
+    }
+
+    .form button:not(.edit-btn):not(.delete-btn):not(.modal-close-btn):not(.settings-button),
+    .transactions button:not(.edit-btn):not(.delete-btn):not(.modal-close-btn):not(.settings-button),
+    .analytics-section button:not(.edit-btn):not(.delete-btn):not(.modal-close-btn):not(.settings-button) {
+        min-height: 38px !important;
+        height: 38px !important;
+        margin-top: 6px !important;
+        padding: 7px 10px !important;
+        font-size: 13px !important;
+    }
+
+    .input-with-dollar {
+        margin-top: 5px !important;
+    }
+
+    .input-with-dollar span {
+        height: 36px !important;
+        line-height: 36px !important;
+        font-size: 13px !important;
+    }
+
+    .transaction-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .transaction-filters input {
+        grid-column: 1 / -1 !important;
+    }
+
+    .hours-grid,
+    .subscription-form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .hours-grid button,
+    .subscription-form-grid button {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    #hoursTrackerCard div[style*="display:flex;gap:10px;align-items:center;margin-bottom:10px"] {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto !important;
+        gap: 6px !important;
+        margin-bottom: 6px !important;
+    }
+
+    #hoursTrackerCard div[style*="display:flex;gap:10px;align-items:center;margin-bottom:10px"] select {
+        margin-top: 0 !important;
+        width: 100% !important;
+    }
+
+    #hoursTrackerCard div[style*="display:flex;gap:10px;align-items:center;margin-bottom:10px"] button {
+        width: auto !important;
+        min-width: 86px !important;
+        margin-top: 0 !important;
+        padding: 7px 9px !important;
+        white-space: nowrap !important;
+    }
+
+    .job-row,
+    .subscription-row,
+    .subscription-item,
+    .paycheck-row,
+    .mini-card {
+        gap: 6px !important;
+        padding: 8px 9px !important;
+        border-radius: 11px !important;
+        margin-bottom: 5px !important;
+    }
+
+    .analytics-header,
+    .analytics-card-header {
+        padding: 9px !important;
+        gap: 6px !important;
+        margin-bottom: 6px !important;
+        padding-bottom: 7px !important;
+    }
+
+    .settings-field {
+        gap: 5px !important;
+        margin-bottom: 6px !important;
+    }
+
+    #savingsCard {
+        padding: 8px 9px !important;
+    }
+
+    #savingsCard h2 {
+        margin-bottom: 6px !important;
+    }
+
+    #savingsCard .savings-actions {
+        gap: 6px !important;
+        margin-top: 5px !important;
+    }
+
+    #savingsCard .savings-actions button {
+        min-height: 38px !important;
+        height: 38px !important;
+        font-size: 12px !important;
+    }
+
+    #savingsCard .savings-activity h3 {
+        margin-top: 8px !important;
+        margin-bottom: 6px !important;
+    }
+
+    #savingsList {
+        padding-top: 6px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        font-size: 13px !important;
+        line-height: 1.25 !important;
+    }
+
+    .app-header {
+        padding-top: 36px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .app-header h1 {
+        font-size: clamp(24px, 7vw, 30px) !important;
+        line-height: 1 !important;
+        margin-bottom: 3px !important;
+    }
+
+    .app-header p {
+        font-size: 12px !important;
+        line-height: 1.2 !important;
+    }
+
+    .settings-button {
+        min-height: 32px !important;
+        height: 32px !important;
+        padding: 0 10px !important;
+        font-size: 11px !important;
+    }
+
+    .card {
+        min-height: 70px !important;
+        padding: 8px !important;
+    }
+
+    .card h3,
+    .card p,
+    .card small,
+    .card span {
+        font-size: 11px !important;
+        line-height: 1.15 !important;
+    }
+
+    .stat-value {
+        font-size: 18px !important;
+        line-height: 1.05 !important;
+    }
+
+    .card .stat-value,
+    .cards .stat-value {
+        font-size: 18px !important;
+        line-height: 1.05 !important;
+    }
+
+    .goal-card p {
+        font-size: 11px !important;
+        line-height: 1.2 !important;
+        margin-top: 4px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .progress-bar {
+        height: 7px !important;
+    }
+
+    .insight-card {
+        padding: 7px !important;
+    }
+
+    .insight-label,
+    .analytics-insight-card span,
+    .transaction-meta,
+    .transaction-date,
+    .calendar-sub,
+    .settings-field label {
+        font-size: 9px !important;
+        line-height: 1.15 !important;
+    }
+
+    .insight-value,
+    .analytics-insight-card strong {
+        font-size: 13px !important;
+        line-height: 1.1 !important;
+    }
+
+    .transactions h2,
+    .form h2,
+    .analytics-header h2,
+    .analytics-card-header h3 {
+        font-size: 16px !important;
+        line-height: 1.1 !important;
+        margin-bottom: 5px !important;
+    }
+
+    .transactions h3,
+    .form h3 {
+        font-size: 13px !important;
+        line-height: 1.15 !important;
+        margin-top: 7px !important;
+        margin-bottom: 5px !important;
+    }
+
+    input,
+    select,
+    button {
+        font-size: 12px !important;
+    }
+
+    .form input,
+    .form select,
+    .transactions input,
+    .transactions select,
+    .transaction-filters input,
+    .transaction-filters select,
+    .subscription-form-grid input,
+    .subscription-form-grid select,
+    .hours-grid input,
+    .hours-grid select,
+    .settings-field input,
+    .settings-field select {
+        min-height: 34px !important;
+        height: 34px !important;
+        padding: 6px 9px !important;
+        font-size: 12px !important;
+    }
+
+    .form button:not(.edit-btn):not(.delete-btn):not(.modal-close-btn):not(.settings-button),
+    .transactions button:not(.edit-btn):not(.delete-btn):not(.modal-close-btn):not(.settings-button),
+    .analytics-section button:not(.edit-btn):not(.delete-btn):not(.modal-close-btn):not(.settings-button) {
+        min-height: 36px !important;
+        height: 36px !important;
+        padding: 6px 9px !important;
+        font-size: 12px !important;
+    }
+
+    .input-with-dollar span {
+        height: 34px !important;
+        line-height: 34px !important;
+        font-size: 12px !important;
+    }
+
+    .input-with-dollar input,
+    .form .input-with-dollar input,
+    .transactions .input-with-dollar input,
+    .dashboard-row.two-column-row > .form .input-with-dollar input {
+        padding-left: 28px !important;
+    }
+
+    .transaction-card:not(.savings-row),
+    .job-row,
+    .subscription-row,
+    .subscription-item,
+    .paycheck-row,
+    .mini-card,
+    #savingsCard .savings-row,
+    #transactionHistoryCard .transaction-history-card {
+        padding: 7px 8px !important;
+        gap: 5px !important;
+        border-radius: 10px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .transaction-title-row strong,
+    #savingsCard .savings-row .transaction-title-row strong,
+    #transactionHistoryCard .transaction-history-card .transaction-title-row strong,
+    .job-row strong,
+    .subscription-row strong,
+    .paycheck-row strong,
+    .mini-card strong {
+        font-size: 12px !important;
+        line-height: 1.12 !important;
+    }
+
+    .transaction-card .transaction-amount,
+    #savingsCard .savings-row .transaction-amount,
+    #transactionHistoryCard .transaction-history-card .transaction-amount {
+        font-size: 14px !important;
+        line-height: 1.1 !important;
+    }
+
+    .transaction-type-pill {
+        padding: 2px 4px !important;
+        font-size: 8px !important;
+        line-height: 1 !important;
+    }
+
+    .edit-btn,
+    .delete-btn,
+    #savingsCard .savings-row .edit-btn,
+    #savingsCard .savings-row .delete-btn,
+    #transactionHistoryCard .transaction-history-card .edit-btn,
+    #transactionHistoryCard .transaction-history-card .delete-btn {
+        width: 26px !important;
+        min-width: 26px !important;
+        height: 26px !important;
+        min-height: 26px !important;
+        border-radius: 8px !important;
+    }
+
+    .edit-btn svg,
+    .delete-btn svg {
+        width: 13px !important;
+        height: 13px !important;
+    }
+
+    .analytics-section {
+        padding: 8px !important;
+    }
+
+    .analytics-header,
+    .analytics-card-header {
+        padding: 7px !important;
+        margin-bottom: 5px !important;
+    }
+
+    .analytics-header p,
+    .analytics-card-header p,
+    .analytics-insight-card em {
+        font-size: 10px !important;
+        line-height: 1.2 !important;
+    }
+
+    .analytics-insight-card {
+        padding: 7px !important;
+        gap: 5px !important;
+    }
+
+    .insight-icon {
+        width: 26px !important;
+        height: 26px !important;
+        font-size: 13px !important;
+    }
+
+    .analytics-canvas,
+    canvas.analytics-canvas,
+    #pieChart.analytics-canvas {
+        height: 205px !important;
+    }
+
+    .analytics-legend-row,
+    .legend-row {
+        padding: 6px 7px !important;
+        font-size: 11px !important;
+        line-height: 1.15 !important;
+    }
+
+    .calendar-day {
+        min-height: 34px !important;
+        padding: 4px !important;
+        border-radius: 8px !important;
+    }
+
+    .calendar-day-number {
+        font-size: 10px !important;
+        line-height: 1 !important;
+        margin-bottom: 1px !important;
+    }
+
+    #calendarDayDetails,
+    #nextBillCard,
+    #paydayCountdown,
+    #shiftSummary {
+        padding: 7px !important;
+        font-size: 11px !important;
+        line-height: 1.2 !important;
+    }
+
+    #hoursTrackerCard [style*="font-size:24px"],
+    #hoursTrackerCard [style*="font-size:18px"],
+    #subscriptionTrackerCard [style*="font-size:24px"],
+    #subscriptionTrackerCard [style*="font-size:18px"] {
+        font-size: 15px !important;
+        line-height: 1.1 !important;
+    }
+
+    #hoursTrackerCard [style*="font-size:12px"],
+    #subscriptionTrackerCard [style*="font-size:12px"] {
+        font-size: 10px !important;
+        line-height: 1.15 !important;
+    }
+
+    #hoursTrackerCard [style*="padding:12px"],
+    #hoursTrackerCard [style*="padding:12px 14px"],
+    #subscriptionTrackerCard [style*="padding:12px"] {
+        padding: 7px 8px !important;
+        border-radius: 11px !important;
+    }
+
+    .goal-card {
+        grid-column: 1 / -1 !important;
+        min-height: 0 !important;
+        padding: 8px !important;
+    }
+
+    .goal-card h2 {
+        margin-bottom: 5px !important;
+        font-size: 14px !important;
+        line-height: 1.1 !important;
+    }
+
+    .goal-card > div {
+        grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr) !important;
+        gap: 7px !important;
+        align-items: center !important;
+    }
+
+    .goal-card > div > div:first-child p {
+        margin-bottom: 3px !important;
+        font-size: 10px !important;
+        line-height: 1.1 !important;
+    }
+
+    .goal-card .stat-value {
+        font-size: 18px !important;
+        line-height: 1.05 !important;
+    }
+
+    .goal-card input {
+        height: 32px !important;
+        min-height: 32px !important;
+        padding: 5px 8px !important;
+        font-size: 12px !important;
+    }
+
+    .goal-card input + p,
+    .goal-card .progress-bar + p {
+        margin-top: 4px !important;
+        margin-bottom: 3px !important;
+        font-size: 10px !important;
+        line-height: 1.1 !important;
+    }
+
+    .goal-card .progress-bar {
+        height: 6px !important;
+        margin: 2px 0 !important;
+    }
+
+    .analytics-card:has(#pieChart) {
+        height: auto !important;
+        max-height: none !important;
+    }
+
+    .analytics-card:has(#pieChart) .analytics-card-header {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto !important;
+        align-items: center !important;
+    }
+
+    .analytics-card:has(#pieChart) .analytics-card-header p {
+        margin-top: 2px !important;
+    }
+
+    .analytics-card:has(#pieChart) #clearCategoryFilterButton {
+        min-height: 30px !important;
+        height: 30px !important;
+        padding: 5px 8px !important;
+        font-size: 11px !important;
+    }
+
+    .analytics-card:has(#pieChart) .donut-layout {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 6px !important;
+        padding: 6px !important;
+        border-radius: 12px !important;
+        align-items: start !important;
+    }
+
+    .analytics-card:has(#pieChart) #pieChart.analytics-canvas {
+        height: 170px !important;
+        min-height: 170px !important;
+        border-radius: 12px !important;
+        background: #ffffff !important;
+    }
+
+    .analytics-card:has(#pieChart) #pieLegend {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 5px !important;
+        max-height: 168px !important;
+        overflow-y: auto !important;
+        padding-right: 2px !important;
+        align-content: start !important;
+        scrollbar-width: thin !important;
+    }
+
+    .analytics-card:has(#pieChart) .analytics-legend-row,
+    .analytics-card:has(#pieChart) .legend-row {
+        grid-template-columns: 8px minmax(0, 1fr) !important;
+        min-height: 34px !important;
+        padding: 6px 7px !important;
+        gap: 5px !important;
+        border-radius: 10px !important;
+        box-shadow: none !important;
+    }
+
+    .analytics-card:has(#pieChart) .analytics-legend-row strong,
+    .analytics-card:has(#pieChart) .legend-row strong {
+        font-size: 10px !important;
+        line-height: 1.1 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+
+    .analytics-card:has(#pieChart) .analytics-legend-row span,
+    .analytics-card:has(#pieChart) .legend-row span {
+        font-size: 10px !important;
+        line-height: 1.1 !important;
+    }
+
+    #settingsPanel {
+        align-items: stretch !important;
+        padding: 6px !important;
+        overflow: hidden !important;
+    }
+
+    .settings-content {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        grid-template-rows: 42px 40px minmax(0, 1fr) !important;
+        width: 100% !important;
+        height: calc(100dvh - 12px) !important;
+        max-height: calc(100dvh - 12px) !important;
+        border-radius: 14px !important;
+    }
+
+    .settings-header {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        min-height: 42px !important;
+        height: 42px !important;
+        padding: 0 42px 0 10px !important;
+        gap: 6px !important;
+    }
+
+    .settings-header h2 {
+        font-size: 18px !important;
+        line-height: 1 !important;
+        letter-spacing: 0 !important;
+    }
+
+    .settings-header::after {
+        display: none !important;
+    }
+
+    .settings-close {
+        top: 6px !important;
+        right: 7px !important;
+        width: 30px !important;
+        min-width: 30px !important;
+        max-width: 30px !important;
+        height: 30px !important;
+        min-height: 30px !important;
+        max-height: 30px !important;
+        border-radius: 9px !important;
+    }
+
+    .settings-close::before {
+        width: 14px !important;
+        height: 14px !important;
+        font-size: 14px !important;
+        line-height: 14px !important;
+    }
+
+    .settings-tabs {
+        grid-column: 1 !important;
+        grid-row: 2 !important;
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 5px !important;
+        height: 40px !important;
+        min-height: 40px !important;
+        padding: 5px 7px !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        border-right: 0 !important;
+        border-bottom: 1px solid #e5e7eb !important;
+        scrollbar-width: none !important;
+    }
+
+    .settings-tabs::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .settings-tab {
+        flex: 0 0 auto !important;
+        width: auto !important;
+        min-width: 0 !important;
+        min-height: 30px !important;
+        height: 30px !important;
+        padding: 0 9px !important;
+        border-radius: 10px !important;
+        font-size: 11px !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+    }
+
+    .settings-page {
+        grid-column: 1 !important;
+        grid-row: 3 !important;
+        height: auto !important;
+        min-height: 0 !important;
+        padding: 8px !important;
+        overflow-y: auto !important;
+    }
+
+    .settings-page h3 {
+        font-size: 17px !important;
+        line-height: 1.1 !important;
+        margin-bottom: 4px !important;
+    }
+
+    .settings-page > p,
+    .settings-page .settings-subtitle {
+        margin-bottom: 8px !important;
+        font-size: 11px !important;
+        line-height: 1.25 !important;
+    }
+
+    .settings-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 6px !important;
+    }
+
+    .settings-field,
+    .settings-toggle,
+    .settings-list-row,
+    .budget-row {
+        padding: 7px !important;
+        border-radius: 10px !important;
+        gap: 6px !important;
+        box-shadow: none !important;
+    }
+
+    .settings-field label,
+    .settings-toggle label {
+        margin-bottom: 4px !important;
+        font-size: 8px !important;
+        line-height: 1.1 !important;
+        letter-spacing: 0.25px !important;
+    }
+
+    .settings-toggle {
+        min-height: 42px !important;
+    }
+
+    .settings-toggle strong,
+    .settings-list-row strong,
+    .budget-row strong {
+        font-size: 12px !important;
+        line-height: 1.15 !important;
+    }
+
+    .settings-toggle span,
+    .settings-list-row span,
+    .budget-row span {
+        font-size: 10px !important;
+        line-height: 1.15 !important;
+    }
+
+    .settings-toggle input[type="checkbox"] {
+        width: 18px !important;
+        min-width: 18px !important;
+        height: 18px !important;
+        min-height: 18px !important;
+        margin: 0 !important;
+    }
+
+    .settings-field input,
+    .settings-field select {
+        min-height: 30px !important;
+        height: 30px !important;
+        padding: 5px 7px !important;
+        font-size: 11px !important;
+        border-radius: 9px !important;
+    }
+
+    .settings-actions {
+        gap: 6px !important;
+        margin-top: 8px !important;
+        padding-top: 8px !important;
+    }
+
+    .settings-actions button {
+        width: auto !important;
+        min-height: 32px !important;
+        height: 32px !important;
+        padding: 5px 9px !important;
+        font-size: 11px !important;
+        border-radius: 9px !important;
+    }
+
+    .settings-list,
+    .category-manager-section,
+    .top-spending-list {
+        gap: 6px !important;
+        margin-top: 8px !important;
+    }
+
+    .settings-list-row,
+    .budget-row {
+        grid-template-columns: minmax(0, 1fr) auto !important;
+    }
+
+    .savings-goal-status {
+        min-height: 0 !important;
+    }
+
+    .savings-goal-status strong {
+        margin: 2px 0 !important;
+        font-size: 13px !important;
+        line-height: 1.1 !important;
+    }
+
+    .savings-goal-status strong span {
+        display: inline !important;
+        color: inherit !important;
+        font-size: inherit !important;
+        line-height: inherit !important;
+    }
+
+    .savings-goal-status .progress-bar {
+        height: 5px !important;
+        margin-top: 5px !important;
+    }
+}
+
+/* Final premium corrections: this must stay last. */
+.analytics-section .analytics-insights {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+}
+
+.analytics-section .analytics-insight-card {
+    min-height: 112px !important;
+    padding: 13px !important;
+    border: 1px solid var(--app-line) !important;
+    border-radius: var(--app-radius-lg) !important;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94)) !important;
+    box-shadow: var(--app-shadow-sm) !important;
+    overflow: hidden !important;
+}
+
+.analytics-section .analytics-insight-card::before,
+.analytics-section .analytics-insight-card::after {
+    display: none !important;
+}
+
+.analytics-section .analytics-insight-card .insight-icon {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 11px !important;
+    box-shadow: none !important;
+}
+
+.analytics-section .analytics-insight-card span {
+    margin-top: 8px !important;
+    color: var(--app-muted) !important;
+    font-size: 10px !important;
+    line-height: 1.12 !important;
+    font-weight: 850 !important;
+}
+
+.analytics-section .analytics-insight-card strong {
+    margin-top: 5px !important;
+    color: var(--app-ink) !important;
+    font-size: 16px !important;
+    line-height: 1.1 !important;
+}
+
+.analytics-section .analytics-insight-card em {
+    display: inline-flex !important;
+    width: fit-content !important;
+    margin-top: 7px !important;
+    padding: 4px 7px !important;
+    border-radius: 999px !important;
+    background: #f1f5f9 !important;
+    color: var(--app-muted) !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+}
+
+.analytics-section .analytics-header {
+    background:
+        radial-gradient(circle at 5% 0%, rgba(37, 99, 235, 0.14), transparent 16rem),
+        linear-gradient(135deg, #ffffff, #f8fafc) !important;
+}
+
+@media (max-width: 1180px) {
+    .analytics-section .analytics-insights {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .analytics-section .analytics-insights {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 7px !important;
+    }
+
+    .analytics-section .analytics-insight-card {
+        min-height: 92px !important;
+        padding: 9px !important;
+        border-radius: 14px !important;
+    }
+
+    .analytics-section .analytics-insight-card .insight-icon {
+        width: 25px !important;
+        height: 25px !important;
+        font-size: 13px !important;
+    }
+
+    .analytics-section .analytics-insight-card span {
+        margin-top: 6px !important;
+        font-size: 8px !important;
+    }
+
+    .analytics-section .analytics-insight-card strong {
+        font-size: 13px !important;
+    }
+
+    .analytics-section .analytics-insight-card em {
+        margin-top: 5px !important;
+        padding: 3px 6px !important;
+        font-size: 8px !important;
+    }
+}
+
+/* Visual polish pass: keep this layer last. */
+:root {
+    --polish-radius-card: 20px;
+    --polish-radius-control: 14px;
+    --polish-shadow-card: 0 14px 36px rgba(15, 23, 42, 0.08);
+    --polish-shadow-soft: 0 8px 22px rgba(15, 23, 42, 0.055);
+}
+
+body {
+    background:
+        radial-gradient(circle at 8% 0%, rgba(37, 99, 235, 0.10), transparent 28rem),
+        radial-gradient(circle at 92% 10%, rgba(20, 184, 166, 0.09), transparent 30rem),
+        linear-gradient(180deg, #f7f9fd 0%, #eef3f9 100%) !important;
+}
+
+.container {
+    max-width: 1360px !important;
+}
+
+header {
+    margin-bottom: 22px !important;
+}
+
+header h1 {
+    line-height: 1.02 !important;
+    letter-spacing: 0 !important;
+}
+
+header p {
+    margin-top: 10px !important;
+    color: #64748b !important;
+    font-weight: 600 !important;
+}
+
+.settings-button {
+    border: 1px solid rgba(226, 232, 240, 0.95) !important;
+    background: rgba(255, 255, 255, 0.86) !important;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.07) !important;
+}
+
+.cards {
+    gap: 14px !important;
+    margin-bottom: 14px !important;
+}
+
+.card {
+    min-height: 118px !important;
+    border-radius: 18px !important;
+    border: 1px solid rgba(255, 255, 255, 0.58) !important;
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.10) !important;
+    overflow: hidden !important;
+}
+
+.card h2 {
+    font-size: 13px !important;
+    line-height: 1.1 !important;
+    opacity: 0.95 !important;
+}
+
+.card .stat-value,
+.card h3 {
+    font-size: clamp(25px, 2.25vw, 31px) !important;
+    line-height: 1.05 !important;
+}
+
+.insight-strip {
+    gap: 14px !important;
+    margin-bottom: 16px !important;
+}
+
+.insight-card,
+.mini-card {
+    border: 1px solid rgba(226, 232, 240, 0.88) !important;
+    border-radius: 16px !important;
+    background: rgba(255, 255, 255, 0.88) !important;
+    box-shadow: var(--polish-shadow-soft) !important;
+}
+
+.transactions,
+.form,
+.analytics-section,
+.analytics-card {
+    border-radius: var(--polish-radius-card) !important;
+    border-color: rgba(226, 232, 240, 0.86) !important;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(248, 250, 252, 0.94)) !important;
+    box-shadow: var(--polish-shadow-card) !important;
+}
+
+.transactions,
+.form {
+    padding: 20px !important;
+}
+
+.transactions h2,
+.form h2,
+.analytics-header h2,
+.analytics-card-header h3 {
+    margin-bottom: 14px !important;
+    font-size: clamp(20px, 1.45vw, 24px) !important;
+    line-height: 1.08 !important;
+    word-spacing: 0.08em !important;
+}
+
+.transactions h3,
+.form h3 {
+    margin-top: 16px !important;
+    margin-bottom: 9px !important;
+    color: #475569 !important;
+}
+
+input,
+select,
+textarea {
+    border-radius: var(--polish-radius-control) !important;
+    border-color: rgba(203, 213, 225, 0.92) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85) !important;
+}
+
+button,
+.income-btn,
+.expense-btn,
+.secondary-btn {
+    border-radius: var(--polish-radius-control) !important;
+}
+
+.income-btn {
+    box-shadow: 0 11px 24px rgba(37, 99, 235, 0.21) !important;
+}
+
+.expense-btn {
+    box-shadow: 0 11px 24px rgba(220, 38, 38, 0.18) !important;
+}
+
+.secondary-btn {
+    border: 1px solid rgba(203, 213, 225, 0.92) !important;
+    background: #f8fafc !important;
+    color: #334155 !important;
+}
+
+.dashboard-row,
+.two-column-row {
+    gap: 16px !important;
+    margin-bottom: 16px !important;
+}
+
+.dashboard-row.two-column-row > .form {
+    min-height: 0 !important;
+}
+
+.transaction-card,
+.subscription-item,
+.subscription-row,
+.job-row,
+.savings-row,
+.paycheck-row {
+    border-radius: 15px !important;
+    border-color: rgba(226, 232, 240, 0.9) !important;
+    background: rgba(255, 255, 255, 0.94) !important;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.045) !important;
+}
+
+.transaction-card-content strong,
+.subscription-meta strong,
+.savings-row strong {
+    color: #0f172a !important;
+}
+
+.transaction-card-actions,
+.row-actions {
+    gap: 8px !important;
+}
+
+.edit-btn,
+.delete-btn {
+    border-radius: 12px !important;
+    border: 1px solid rgba(226, 232, 240, 0.92) !important;
+    box-shadow: none !important;
+}
+
+#savingsCard .savings-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    margin-top: 10px !important;
+}
+
+#savingsCard .savings-activity h3 {
+    padding-top: 2px !important;
+}
+
+#savingsList {
+    border-top-color: rgba(226, 232, 240, 0.78) !important;
+}
+
+#transactionHistoryCard .transaction-filters {
+    gap: 9px !important;
+}
+
+#transactionHistoryCard #transactionList {
+    border-top: 1px solid rgba(226, 232, 240, 0.78) !important;
+    padding-top: 10px !important;
+}
+
+#subscriptionsCard #nextBillCard {
+    margin: 12px 0 !important;
+    border-radius: 15px !important;
+}
+
+#subscriptionCalendar {
+    gap: 8px !important;
+}
+
+#visualCalendar {
+    gap: 7px !important;
+}
+
+.calendar-day {
+    border-radius: 11px !important;
+    background: rgba(255, 255, 255, 0.84) !important;
+}
+
+.calendar-sub {
+    border-radius: 7px !important;
+}
+
+.analytics-section {
+    padding: 28px !important;
+    background:
+        radial-gradient(circle at 8% 6%, rgba(37, 99, 235, 0.10), transparent 24rem),
+        radial-gradient(circle at 100% 10%, rgba(236, 72, 153, 0.08), transparent 28rem),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.88)) !important;
+}
+
+.analytics-section .analytics-header {
+    border-radius: 18px !important;
+    border: 1px solid rgba(226, 232, 240, 0.86) !important;
+    box-shadow: var(--polish-shadow-soft) !important;
+}
+
+.analytics-card {
+    padding: 22px !important;
+}
+
+.analytics-canvas,
+canvas.analytics-canvas,
+#pieChart.analytics-canvas {
+    border-radius: 14px !important;
+}
+
+#settingsPanelContent,
+.settings-content {
+    border-radius: 22px !important;
+}
+
+.settings-sidebar,
+.settings-main,
+.settings-section {
+    border-color: rgba(226, 232, 240, 0.86) !important;
+}
+
+.settings-tab {
+    border-radius: 12px !important;
+}
+
+@media (min-width: 1181px) {
+    header h1 {
+        font-size: clamp(42px, 4.1vw, 62px) !important;
+    }
+
+    .dashboard-row.two-column-row {
+        grid-template-columns: minmax(420px, 0.82fr) minmax(620px, 1.18fr) !important;
+    }
+
+    .dashboard-row.two-column-row > .form {
+        padding-bottom: 20px !important;
+    }
+
+    .dashboard-row.two-column-row > .form button[onclick="addTransaction()"] {
+        margin-top: 12px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        background:
+            radial-gradient(circle at 0% 0%, rgba(37, 99, 235, 0.10), transparent 20rem),
+            linear-gradient(180deg, #f7f9fd 0%, #eef3f9 100%) !important;
+    }
+
+    .container {
+        padding: 12px 7px 20px !important;
+    }
+
+    header {
+        margin-bottom: 8px !important;
+    }
+
+    header h1 {
+        font-size: 27px !important;
+        line-height: 1.04 !important;
+    }
+
+    header p {
+        margin-top: 5px !important;
+        font-size: 12px !important;
+    }
+
+    .settings-button {
+        min-height: 34px !important;
+        height: 34px !important;
+        padding: 6px 12px !important;
+        font-size: 11px !important;
+    }
+
+    .cards {
+        gap: 6px !important;
+        margin-bottom: 7px !important;
+    }
+
+    .card {
+        min-height: 66px !important;
+        padding: 10px !important;
+        border-radius: 13px !important;
+    }
+
+    .card h2 {
+        font-size: 11px !important;
+    }
+
+    .card .stat-value,
+    .card h3 {
+        font-size: 17px !important;
+    }
+
+    .insight-strip {
+        gap: 6px !important;
+        margin-bottom: 8px !important;
+    }
+
+    .insight-card {
+        padding: 8px !important;
+        border-radius: 12px !important;
+    }
+
+    .transactions,
+    .form,
+    .analytics-section,
+    .analytics-card {
+        border-radius: 14px !important;
+        box-shadow: 0 7px 18px rgba(15, 23, 42, 0.06) !important;
+    }
+
+    .transactions,
+    .form {
+        padding: 10px !important;
+    }
+
+    .transactions h2,
+    .form h2,
+    .analytics-header h2,
+    .analytics-card-header h3 {
+        margin-bottom: 8px !important;
+        font-size: 18px !important;
+        line-height: 1.12 !important;
+    }
+
+    input,
+    select {
+        min-height: 36px !important;
+        height: 36px !important;
+        padding: 7px 10px !important;
+        border-radius: 11px !important;
+        font-size: 12px !important;
+    }
+
+    button,
+    .income-btn,
+    .expense-btn,
+    .secondary-btn {
+        min-height: 36px !important;
+        height: 36px !important;
+        border-radius: 11px !important;
+        font-size: 12px !important;
+    }
+
+    .input-with-dollar span {
+        height: 36px !important;
+        line-height: 36px !important;
+    }
+
+    .dashboard-row,
+    .two-column-row {
+        gap: 6px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .transaction-card,
+    .subscription-item,
+    .subscription-row,
+    .job-row,
+    .savings-row,
+    .paycheck-row {
+        border-radius: 12px !important;
+        padding: 8px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .edit-btn,
+    .delete-btn,
+    button[onclick*="changeCalendarMonth"] {
+        width: 32px !important;
+        min-width: 32px !important;
+        height: 32px !important;
+        min-height: 32px !important;
+        border-radius: 10px !important;
+    }
+
+    #savingsCard .savings-actions {
+        gap: 6px !important;
+    }
+
+    #transactionHistoryCard #transactionList {
+        padding-top: 7px !important;
+    }
+
+    #subscriptionsCard #nextBillCard {
+        padding: 9px !important;
+        margin: 8px 0 !important;
+    }
+
+    #subscriptionCalendar {
+        max-height: 220px !important;
+        gap: 6px !important;
+    }
+
+    #visualCalendar {
+        gap: 4px !important;
+    }
+
+    .calendar-day {
+        min-height: 32px !important;
+        border-radius: 8px !important;
+    }
+
+    .analytics-section {
+        padding: 10px !important;
+    }
+
+    .analytics-section .analytics-header {
+        border-radius: 14px !important;
+        padding: 12px !important;
+    }
+
+    .analytics-card {
+        padding: 12px !important;
+    }
+
+    .settings-sidebar,
+    .settings-main,
+    .settings-section {
+        border-radius: 13px !important;
+    }
 }

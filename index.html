@@ -92,9 +92,9 @@
             background: linear-gradient(135deg,#ff5a5a,#ff7f7f);
         }
 
-        .goal-card {
+        .goal-card,
+        .savings-card {
             background: linear-gradient(135deg,#8b5cf6,#a78bfa);
-            padding-bottom: 30px;
         }
 
         .transaction-card {
@@ -2071,6 +2071,40 @@
             return [...map.values()].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name));
         }
 
+        function getCategoryDeleteKeys(category) {
+            const normalized = normalizeCategory(category);
+            if (!normalized) return [];
+            return [
+                `id:${normalized.id}`,
+                `name:${normalized.name.toLowerCase()}`
+            ];
+        }
+
+        function loadDeletedCategoryKeys() {
+            const parsed = readStorageJSON('deletedCategoryKeys', []);
+            return new Set(Array.isArray(parsed) ? parsed : []);
+        }
+
+        function saveDeletedCategoryKeys(keys) {
+            localStorage.setItem('deletedCategoryKeys', JSON.stringify([...keys]));
+        }
+
+        function isCategoryDeleted(category, deletedKeys = loadDeletedCategoryKeys()) {
+            return getCategoryDeleteKeys(category).some(key => deletedKeys.has(key));
+        }
+
+        function rememberDeletedCategory(category) {
+            const deletedKeys = loadDeletedCategoryKeys();
+            getCategoryDeleteKeys(category).forEach(key => deletedKeys.add(key));
+            saveDeletedCategoryKeys(deletedKeys);
+        }
+
+        function forgetDeletedCategory(category) {
+            const deletedKeys = loadDeletedCategoryKeys();
+            getCategoryDeleteKeys(category).forEach(key => deletedKeys.delete(key));
+            saveDeletedCategoryKeys(deletedKeys);
+        }
+
         function loadMasterCategories() {
             let saved = [];
             let custom = [];
@@ -2078,11 +2112,17 @@
             saved = readStorageJSON('categories', []);
             custom = readStorageJSON('customCategories', []);
             existingTransactions = readStorageJSON('transactions', []);
+            const deletedKeys = loadDeletedCategoryKeys();
+            const savedNormalized = Array.isArray(saved)
+                ? saved.map((category, index) => normalizeCategory(category, index)).filter(Boolean)
+                : [];
+            const savedIds = new Set(savedNormalized.map(category => category.id));
+            const baseDefaults = defaultCategories.filter(category => !savedIds.has(category.id) && !isCategoryDeleted(category, deletedKeys));
             const customMapped = Array.isArray(custom) ? custom.map((category, index) => ({
                 ...category,
                 color: category.color || (category.type === 'income' ? '#16a34a' : '#ef4444'),
                 order: defaultCategories.length + index
-            })) : [];
+            })).filter(category => !isCategoryDeleted(category, deletedKeys)) : [];
             const transactionMapped = Array.isArray(existingTransactions) ? existingTransactions
                 .filter(transaction => transaction.category)
                 .map((transaction, index) => ({
@@ -2091,8 +2131,9 @@
                     color: transaction.category === 'Savings Transfer' ? '#3b82f6' : '#64748b',
                     type: transaction.category === 'Savings Transfer' ? 'transfer' : (transaction.type === 'income' ? 'income' : 'expense'),
                     order: defaultCategories.length + customMapped.length + index
-                })) : [];
-            const merged = mergeCategoryList(defaultCategories, saved, customMapped, transactionMapped);
+                }))
+                .filter(category => !isCategoryDeleted(category, deletedKeys)) : [];
+            const merged = mergeCategoryList(baseDefaults, savedNormalized.filter(category => !isCategoryDeleted(category, deletedKeys)), customMapped, transactionMapped);
             localStorage.setItem('categories', JSON.stringify(merged));
             return merged;
         }
@@ -2163,6 +2204,17 @@
                 '"': '&quot;',
                 "'": '&#39;'
             }[char]));
+        }
+
+        function escapeInlineJSString(value) {
+            return `'${String(value ?? '')
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, "\\'")
+                .replace(/\r/g, '\\r')
+                .replace(/\n/g, '\\n')
+                .replace(/</g, '\\x3C')
+                .replace(/>/g, '\\x3E')
+                .replace(/&/g, '\\x26')}'`;
         }
     </script>
 </head>
@@ -2300,6 +2352,20 @@
                             <option value="calendar">Calendar</option>
                             <option value="analytics">Analytics</option>
                         </select>
+                    </div>
+                    <div class="settings-field">
+                        <label for="savingsGoal">Savings Goal</label>
+                        <input type="number" id="savingsGoal" min="0" step="0.01" placeholder="Enter goal" oninput="saveGoal()">
+                    </div>
+                    <div class="settings-toggle savings-goal-status">
+                        <div>
+                            <label>Goal Progress</label>
+                            <strong>$<span id="savedAmount">0.00</span></strong>
+                            <span><span id="progressPercent">0</span>% Complete</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="settings-actions">
@@ -2486,7 +2552,7 @@
                     </div>
                     <div class="settings-toggle">
                         <label>Version</label>
-                        <strong>1.2</strong>
+                        <strong>1.3</strong>
                     </div>
                     <div class="settings-toggle">
                         <label>Built by</label>
@@ -2578,22 +2644,9 @@
                 <h3 class="stat-value">$<span id="expenses">0.00</span></h3>
             </div>
 
-            <div class="card goal-card">
+            <div class="card savings-card">
                 <h2>Savings</h2>
-                <div style="display:grid;gap:22px;grid-template-columns:1fr 1.3fr;align-items:start;">
-                    <div>
-                        <p style="margin:0 0 10px;font-size:16px;opacity:.9;">Saved Money</p>
-                        <h3 class="stat-value">$<span id="savedMoney">0.00</span></h3>
-                    </div>
-                    <div>
-                        <input type="number" id="savingsGoal" placeholder="Enter goal" oninput="saveGoal()">
-                        <p style="margin-top:18px;margin-bottom:8px;">Progress: $<span id="savedAmount">0.00</span></p>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progressFill"></div>
-                        </div>
-                        <p><span id="progressPercent">0</span>% Complete</p>
-                    </div>
-                </div>
+                <h3 class="stat-value">$<span id="savedMoney">0.00</span></h3>
             </div>
         </div>
 
@@ -2613,22 +2666,6 @@
         </div>
 
         <div class="dashboard-row two-column-row">
-            <div class="transactions" id="savingsCard">
-                <h2>🏦 Savings Vault</h2>
-
-                <div class="input-with-dollar">
-                    <span>$</span>
-                    <input type="number" id="savingsAmount" placeholder="Amount to move into savings">
-                </div>
-
-                <button class="income-btn" onclick="addSavings()">Move To Savings</button>
-                <button class="expense-btn" onclick="withdrawSavings()">Withdraw From Savings</button>
-
-    <div class="savings-activity">
-        <h3 style="margin-top:24px;margin-bottom:12px;color:#334155;">Savings Activity</h3>
-        <div id="savingsList" style="max-height:220px;overflow-y:auto;padding-right:4px;border-top:1px solid #e5e7eb;padding-top:10px;"></div>
-    </div>
-            </div>
             <div class="form">
                 <h2>➕ Add Transaction</h2>
 
@@ -2639,14 +2676,34 @@
                     <input type="number" id="amount" placeholder="Amount">
                 </div>
 
-                <select id="category"></select>
+                <div class="transaction-select-row">
+                    <select id="category"></select>
 
-                <select id="type">
-                    <option value="income">Income</option>
-                    <option value="expense">Expense</option>
-                </select>
+                    <select id="type">
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                </div>
 
                 <button class="income-btn" onclick="addTransaction()">Add Transaction</button>
+            </div>
+            <div class="transactions" id="savingsCard">
+                <h2>🏦 Savings Vault</h2>
+
+                <div class="input-with-dollar">
+                    <span>$</span>
+                    <input type="number" id="savingsAmount" placeholder="Amount to move into savings">
+                </div>
+
+                <div class="savings-actions">
+                    <button class="income-btn" onclick="addSavings()">Move To Savings</button>
+                    <button class="expense-btn" onclick="withdrawSavings()">Withdraw From Savings</button>
+                </div>
+
+                <div class="savings-activity">
+                    <h3 style="margin-top:24px;margin-bottom:12px;color:#334155;">Savings Activity</h3>
+                    <div id="savingsList" style="max-height:220px;overflow-y:auto;padding-right:4px;border-top:1px solid #e5e7eb;padding-top:10px;"></div>
+                </div>
             </div>
         </div>
 
@@ -3145,6 +3202,19 @@ let subscriptions = [];
 let calendarDate = new Date();
 let selectedCalendarDay = null;
 
+function ensureSubscriptionIds(list) {
+    let changed = false;
+    const normalized = (Array.isArray(list) ? list : [])
+        .filter(Boolean)
+        .map(sub => {
+            if (sub.id) return sub;
+            changed = true;
+            return { ...sub, id: createLocalId('sub') };
+        });
+
+    return { subscriptions: normalized, changed };
+}
+
 function saveSubscriptions() {
     localStorage.setItem('subscriptions', JSON.stringify(subscriptions));
 }
@@ -3153,7 +3223,9 @@ async function loadSubscriptions() {
     const savedSubscriptions = readStorageJSON('subscriptions', []);
 
     if (!supabaseClient) {
-        subscriptions = savedSubscriptions;
+        const normalized = ensureSubscriptionIds(savedSubscriptions);
+        subscriptions = normalized.subscriptions;
+        if (normalized.changed) saveSubscriptions();
         renderSubscriptions();
         return;
     }
@@ -3167,12 +3239,14 @@ async function loadSubscriptions() {
 
     if (error) {
         console.error('Subscriptions load failed:', error);
-        subscriptions = savedSubscriptions;
+        const normalized = ensureSubscriptionIds(savedSubscriptions);
+        subscriptions = normalized.subscriptions;
+        if (normalized.changed) saveSubscriptions();
         renderSubscriptions();
         return;
     }
 
-    subscriptions = data || [];
+    subscriptions = ensureSubscriptionIds(data || []).subscriptions;
     localStorage.setItem('subscriptions', JSON.stringify(subscriptions));
     renderSubscriptions();
     renderVisualCalendar();
@@ -3198,7 +3272,7 @@ async function addSubscription() {
             ? supabaseClient.from('subscriptions').update(payload).eq('id', editingId)
             : supabaseClient.from('subscriptions').insert(payload);
 
-        const { error } = await query;
+        const { data, error } = await query.select();
 
         if (error) {
             console.error('Subscription save failed:', error);
@@ -3206,7 +3280,18 @@ async function addSubscription() {
             return;
         }
 
-        await loadSubscriptions();
+        const savedSubscription = Array.isArray(data) && data[0]
+            ? data[0]
+            : { id: editingId || createLocalId('sub'), ...payload };
+
+        if (editingId) {
+            subscriptions = subscriptions.map(sub => sameId(sub.id, editingId) ? { ...sub, ...savedSubscription } : sub);
+        } else {
+            subscriptions.push(savedSubscription);
+        }
+
+        saveSubscriptions();
+        renderSubscriptions();
         renderVisualCalendar();
     } else {
         if (editingId) {
@@ -3225,14 +3310,16 @@ async function addSubscription() {
 }
 
 async function deleteSubscription(index) {
-    const sub = subscriptions[index];
+    const subIndex = subscriptions.findIndex(sub => sameId(sub.id, index));
+    const sub = subscriptions[subIndex];
     if (!sub) return;
 
     if (supabaseClient && sub.id && /^\d+$/.test(String(sub.id))) {
         const { error } = await supabaseClient
             .from('subscriptions')
             .delete()
-            .eq('id', sub.id);
+            .eq('id', sub.id)
+            .select('id');
 
         if (error) {
             console.error('Subscription delete failed:', error);
@@ -3240,19 +3327,21 @@ async function deleteSubscription(index) {
             return;
         }
 
-        await loadSubscriptions();
+        subscriptions.splice(subIndex, 1);
+        saveSubscriptions();
+        renderSubscriptions();
         renderVisualCalendar();
         return;
     }
 
-    subscriptions.splice(index, 1);
+    subscriptions.splice(subIndex, 1);
     saveSubscriptions();
     renderSubscriptions();
     renderVisualCalendar();
 }
 
 function editSubscription(index) {
-    const sub = subscriptions[index];
+    const sub = subscriptions.find(sub => sameId(sub.id, index));
     if (!sub) return;
 
     document.getElementById('editingSubscriptionId').value = sub.id || '';
@@ -3463,13 +3552,13 @@ function renderSubscriptions() {
                     <div style="font-size:12px;color:#6b7280;">${daysLeft === 0 ? 'Due Today' : daysLeft + ' day' + (daysLeft === 1 ? '' : 's') + ' left'}</div>
                 </div>
                 <div class="row-actions">
-                    <button class="edit-btn" onclick="editSubscription(${index})" title="Edit subscription">
+                    <button class="edit-btn" onclick="editSubscription(${escapeInlineJSString(sub.id)})" title="Edit subscription">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 20h9"></path>
                             <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
                         </svg>
                     </button>
-                    <button class="delete-btn" onclick="deleteSubscription(${index})">
+                    <button class="delete-btn" onclick="deleteSubscription(${escapeInlineJSString(sub.id)})">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="3 6 5 6 21 6"></polyline>
                             <path d="M19 6l-1 14H6L5 6"></path>
@@ -3547,7 +3636,7 @@ const defaultTrackerSettings = {
     security: {
         pinLock: false,
         hideBalances: false,
-        pin: ''
+        pinHash: ''
     },
     preferences: {
         defaultType: 'expense',
@@ -3625,7 +3714,7 @@ function saveData() {
 }
 
 function mergeSettings(settings) {
-    return {
+    const merged = {
         profile: { ...defaultTrackerSettings.profile, ...(settings?.profile || {}) },
         security: { ...defaultTrackerSettings.security, ...(settings?.security || {}) },
         preferences: { ...defaultTrackerSettings.preferences, ...(settings?.preferences || {}) },
@@ -3633,6 +3722,8 @@ function mergeSettings(settings) {
         appearance: { ...defaultTrackerSettings.appearance, ...(settings?.appearance || {}) },
         meta: { ...defaultTrackerSettings.meta, ...(settings?.meta || {}) }
     };
+    delete merged.security.pin;
+    return merged;
 }
 
 function loadTrackerSettings() {
@@ -3645,6 +3736,7 @@ function saveTrackerSettings() {
 }
 
 function loadCategoriesFromTransactions() {
+    const deletedKeys = loadDeletedCategoryKeys();
     return (transactions || [])
         .filter(transaction => transaction.category)
         .map((transaction, index) => ({
@@ -3653,7 +3745,8 @@ function loadCategoriesFromTransactions() {
             color: transaction.category === 'Savings Transfer' ? '#3b82f6' : '#64748b',
             type: transaction.category === 'Savings Transfer' ? 'transfer' : (transaction.type === 'income' ? 'income' : 'expense'),
             order: categories.length + index
-        }));
+        }))
+        .filter(category => !isCategoryDeleted(category, deletedKeys));
 }
 
 function loadCategoryBudgets() {
@@ -3662,7 +3755,8 @@ function loadCategoryBudgets() {
 }
 
 function saveCategories() {
-    categories = mergeCategoryList(categories);
+    const deletedKeys = loadDeletedCategoryKeys();
+    categories = mergeCategoryList(categories).filter(category => !isCategoryDeleted(category, deletedKeys));
     window.trackerCategories = categories;
     localStorage.setItem('categories', JSON.stringify(categories));
 }
@@ -3753,6 +3847,7 @@ function populateSettingsForm() {
     setCheckedValue('settingsShowAnalytics', trackerSettings.dashboard.showAnalytics);
     setInputValue('settingsCardSize', trackerSettings.dashboard.cardSize);
     setInputValue('settingsDashboardDefaultPage', trackerSettings.dashboard.defaultPage);
+    setInputValue('savingsGoal', localStorage.getItem('savingsGoal') || document.getElementById('savingsGoal')?.value || '');
     setInputValue('settingsTheme', trackerSettings.appearance.theme);
     setInputValue('settingsAccentColor', trackerSettings.appearance.accentColor);
     setInputValue('settingsCornerRadius', trackerSettings.appearance.cornerRadius);
@@ -3902,13 +3997,13 @@ function renderCategoriesManager() {
                     <span class="category-manager-detail">${labels[type]} • Used by ${getCategoryUsageCount(category.name)} ${getCategoryUsageCount(category.name) === 1 ? 'transaction' : 'transactions'}</span>
                 </div>
                 <div class="category-manager-actions">
-                    <button type="button" class="edit-btn" onclick="openCategoryEditModal('${category.id}')" title="Edit category">
+                    <button type="button" class="edit-btn" onclick="openCategoryEditModal(${escapeInlineJSString(category.id)})" title="Edit category">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 20h9"></path>
                             <path d="M16.5 3.5a2.12 2.12 0 113 3L7 19l-4 1 1-4 12.5-12.5z"></path>
                         </svg>
                     </button>
-                    <button type="button" class="delete-btn" onclick="openCategoryDeleteModal('${category.id}')" title="Delete category">
+                    <button type="button" class="delete-btn" onclick="openCategoryDeleteModal(${escapeInlineJSString(category.id)})" title="Delete category">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M18 6L6 18"></path>
                             <path d="M6 6l12 12"></path>
@@ -3948,7 +4043,9 @@ async function saveCategoryManagerCategory() {
     if (editingId) {
         const existing = categories.find(category => category.id === editingId);
         const oldName = existing?.name;
+        if (existing) forgetDeletedCategory(existing);
         categories = categories.map(category => category.id === editingId ? { ...category, name, icon, color, type } : category);
+        forgetDeletedCategory({ id: editingId, name, icon, color, type });
         if (oldName && oldName !== name) {
             if (supabaseClient) {
                 const { error } = await supabaseClient.from('transactions').update({ category: name }).eq('category', oldName);
@@ -3969,7 +4066,9 @@ async function saveCategoryManagerCategory() {
             saveData();
         }
     } else {
-        categories.push({ id: createLocalId('cat'), name, icon, color, type, order: categories.length });
+        const nextCategory = { id: createLocalId('cat'), name, icon, color, type, order: categories.length };
+        forgetDeletedCategory(nextCategory);
+        categories.push(nextCategory);
     }
 
     saveCategories();
@@ -4042,6 +4141,7 @@ async function confirmCategoryDelete() {
 async function deleteCategoryManagerCategory(categoryId) {
     const category = categories.find(item => item.id === categoryId);
     if (!category) return;
+    rememberDeletedCategory(category);
     const card = [...document.querySelectorAll('.category-manager-card')]
         .find(item => item.dataset.categoryId === categoryId);
     if (card) {
@@ -4215,11 +4315,23 @@ function saveProfileSettings() {
     showToast('Profile settings saved.', 'success');
 }
 
-function saveSecuritySettings() {
+async function hashSecurityPin(pin) {
+    const value = String(pin || '');
+    if (!value) return '';
+    if (!window.crypto?.subtle) return `plain-disabled:${btoa(value)}`;
+    const bytes = new TextEncoder().encode(value);
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+async function saveSecuritySettings() {
     trackerSettings.security.pinLock = Boolean(document.getElementById('settingsPinLock')?.checked);
     trackerSettings.security.hideBalances = Boolean(document.getElementById('settingsHideBalances')?.checked);
     const nextPin = document.getElementById('settingsPin')?.value.trim();
-    if (nextPin) trackerSettings.security.pin = nextPin;
+    if (nextPin) {
+        trackerSettings.security.pinHash = await hashSecurityPin(nextPin);
+        delete trackerSettings.security.pin;
+    }
     saveTrackerSettings();
     applyTrackerSettings();
     populateSettingsForm();
@@ -4293,6 +4405,87 @@ function renderAboutSettings() {
     setText('aboutLastBackupTime', lastBackup ? new Date(lastBackup).toLocaleString() : 'Never');
 }
 
+function sanitizeBackupText(value, maxLength = 160) {
+    return String(value ?? '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, maxLength);
+}
+
+function sanitizeBackupId(value, prefix = 'import') {
+    const cleaned = sanitizeBackupText(value, 80).replace(/[^a-zA-Z0-9._:-]/g, '-');
+    return cleaned || createLocalId(prefix);
+}
+
+function sanitizeBackupDate(value) {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
+}
+
+function sanitizeBackupNumber(value, fallback = 0) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : fallback;
+}
+
+function sanitizeBackupTransaction(transaction, index = 0) {
+    const type = transaction?.type === 'income' ? 'income' : 'expense';
+    return {
+        id: sanitizeBackupId(transaction?.id || `tx-import-${index}`, 'tx'),
+        description: sanitizeBackupText(transaction?.description || 'Imported transaction', 140),
+        amount: Math.max(0, sanitizeBackupNumber(transaction?.amount, 0)),
+        type,
+        category: sanitizeBackupText(transaction?.category || 'Other', 80),
+        created_at: sanitizeBackupDate(transaction?.created_at || transaction?.date)
+    };
+}
+
+function sanitizeBackupSubscription(subscription, index = 0) {
+    return {
+        id: sanitizeBackupId(subscription?.id || `sub-import-${index}`, 'sub'),
+        name: sanitizeBackupText(subscription?.name || 'Imported subscription', 100),
+        amount: Math.max(0, sanitizeBackupNumber(subscription?.amount, 0)),
+        day: Math.min(31, Math.max(1, Math.round(sanitizeBackupNumber(subscription?.day, 1))))
+    };
+}
+
+function sanitizeBackupJob(job, index = 0) {
+    return {
+        id: sanitizeBackupId(job?.id || `job-import-${index}`, 'job'),
+        name: sanitizeBackupText(job?.name || 'Imported job', 100),
+        rate: Math.max(0, sanitizeBackupNumber(job?.rate, 0)),
+        pay_date: sanitizeBackupText(job?.pay_date || '', 20)
+    };
+}
+
+function sanitizeBackupShift(shift, index = 0) {
+    const hours = Math.max(0, sanitizeBackupNumber(shift?.hours, 0));
+    const rate = Math.max(0, sanitizeBackupNumber(shift?.rate, 0));
+    return {
+        id: sanitizeBackupId(shift?.id || `shift-import-${index}`, 'shift'),
+        job: sanitizeBackupText(shift?.job || 'Job', 100),
+        job_id: sanitizeBackupId(shift?.job_id || '', 'job'),
+        date: sanitizeBackupText(shift?.date || new Date().toISOString().slice(0, 10), 20),
+        hours,
+        rate,
+        pay: Math.max(0, sanitizeBackupNumber(shift?.pay, hours * rate))
+    };
+}
+
+function sanitizeBackupCategory(category, index = 0) {
+    return normalizeCategory({
+        id: sanitizeBackupId(category?.id || `cat-import-${index}`, 'cat'),
+        name: sanitizeBackupText(category?.name || 'Imported Category', 80),
+        icon: sanitizeBackupText(category?.icon || '🔸', 4) || '🔸',
+        color: /^#[0-9a-fA-F]{6}$/.test(String(category?.color || '')) ? category.color : '#64748b',
+        type: ['income', 'expense', 'transfer'].includes(category?.type) ? category.type : 'expense',
+        order: sanitizeBackupNumber(category?.order, index)
+    }, index);
+}
+
+function sanitizeBackupBudgets(budgets) {
+    if (!budgets || typeof budgets !== 'object' || Array.isArray(budgets)) return {};
+    return Object.fromEntries(Object.entries(budgets)
+        .map(([category, limit]) => [sanitizeBackupText(category, 80), Math.max(0, sanitizeBackupNumber(limit, 0))])
+        .filter(([category, limit]) => category && limit > 0));
+}
+
 function exportBackup() {
     trackerSettings.meta.lastBackupAt = new Date().toISOString();
     saveTrackerSettings();
@@ -4324,20 +4517,37 @@ function exportBackup() {
 function importBackupFile(event) {
     const file = event.target.files?.[0];
     if (!file) return;
+    if (file.size > 2_000_000) {
+        showToast('Backup file is too large.', 'error');
+        event.target.value = '';
+        return;
+    }
+    if (!confirm('Importing this backup will replace the tracker data in this browser. Continue?')) {
+        event.target.value = '';
+        return;
+    }
 
     const reader = new FileReader();
     reader.onload = async () => {
         try {
             const backup = JSON.parse(String(reader.result || '{}'));
-            transactions = Array.isArray(backup.transactions) ? backup.transactions : [];
-            savingsTransactions = Array.isArray(backup.savingsTransactions) ? backup.savingsTransactions : [];
-            savedMoney = Number(backup.savedMoney || 0);
-            subscriptions = Array.isArray(backup.subscriptions) ? backup.subscriptions : [];
-            jobs = Array.isArray(backup.jobs) ? backup.jobs : [];
-            shifts = Array.isArray(backup.shifts) ? backup.shifts : [];
+            if (!backup || typeof backup !== 'object' || Array.isArray(backup)) {
+                throw new Error('Backup root must be an object.');
+            }
+            transactions = Array.isArray(backup.transactions) ? backup.transactions.slice(0, 5000).map(sanitizeBackupTransaction) : [];
+            savingsTransactions = Array.isArray(backup.savingsTransactions) ? backup.savingsTransactions.slice(0, 5000).map(sanitizeBackupTransaction) : [];
+            savedMoney = Math.max(0, sanitizeBackupNumber(backup.savedMoney, 0));
+            subscriptions = Array.isArray(backup.subscriptions) ? backup.subscriptions.slice(0, 500).map(sanitizeBackupSubscription) : [];
+            jobs = Array.isArray(backup.jobs) ? backup.jobs.slice(0, 500).map(sanitizeBackupJob) : [];
+            shifts = Array.isArray(backup.shifts) ? backup.shifts.slice(0, 5000).map(sanitizeBackupShift) : [];
             trackerSettings = mergeSettings(backup.settings || {});
-            categories = mergeCategoryList(categories, Array.isArray(backup.categories) ? backup.categories : [], Array.isArray(backup.customCategories) ? backup.customCategories : []);
-            categoryBudgets = backup.categoryBudgets && typeof backup.categoryBudgets === 'object' ? backup.categoryBudgets : {};
+            delete trackerSettings.security.pin;
+            categories = mergeCategoryList(
+                categories,
+                Array.isArray(backup.categories) ? backup.categories.slice(0, 500).map(sanitizeBackupCategory).filter(Boolean) : [],
+                Array.isArray(backup.customCategories) ? backup.customCategories.slice(0, 500).map(sanitizeBackupCategory).filter(Boolean) : []
+            );
+            categoryBudgets = sanitizeBackupBudgets(backup.categoryBudgets);
             window.trackerCategories = categories;
             categories = mergeCategoryList(categories, loadCategoriesFromTransactions());
             window.trackerCategories = categories;
@@ -4721,13 +4931,13 @@ function renderJobs() {
     <div style="font-size:12px;color:#64748b;">$${job.rate}/hr • Pay cycle starts ${job.pay_date || 'unset'}</div>
 </div>
 <div class="row-actions">
-    <button class="edit-btn" onclick="editJob('${job.id}')" title="Edit job">
+    <button class="edit-btn" onclick="editJob(${escapeInlineJSString(job.id)})" title="Edit job">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 20h9"></path>
             <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
         </svg>
     </button>
-    <button class="delete-btn" onclick="deleteJob('${job.id}')">
+    <button class="delete-btn" onclick="deleteJob(${escapeInlineJSString(job.id)})">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="3 6 5 6 21 6"></polyline>
             <path d="M19 6l-1 14H6L5 6"></path>
@@ -4974,13 +5184,13 @@ function renderShifts() {
             </div>
             <span class="transaction-amount" style="color:green;">$${shift.pay.toFixed(2)}</span>
             <div class="row-actions">
-                <button class="edit-btn" onclick="editShift('${shift.id}')" title="Edit shift">
+                <button class="edit-btn" onclick="editShift(${escapeInlineJSString(shift.id)})" title="Edit shift">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 20h9"></path>
                         <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
                     </svg>
                 </button>
-                <button class="delete-btn" onclick="deleteShift('${shift.id}')">
+                <button class="delete-btn" onclick="deleteShift(${escapeInlineJSString(shift.id)})">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"></polyline>
                         <path d="M19 6l-1 14H6L5 6"></path>
@@ -5226,26 +5436,24 @@ function renderSavingsTransactions() {
                 card.classList.add('savings-transfer-out');
             }
             card.innerHTML = `
-                <div class="transaction-card-content">
-                    <div>
-                        <div class="transaction-title-row">
-                            <strong>${isDeposit ? '🟢' : '🔵'} ${escapeHTML(t.description)}</strong>
-                            <span class="transaction-type-pill">${isDeposit ? 'Moved In' : 'Withdrawn'}</span>
-                        </div>
-                        <span class="transaction-meta">${new Date(t.created_at).toLocaleDateString()}</span>
+                <div class="savings-row-details">
+                    <div class="transaction-title-row">
+                        <strong>${escapeHTML(t.description)}</strong>
+                        <span class="transaction-type-pill">${isDeposit ? 'Moved In' : 'Withdrawn'}</span>
                     </div>
-                    <span class="transaction-amount">
-                        ${isDeposit ? '+' : '-'}$${amount.toFixed(2)}
-                    </span>
+                    <span class="transaction-meta">${new Date(t.created_at).toLocaleDateString()}</span>
                 </div>
+                <span class="transaction-amount">
+                    ${isDeposit ? '+' : '-'}$${amount.toFixed(2)}
+                </span>
                 <div class="row-actions">
-                    <button class="edit-btn" onclick="openEditTransactionPanel('${savingsKey}', this)" title="Edit savings activity">
+                    <button class="edit-btn" onclick="openEditTransactionPanel(${escapeInlineJSString(savingsKey)}, this)" title="Edit savings activity">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 20h9"></path>
                             <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
                         </svg>
                     </button>
-                    <button class="delete-btn" onclick="deleteSavingsTransaction('${savingsKey}')" title="Delete savings activity">
+                    <button class="delete-btn" onclick="deleteSavingsTransaction(${escapeInlineJSString(savingsKey)})" title="Delete savings activity">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="3 6 5 6 21 6"></polyline>
                             <path d="M19 6l-1 14H6L5 6"></path>
@@ -5319,7 +5527,14 @@ async function deleteSavingsTransferTransaction(transactionId, buttonElement) {
 }
 
 async function loadSettings() {
-    if (!supabaseClient) return;
+    if (!supabaseClient) {
+        const localGoal = localStorage.getItem('savingsGoal');
+        if (localGoal !== null) {
+            document.getElementById('savingsGoal').value = localGoal;
+        }
+        updateDashboard();
+        return;
+    }
 
     const { data, error } = await supabaseClient
         .from('settings')
@@ -5333,6 +5548,7 @@ async function loadSettings() {
 
     if (!error && data) {
         document.getElementById('savingsGoal').value = data.savings_goal || '';
+        localStorage.setItem('savingsGoal', data.savings_goal || '');
         savedMoney = Number(data.saved_money || 0);
     }
 
@@ -5340,9 +5556,13 @@ async function loadSettings() {
 }
 
 async function saveGoal() {
-    if (!supabaseClient) return;
-
     const goal = Number(document.getElementById('savingsGoal').value) || 0;
+    localStorage.setItem('savingsGoal', goal ? String(goal) : '');
+
+    if (!supabaseClient) {
+        updateDashboard();
+        return;
+    }
 
     const { error } = await supabaseClient
         .from('settings')
@@ -5405,14 +5625,22 @@ function updateDashboard(options = {}) {
     animateValue('savedMoney', Number(document.getElementById('savedMoney').textContent || 0), savedMoney, animate ? 600 : 0);
 
     animateValue('balance', Number(document.getElementById('balance').textContent || 0), balance, animate ? 600 : 0);
-    animateValue('savedAmount', Number(document.getElementById('savedAmount').textContent || 0), savedMoney, animate ? 600 : 0);
+    const savedAmountEl = document.getElementById('savedAmount');
+    if (savedAmountEl) {
+        animateValue('savedAmount', Number(savedAmountEl.textContent || 0), savedMoney, animate ? 600 : 0);
+    }
 
-    const goal = Number(document.getElementById('savingsGoal').value) || 0;
+    const goal = Number(document.getElementById('savingsGoal')?.value || localStorage.getItem('savingsGoal') || 0);
+    const progressFill = document.getElementById('progressFill');
+    const progressPercent = document.getElementById('progressPercent');
 
-    if (goal > 0) {
+    if (goal > 0 && progressFill && progressPercent) {
         const percent = Math.min((savedMoney / goal) * 100, 100);
-        document.getElementById('progressFill').style.width = percent + '%';
-        document.getElementById('progressPercent').textContent = percent.toFixed(0);
+        progressFill.style.width = percent + '%';
+        progressPercent.textContent = percent.toFixed(0);
+    } else if (progressFill && progressPercent) {
+        progressFill.style.width = '0%';
+        progressPercent.textContent = '0';
     }
 
     updateDashboardInsights();
@@ -5923,13 +6151,13 @@ function renderTransactions(options = {}) {
         </div>
     </div>
     <div class="transaction-card-actions">
-        <button class="edit-btn" onclick="openEditTransactionPanel('${t.id}', this)" title="Edit transaction">
+        <button class="edit-btn" onclick="openEditTransactionPanel(${escapeInlineJSString(t.id)}, this)" title="Edit transaction">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 20h9"></path>
                 <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
             </svg>
         </button>
-        <button class="delete-btn" onclick="deleteTransaction('${t.id}', this)">
+        <button class="delete-btn" onclick="deleteTransaction(${escapeInlineJSString(t.id)}, this)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6l-1 14H6L5 6"></path>
