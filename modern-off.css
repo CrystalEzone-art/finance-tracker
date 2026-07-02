@@ -5083,3 +5083,534 @@ canvas.analytics-canvas,
         border-radius: 13px !important;
     }
 }
+
+#transactionHistoryCard,
+#hoursTrackerCard {
+    min-width: 0 !important;
+}
+
+#transactionHistoryCard .transaction-filters {
+    grid-template-columns: minmax(156px, 1.25fr) repeat(4, minmax(104px, 1fr)) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+}
+
+#transactionHistoryCard .transaction-filters input {
+    box-sizing: border-box !important;
+    grid-column: auto !important;
+}
+
+#transactionHistoryCard .transaction-filters select {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+#transactionHistoryCard #filterCategory {
+    grid-column: auto !important;
+}
+
+@media (min-width: 1181px) {
+    .dashboard-row[style*="grid-template-columns:1fr 2fr"] {
+        grid-template-columns: minmax(680px, 1.05fr) minmax(0, 1.35fr) !important;
+    }
+}
+
+@media (max-width: 1450px) and (min-width: 769px) {
+    .dashboard-row[style*="grid-template-columns:1fr 2fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    #transactionHistoryCard .transaction-filters {
+        grid-template-columns: minmax(156px, 1.3fr) repeat(4, minmax(104px, 1fr)) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    #transactionHistoryCard .transaction-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    #transactionHistoryCard .transaction-filters input,
+    #transactionHistoryCard #filterCategory {
+        grid-column: 1 / -1 !important;
+    }
+}
+
+#hoursTrackerCard {
+    padding: 20px !important;
+}
+
+#hoursTrackerCard h2 {
+    margin-bottom: 8px !important;
+}
+
+#hoursTrackerCard > div > div:first-child {
+    margin-bottom: 8px !important;
+}
+
+#hoursTrackerCard > div > div:first-child select,
+#hoursTrackerCard > div > div:first-child button,
+#hoursTrackerCard .hours-grid input,
+#hoursTrackerCard .hours-grid select,
+#hoursTrackerCard .hours-grid button {
+    height: 42px !important;
+    min-height: 42px !important;
+}
+
+#hoursTrackerCard > div > div:first-child button {
+    padding: 0 12px !important;
+}
+
+#hoursTrackerCard .hours-grid {
+    gap: 8px !important;
+}
+
+#hoursTrackerCard .hours-overview {
+    display: grid !important;
+    grid-template-columns: minmax(120px, 0.75fr) minmax(0, 2fr) !important;
+    gap: 8px !important;
+    margin: 8px 0 !important;
+}
+
+#hoursTrackerCard .hours-week-card,
+#hoursTrackerCard .hours-paycheck-card {
+    border-radius: 12px !important;
+    padding: 8px 10px !important;
+}
+
+#hoursTrackerCard .hours-week-card [style*="font-size:24px"],
+#hoursTrackerCard #hoursWorked {
+    font-size: 19px !important;
+    line-height: 1.05 !important;
+}
+
+#hoursTrackerCard .hours-week-card [style*="font-size:12px"],
+#hoursTrackerCard .hours-paycheck-card [style*="font-size:12px"] {
+    font-size: 10px !important;
+    line-height: 1.1 !important;
+}
+
+#hoursTrackerCard .hours-paycheck-card > div:first-child {
+    margin-bottom: 5px !important;
+}
+
+#hoursTrackerCard #paycheckBreakdown {
+    margin-top: 0 !important;
+    font-size: 12px !important;
+}
+
+#hoursTrackerCard #paycheckBreakdown .paycheck-row {
+    align-items: center !important;
+    gap: 8px !important;
+    margin-bottom: 5px !important;
+    padding: 7px 8px !important;
+    border-radius: 10px !important;
+}
+
+#hoursTrackerCard #paycheckBreakdown .paycheck-row small {
+    font-size: 10px !important;
+    line-height: 1.15 !important;
+}
+
+#hoursTrackerCard #paydayCountdown {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 6px 10px !important;
+    margin-top: 6px !important;
+    padding: 7px 8px !important;
+    border-radius: 9px !important;
+    font-size: 12px !important;
+    line-height: 1.25 !important;
+}
+
+#hoursTrackerCard #paydayCountdown strong,
+#hoursTrackerCard #paydayCountdown span {
+    white-space: nowrap !important;
+}
+
+#hoursTrackerCard .hours-paycheck-card > div[style*="border-top"] {
+    margin-top: 7px !important;
+    padding-top: 7px !important;
+    font-size: 15px !important;
+}
+
+#hoursTrackerCard .hours-career-row {
+    margin: 8px 0 !important;
+}
+
+#hoursTrackerCard #shiftSummary {
+    padding: 9px 11px !important;
+    border-radius: 11px !important;
+}
+
+#hoursTrackerCard .hours-career-row > button {
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 12px !important;
+}
+
+#hoursTrackerCard #shiftListWrapper {
+    max-height: 190px !important;
+}
+
+#hoursTrackerCard #shiftList .transaction-card {
+    padding: 9px 10px !important;
+    margin-bottom: 7px !important;
+}
+
+@media (max-width: 768px) {
+    #hoursTrackerCard {
+        padding: 12px !important;
+    }
+
+    #hoursTrackerCard .hours-overview {
+        grid-template-columns: 1fr !important;
+    }
+
+    #hoursTrackerCard #shiftListWrapper {
+        max-height: 160px !important;
+    }
+}
+
+/* Dashboard polish pass */
+:root {
+    --finish-surface: rgba(255, 255, 255, 0.96);
+    --finish-surface-soft: rgba(248, 250, 252, 0.94);
+    --finish-line: rgba(226, 232, 240, 0.92);
+    --finish-line-strong: rgba(203, 213, 225, 0.95);
+    --finish-ink: #0f172a;
+    --finish-muted: #64748b;
+    --finish-shadow-card: 0 8px 22px rgba(15, 23, 42, 0.055);
+    --finish-shadow-raised: 0 12px 28px rgba(15, 23, 42, 0.075);
+}
+
+.container {
+    box-shadow: 0 20px 56px rgba(15, 23, 42, 0.10) !important;
+}
+
+.dashboard-row,
+.dashboard-row.two-column-row,
+.cards,
+.insight-strip {
+    gap: 14px !important;
+    margin-bottom: 14px !important;
+}
+
+.transactions,
+.form,
+.analytics-card,
+.analytics-section,
+.insight-card,
+.mini-card {
+    background: var(--finish-surface) !important;
+    border: 1px solid var(--finish-line) !important;
+    border-radius: 18px !important;
+    box-shadow: var(--finish-shadow-card) !important;
+}
+
+.transactions,
+.form {
+    padding: 18px !important;
+}
+
+.transactions h2,
+.form h2 {
+    display: flex !important;
+    align-items: center !important;
+    min-height: 32px !important;
+    margin-bottom: 10px !important;
+    color: var(--finish-ink) !important;
+    font-size: 21px !important;
+    line-height: 1.1 !important;
+}
+
+.card {
+    min-height: 112px !important;
+    padding: 20px !important;
+    border-radius: 18px !important;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.09) !important;
+}
+
+.card:hover,
+.transaction-card:hover,
+.analytics-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--finish-shadow-raised) !important;
+}
+
+.card h2 {
+    font-size: 14px !important;
+    line-height: 1.1 !important;
+}
+
+.stat-value {
+    font-size: clamp(24px, 2.4vw, 34px) !important;
+    line-height: 1 !important;
+}
+
+button:hover {
+    transform: translateY(-1px) !important;
+}
+
+.income-btn,
+.expense-btn {
+    box-shadow: 0 7px 16px rgba(15, 23, 42, 0.12) !important;
+}
+
+#transactionHistoryCard {
+    padding: 18px !important;
+}
+
+#transactionHistoryCard > div:first-child {
+    gap: 10px !important;
+}
+
+#transactionHistoryCard > div:first-child h2 {
+    margin-bottom: 0 !important;
+}
+
+#transactionHistoryCard > div:first-child button {
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 0 !important;
+    font-size: 11px !important;
+    border-radius: 10px !important;
+}
+
+#transactionHistoryCard .transaction-filters {
+    align-items: center !important;
+    gap: 6px !important;
+    margin: 8px 0 8px !important;
+    padding: 6px !important;
+    border: 1px solid var(--finish-line) !important;
+    border-radius: 13px !important;
+    background: var(--finish-surface-soft) !important;
+}
+
+#transactionHistoryCard .transaction-filters input,
+#transactionHistoryCard .transaction-filters select {
+    height: 34px !important;
+    min-height: 34px !important;
+    margin: 0 !important;
+    padding: 6px 9px !important;
+    border-radius: 9px !important;
+    border-color: var(--finish-line-strong) !important;
+    background: #ffffff !important;
+    font-size: 12px !important;
+    box-shadow: none !important;
+}
+
+#transactionHistoryCard .transaction-filters input {
+    padding-left: 10px !important;
+}
+
+#transactionHistoryCard #transactionList {
+    max-height: 252px !important;
+    padding-top: 7px !important;
+    border-top: 1px solid rgba(226, 232, 240, 0.72) !important;
+}
+
+#transactionHistoryCard .transaction-history-card {
+    align-items: center !important;
+    min-height: 58px !important;
+    margin-bottom: 6px !important;
+    padding: 9px 10px !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+}
+
+#transactionHistoryCard .transaction-history-card:hover {
+    border-color: rgba(148, 163, 184, 0.44) !important;
+    background: #f8fafc !important;
+}
+
+#transactionHistoryCard .transaction-history-card .transaction-card-content {
+    gap: 4px !important;
+}
+
+#transactionHistoryCard .transaction-history-card .transaction-main {
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+#transactionHistoryCard .transaction-history-card .transaction-title-row {
+    gap: 6px !important;
+    margin-bottom: 3px !important;
+}
+
+#transactionHistoryCard .transaction-history-card .transaction-title-row strong {
+    max-width: 22ch !important;
+    overflow: hidden !important;
+    color: var(--finish-ink) !important;
+    font-size: 13px !important;
+    line-height: 1.18 !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+#transactionHistoryCard .transaction-history-card .transaction-info-row {
+    gap: 6px !important;
+}
+
+#transactionHistoryCard .transaction-history-card .transaction-meta,
+#transactionHistoryCard .transaction-history-card .transaction-date {
+    font-size: 11px !important;
+    line-height: 1.1 !important;
+}
+
+#transactionHistoryCard .transaction-history-card .transaction-type-pill {
+    padding: 2px 6px !important;
+    font-size: 9px !important;
+    letter-spacing: 0 !important;
+}
+
+#transactionHistoryCard .transaction-history-card .transaction-amount-wrap {
+    min-width: 82px !important;
+}
+
+#transactionHistoryCard .transaction-history-card .transaction-amount {
+    font-size: 14px !important;
+    line-height: 1.05 !important;
+}
+
+#transactionHistoryCard .transaction-history-card .transaction-card-actions {
+    gap: 5px !important;
+}
+
+#transactionHistoryCard .transaction-history-card .edit-btn,
+#transactionHistoryCard .transaction-history-card .delete-btn,
+.edit-btn,
+.delete-btn {
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 !important;
+    border-radius: 9px !important;
+}
+
+#transactionHistoryCard .transaction-history-card .edit-btn svg,
+#transactionHistoryCard .transaction-history-card .delete-btn svg,
+.edit-btn svg,
+.delete-btn svg {
+    width: 14px !important;
+    height: 14px !important;
+}
+
+#hoursTrackerCard {
+    padding: 16px !important;
+}
+
+#hoursTrackerCard h2 {
+    margin-bottom: 8px !important;
+    font-size: 20px !important;
+}
+
+#hoursTrackerCard > div > div:first-child,
+#hoursTrackerCard .hours-grid {
+    gap: 6px !important;
+}
+
+#hoursTrackerCard > div > div:first-child select,
+#hoursTrackerCard > div > div:first-child button,
+#hoursTrackerCard .hours-grid input,
+#hoursTrackerCard .hours-grid select,
+#hoursTrackerCard .hours-grid button {
+    height: 38px !important;
+    min-height: 38px !important;
+    font-size: 12px !important;
+}
+
+#hoursTrackerCard .hours-overview {
+    grid-template-columns: minmax(112px, 0.58fr) minmax(0, 2.1fr) !important;
+    gap: 7px !important;
+    margin: 7px 0 !important;
+}
+
+#hoursTrackerCard .hours-week-card,
+#hoursTrackerCard .hours-paycheck-card,
+#hoursTrackerCard #shiftSummary,
+#hoursTrackerCard #paydayCountdown,
+#hoursTrackerCard #paycheckBreakdown .paycheck-row {
+    border-color: var(--finish-line) !important;
+    box-shadow: none !important;
+}
+
+#hoursTrackerCard .hours-week-card {
+    min-height: 112px !important;
+}
+
+#hoursTrackerCard .hours-paycheck-card {
+    min-height: 0 !important;
+}
+
+#hoursTrackerCard .hours-week-card [style*="font-size:24px"] {
+    font-size: 20px !important;
+}
+
+#hoursTrackerCard #paycheckBreakdown .paycheck-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+}
+
+#hoursTrackerCard .hours-career-row {
+    gap: 7px !important;
+    margin: 7px 0 0 !important;
+}
+
+#hoursTrackerCard #shiftSummary {
+    min-height: 38px !important;
+}
+
+#hoursTrackerCard #shiftListWrapper {
+    margin-top: 7px !important;
+}
+
+#savingsCard .savings-row,
+#shiftList .transaction-card,
+.subscription-item {
+    box-shadow: none !important;
+}
+
+@media (max-width: 1450px) and (min-width: 769px) {
+    #transactionHistoryCard #transactionList {
+        max-height: 240px !important;
+    }
+
+    #hoursTrackerCard .hours-overview {
+        grid-template-columns: minmax(120px, 0.65fr) minmax(0, 2fr) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .transactions,
+    .form {
+        padding: 12px !important;
+    }
+
+    #transactionHistoryCard .transaction-filters {
+        gap: 5px !important;
+        padding: 5px !important;
+    }
+
+    #transactionHistoryCard .transaction-history-card .transaction-main {
+        align-items: flex-start !important;
+    }
+
+    #transactionHistoryCard .transaction-history-card .transaction-title-row strong {
+        max-width: 100% !important;
+        white-space: normal !important;
+    }
+
+    #hoursTrackerCard .hours-overview {
+        grid-template-columns: 1fr !important;
+    }
+}

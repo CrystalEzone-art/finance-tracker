@@ -2016,7 +2016,7 @@
             -webkit-text-fill-color: var(--category-color) !important;
         }
     </style>
-    <link rel="stylesheet" href="modern-off.css">
+    <link rel="stylesheet" href="modern-off.css?v=tooltip-refresh-20260703">
     <script>
         function readStorageJSON(key, fallback) {
             try {
@@ -2761,15 +2761,15 @@
                     <button id="shiftSubmitButton" class="income-btn" style="width:100px;margin-top:0;padding:0 18px;" onclick="addShift()">Add</button>
                     <button id="cancelShiftEditButton" type="button" class="secondary-btn" style="display:none;width:auto;margin-top:0;padding:0 14px;" onclick="cancelShiftEdit()">Cancel</button>
                 </div>
-                <div style="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap;">
-                    <div style="flex:.8;background:white;border:1px solid #e5e7eb;padding:12px 14px;border-radius:18px;box-shadow:0 8px 20px rgba(15,23,42,.05);display:flex;justify-content:center;align-items:center;">
+                <div class="hours-overview" style="display:flex;gap:10px;margin:12px 0;flex-wrap:wrap;">
+                    <div class="hours-week-card" style="flex:.8;background:white;border:1px solid #e5e7eb;padding:12px 14px;border-radius:18px;box-shadow:0 8px 20px rgba(15,23,42,.05);display:flex;justify-content:center;align-items:center;">
                         <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;">
                             <div style="font-size:12px;color:#64748b;">THIS WEEK</div>
                             <div style="font-size:24px;font-weight:700;color:#2563eb;" id="weekHours">0</div>
                             <div style="font-size:12px;color:#64748b;">Hours Worked</div>
                         </div>
                     </div>
-                    <div style="flex:3.2;background:white;border:1px solid #e5e7eb;padding:12px;border-radius:18px;box-shadow:0 8px 20px rgba(15,23,42,.05);">
+                    <div class="hours-paycheck-card" style="flex:3.2;background:white;border:1px solid #e5e7eb;padding:12px;border-radius:18px;box-shadow:0 8px 20px rgba(15,23,42,.05);">
                         <div style="font-size:12px;color:#64748b;text-align:center;margin-bottom:10px;">UPCOMING PAYCHECKS</div>
                         <div id="paycheckBreakdown" style="margin-top:8px;font-size:13px;"></div>
                         <div id="paydayCountdown" style="margin-top:10px;padding:10px;background:#f8fafc;border-radius:10px;border:1px solid #e5e7eb;font-size:13px;"></div>
@@ -2778,7 +2778,7 @@
                         </div>
                     </div>
                 </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin:10px 0;">
+                <div class="hours-career-row" style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin:10px 0;">
                     <div id="shiftSummary" style="flex:1;padding:14px 16px;background:linear-gradient(135deg,#eff6ff,#f8fafc);border:1px solid #e5e7eb;border-radius:14px;color:#334155;display:flex;justify-content:space-between;align-items:center;">
                         <span style="font-size:13px;font-weight:600;">Career Hours</span>
                         <span id="hoursWorked" style="font-size:24px;font-weight:700;">0</span>
@@ -5250,9 +5250,9 @@ function renderShifts() {
             const days = Math.ceil((nextPay.payDate - today) / (1000 * 60 * 60 * 24));
 
             paydayCountdown.innerHTML = `
-                <strong>Next Payday</strong><br>
-                ${nextPay.payDate.toLocaleDateString()}<br>
-                ${Math.max(0, days)} day(s) away
+                <strong>Next Payday</strong>
+                <span>${nextPay.payDate.toLocaleDateString()}</span>
+                <span>${Math.max(0, days)} day(s) away</span>
             `;
         } else {
             paydayCountdown.innerHTML = 'No upcoming paychecks';
@@ -5580,9 +5580,11 @@ async function saveGoal() {
     updateDashboard();
 }
 
-async function loadFromSupabase() {
+async function loadFromSupabase(options = {}) {
     if (!supabaseClient) return;
-    showLoadingSkeleton('transactionList', 4);
+    if (options.showSkeleton !== false) {
+        showLoadingSkeleton('transactionList', 4);
+    }
 
     const { data, error } = await supabaseClient
         .from('transactions')
@@ -5616,7 +5618,7 @@ async function loadFromSupabase() {
 }
 
 function updateDashboard(options = {}) {
-    const animate = options.animate !== false;
+    const animate = options.animate !== false && !suppressRefreshAnimation;
     const balance = calculateBalance();
     updateAnalyticsFilterGlow();
     const spendingExpenses = getSpendingExpenseTotal();
@@ -6420,9 +6422,10 @@ const analyticsColors = {
 let analyticsPeriod = localStorage.getItem('analyticsPeriod') || 'monthly';
 let analyticsHoverTargets = {};
 let analyticsAnimationFrame = null;
+let suppressRefreshAnimation = false;
 
 function drawChart(options = {}) {
-    const animate = options.animate !== false;
+    const animate = options.animate !== false && !suppressRefreshAnimation;
     updateAnalyticsInsights();
     if (analyticsAnimationFrame) cancelAnimationFrame(analyticsAnimationFrame);
 
@@ -6458,7 +6461,7 @@ function setupChartInteractions() {
 
         canvas.addEventListener('mousemove', event => {
             const target = getAnalyticsTargetAtEvent(canvas, event);
-            showAnalyticsTooltip(event, target);
+            showAnalyticsTooltip(event, target, canvas);
             canvas.style.cursor = target?.category ? 'pointer' : target ? 'default' : '';
         });
 
@@ -6981,14 +6984,7 @@ function traceSmoothLine(ctx, points) {
     if (!points.length) return;
     ctx.moveTo(points[0].x, points[0].y);
     for (let i = 1; i < points.length; i++) {
-        const previous = points[i - 1];
-        const current = points[i];
-        const midX = (previous.x + current.x) / 2;
-        const midY = (previous.y + current.y) / 2;
-        ctx.quadraticCurveTo(previous.x, previous.y, midX, midY);
-        if (i === points.length - 1) {
-            ctx.quadraticCurveTo(current.x, current.y, current.x, current.y);
-        }
+        ctx.lineTo(points[i].x, points[i].y);
     }
 }
 
@@ -7192,21 +7188,40 @@ function getAnalyticsTargetAtEvent(canvas, event) {
     });
 }
 
-function showAnalyticsTooltip(event, target) {
+function showAnalyticsTooltip(event, target, canvas) {
     const tooltip = document.getElementById('chartTooltip');
     if (!tooltip || !target) {
         if (tooltip) tooltip.style.display = 'none';
         return;
     }
-    tooltip.style.display = 'block';
-    tooltip.style.left = `${event.clientX + 14}px`;
-    tooltip.style.top = `${event.clientY + 14}px`;
     const displayLabel = target.category && target.label === target.category
         ? getCategoryLabel(target.label)
         : target.label;
     const label = target.series ? `${target.series} • ${displayLabel}` : displayLabel;
     const percent = typeof target.percent === 'number' ? `<br>${target.percent.toFixed(1)}% of spending` : '';
     tooltip.innerHTML = `<strong>${escapeHTML(label)}</strong><br>${formatMoney(target.value)}${percent}`;
+    tooltip.style.display = 'block';
+
+    const rect = canvas?.getBoundingClientRect?.();
+    const anchor = rect && target.type === 'point' && typeof target.x === 'number' && typeof target.y === 'number'
+        ? { x: rect.left + target.x, y: rect.top + target.y }
+        : rect && target.type === 'rect'
+            ? { x: rect.left + target.x + target.width / 2, y: rect.top + target.y }
+            : rect && target.type === 'arc'
+                ? { x: rect.left + target.centerX, y: rect.top + target.centerY - target.radius }
+                : { x: event.clientX, y: event.clientY };
+
+    const margin = 8;
+    const tooltipWidth = tooltip.offsetWidth;
+    const tooltipHeight = tooltip.offsetHeight;
+    const left = Math.min(
+        window.innerWidth - tooltipWidth - margin,
+        Math.max(margin, anchor.x - tooltipWidth / 2)
+    );
+    const top = Math.max(margin, anchor.y - tooltipHeight - 12);
+
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
 }
 
 function getChartSliceAtPoint(x, y) {
@@ -7248,6 +7263,7 @@ function setText(id, value) {
     const el = document.getElementById(id);
     if (!el) return;
     el.textContent = value;
+    if (suppressRefreshAnimation) return;
     el.classList.remove('value-pop');
     void el.offsetWidth;
     el.classList.add('value-pop');
@@ -7259,6 +7275,12 @@ function animateInsightValue(id, end, formatter) {
     const start = Number(el.dataset.numericValue || 0);
     const next = Number(end || 0);
     el.dataset.numericValue = String(next);
+
+    if (suppressRefreshAnimation) {
+        el.textContent = formatter(next);
+        return;
+    }
+
     const startTime = performance.now();
     const duration = 650;
 
@@ -7316,7 +7338,7 @@ function roundRect(ctx, x, y, width, height, radius) {
 }
 
     // Redraw charts on resize but debounce
-    window.addEventListener('resize', debounce(()=>{ drawChart(); populateTransactionFilters(); }));
+    window.addEventListener('resize', debounce(()=>{ drawChart({ animate: false }); populateTransactionFilters(); }));
 
 function setTodayDate() {
     const dateInput = document.getElementById('shiftDate');
@@ -7445,9 +7467,10 @@ let refreshInProgress = false;
 async function refreshAppData() {
     if (refreshInProgress || document.hidden) return;
     refreshInProgress = true;
+    suppressRefreshAnimation = true;
     try {
         await loadSettings();
-        await loadFromSupabase();
+        await loadFromSupabase({ showSkeleton: false });
         await loadSavingsActivity();
         await Promise.all([
             loadSubscriptions(),
@@ -7455,6 +7478,7 @@ async function refreshAppData() {
             loadShiftsFromSupabase()
         ]);
     } finally {
+        suppressRefreshAnimation = false;
         refreshInProgress = false;
     }
 }
