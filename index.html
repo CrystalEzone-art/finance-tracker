@@ -2016,7 +2016,7 @@
             -webkit-text-fill-color: var(--category-color) !important;
         }
     </style>
-    <link rel="stylesheet" href="modern-off.css?v=tooltip-refresh-20260703">
+    <link rel="stylesheet" href="modern-off.css?v=1.5">
     <script>
         function readStorageJSON(key, fallback) {
             try {
@@ -2143,12 +2143,77 @@
 
         function getCategoryLabel(cat) {
             if (!cat) return '';
-            const category = (window.trackerCategories || []).find(item => item.name === cat);
-            return category?.icon ? `${category.icon} ${cat}` : cat;
+            return cat;
         }
 
         function getCategoryColor(cat, fallback = '#64748b') {
             return (window.trackerCategories || []).find(item => item.name === cat)?.color || fallback;
+        }
+
+        const categoryIconAliases = {
+            income: 'coins', expense: 'cash', paycheck: 'briefcase', bonus: 'spark', refund: 'return', gift: 'gift', gifts: 'gift',
+            interest: 'coins', investment: 'chart', 'side hustle': 'tool', 'selling items': 'box',
+            cash: 'cash', 'other income': 'plus', food: 'utensils', groceries: 'cart',
+            restaurants: 'utensils', 'fast food': 'utensils', coffee: 'coffee', gas: 'fuel',
+            parking: 'parking', toll: 'road', 'uber/lyft': 'car', 'car maintenance': 'tool',
+            phone: 'phone', clothing: 'shirt', electronics: 'plug', amazon: 'bag',
+            'home goods': 'home', movies: 'film', games: 'game', music: 'music',
+            streaming: 'tv', subscriptions: 'repeat', hobbies: 'palette', doctor: 'medical',
+            dentist: 'tooth', pharmacy: 'pill', gym: 'dumbbell', books: 'book',
+            school: 'school', 'savings transfer': 'bank', pets: 'paw', other: 'plus'
+        };
+
+        const categoryIconPaths = {
+            briefcase: '<rect x="4" y="7" width="16" height="11" rx="2"></rect><path d="M9 7V5h6v2"></path><path d="M4 12h16"></path>',
+            spark: '<path d="M12 3l1.8 5.1L19 10l-5.2 1.9L12 17l-1.8-5.1L5 10l5.2-1.9z"></path>',
+            return: '<path d="M9 7H5v4"></path><path d="M5 11c2-4 9-5 13 0 2 3 1 7-3 9"></path>',
+            gift: '<rect x="4" y="9" width="16" height="11" rx="2"></rect><path d="M12 9v11"></path><path d="M4 13h16"></path><path d="M9 9c-3-1-2-5 1-4 1 .3 2 2 2 4"></path><path d="M15 9c3-1 2-5-1-4-1 .3-2 2-2 4"></path>',
+            coins: '<circle cx="8" cy="8" r="4"></circle><circle cx="15" cy="14" r="5"></circle><path d="M15 11v6"></path><path d="M12 14h6"></path>',
+            chart: '<path d="M4 19h16"></path><path d="M6 16l4-5 3 3 5-8"></path>',
+            tool: '<path d="M14 7l3-3 3 3-3 3"></path><path d="M16 9L7 18l-3 1 1-3 9-9"></path>',
+            box: '<path d="M4 8l8-4 8 4-8 4z"></path><path d="M4 8v8l8 4 8-4V8"></path><path d="M12 12v8"></path>',
+            cash: '<rect x="3" y="7" width="18" height="10" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle><path d="M6 10v4"></path><path d="M18 10v4"></path>',
+            plus: '<circle cx="12" cy="12" r="8"></circle><path d="M12 8v8"></path><path d="M8 12h8"></path>',
+            utensils: '<path d="M7 4v8"></path><path d="M5 4v4"></path><path d="M9 4v4"></path><path d="M7 12v8"></path><path d="M16 4v16"></path><path d="M16 4c3 2 3 6 0 8"></path>',
+            cart: '<circle cx="9" cy="19" r="1.5"></circle><circle cx="17" cy="19" r="1.5"></circle><path d="M3 5h3l2 10h10l2-7H7"></path>',
+            coffee: '<path d="M5 8h11v6a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z"></path><path d="M16 10h2a2 2 0 0 1 0 4h-2"></path><path d="M8 4v2"></path><path d="M12 4v2"></path>',
+            fuel: '<path d="M6 20V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15"></path><path d="M5 20h12"></path><path d="M8 7h6"></path><path d="M16 8l3 3v6a2 2 0 0 0 2 2"></path>',
+            parking: '<path d="M8 20V4h6a4 4 0 0 1 0 8H8"></path>',
+            road: '<path d="M8 20L11 4"></path><path d="M16 20L13 4"></path><path d="M12 7v2"></path><path d="M12 13v2"></path>',
+            car: '<path d="M5 14l2-5h10l2 5"></path><rect x="4" y="13" width="16" height="5" rx="2"></rect><circle cx="8" cy="18" r="1.5"></circle><circle cx="16" cy="18" r="1.5"></circle>',
+            phone: '<rect x="8" y="3" width="8" height="18" rx="2"></rect><path d="M11 18h2"></path>',
+            shirt: '<path d="M8 4l4 3 4-3 4 3-2 4-2-1v10H8V10l-2 1-2-4z"></path>',
+            plug: '<path d="M9 7V3"></path><path d="M15 7V3"></path><path d="M7 7h10v4a5 5 0 0 1-10 0z"></path><path d="M12 16v5"></path>',
+            bag: '<path d="M6 8h12l-1 12H7z"></path><path d="M9 8a3 3 0 0 1 6 0"></path>',
+            home: '<path d="M4 11l8-7 8 7"></path><path d="M6 10v10h12V10"></path><path d="M10 20v-6h4v6"></path>',
+            film: '<rect x="4" y="5" width="16" height="14" rx="2"></rect><path d="M8 5v14"></path><path d="M16 5v14"></path><path d="M4 10h16"></path><path d="M4 14h16"></path>',
+            game: '<path d="M7 9h10a4 4 0 0 1 3 4l-1 4a2 2 0 0 1-3 1l-2-2h-4l-2 2a2 2 0 0 1-3-1l-1-4a4 4 0 0 1 3-4z"></path><path d="M8 13h4"></path><path d="M10 11v4"></path><circle cx="16" cy="13" r=".5"></circle>',
+            music: '<path d="M9 18V6l10-2v12"></path><circle cx="7" cy="18" r="2"></circle><circle cx="17" cy="16" r="2"></circle>',
+            tv: '<rect x="4" y="6" width="16" height="11" rx="2"></rect><path d="M9 21h6"></path><path d="M12 17v4"></path>',
+            repeat: '<path d="M17 2l4 4-4 4"></path><path d="M3 11V9a3 3 0 0 1 3-3h15"></path><path d="M7 22l-4-4 4-4"></path><path d="M21 13v2a3 3 0 0 1-3 3H3"></path>',
+            palette: '<path d="M12 4a8 8 0 0 0 0 16h1.5a1.5 1.5 0 0 0 0-3H12a1.5 1.5 0 0 1 0-3h1a7 7 0 0 0-1-10z"></path><circle cx="8" cy="10" r="1"></circle><circle cx="11" cy="8" r="1"></circle><circle cx="15" cy="10" r="1"></circle>',
+            medical: '<path d="M12 5v14"></path><path d="M5 12h14"></path><rect x="4" y="4" width="16" height="16" rx="4"></rect>',
+            tooth: '<path d="M8 4c2-1 3 1 4 1s2-2 4-1 3 3 2 7-3 9-5 9c-1 0-1-4-2-4s-1 4-2 4c-2 0-4-5-5-9S6 5 8 4z"></path>',
+            pill: '<path d="M10 20l10-10a4 4 0 0 0-6-6L4 14a4 4 0 0 0 6 6z"></path><path d="M8 10l6 6"></path>',
+            dumbbell: '<path d="M6 7v10"></path><path d="M18 7v10"></path><path d="M3 9v6"></path><path d="M21 9v6"></path><path d="M6 12h12"></path>',
+            book: '<path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 0-4-4z"></path><path d="M5 4v12"></path>',
+            school: '<path d="M4 10l8-5 8 5-8 5z"></path><path d="M7 13v4c3 2 7 2 10 0v-4"></path>',
+            bank: '<path d="M4 10h16"></path><path d="M6 10v8"></path><path d="M10 10v8"></path><path d="M14 10v8"></path><path d="M18 10v8"></path><path d="M3 20h18"></path><path d="M12 4l8 4H4z"></path>',
+            paw: '<circle cx="8" cy="9" r="1.5"></circle><circle cx="12" cy="7" r="1.5"></circle><circle cx="16" cy="9" r="1.5"></circle><path d="M8 17c0-3 2-5 4-5s4 2 4 5c0 2-2 3-4 2-2 1-4 0-4-2z"></path>'
+        };
+
+        function getCategoryIconKey(categoryName, type = '') {
+            const key = String(categoryName || '').toLowerCase();
+            return categoryIconAliases[key] || (type === 'income' ? 'coins' : type === 'transfer' ? 'bank' : 'plus');
+        }
+
+        function renderCategoryIcon(categoryName, type = '', color = getCategoryColor(categoryName)) {
+            const key = getCategoryIconKey(categoryName, type);
+            const path = categoryIconPaths[key];
+            if (!path) {
+                return `<span class="category-letter-icon" style="--category-color:${escapeHTML(color)}">${escapeHTML(String(categoryName || '?').trim().charAt(0).toUpperCase() || '?')}</span>`;
+            }
+            return `<svg viewBox="0 0 24 24" aria-hidden="true" style="--category-color:${escapeHTML(color)}">${path}</svg>`;
         }
 
         function getCategoryChartColor(categoryName, index = 0) {
@@ -2329,10 +2394,6 @@
                         <label for="settingsShowCalendar">Show Calendar</label>
                         <input type="checkbox" id="settingsShowCalendar">
                     </div>
-                    <div class="settings-toggle">
-                        <label for="settingsShowAnalytics">Show Analytics</label>
-                        <input type="checkbox" id="settingsShowAnalytics">
-                    </div>
                     <div class="settings-field">
                         <label for="settingsCardSize">Card Size</label>
                         <select id="settingsCardSize">
@@ -2350,7 +2411,6 @@
                             <option value="hours">Hours</option>
                             <option value="subscriptions">Subscriptions</option>
                             <option value="calendar">Calendar</option>
-                            <option value="analytics">Analytics</option>
                         </select>
                     </div>
                     <div class="settings-field">
@@ -2479,7 +2539,6 @@
                             <option value="hours">Hours</option>
                             <option value="subscriptions">Subscriptions</option>
                             <option value="calendar">Calendar</option>
-                            <option value="analytics">Analytics</option>
                         </select>
                     </div>
                 </div>
@@ -2552,7 +2611,7 @@
                     </div>
                     <div class="settings-toggle">
                         <label>Version</label>
-                        <strong>1.3</strong>
+                        <strong>1.5</strong>
                     </div>
                     <div class="settings-toggle">
                         <label>Built by</label>
@@ -2677,12 +2736,26 @@
                 </div>
 
                 <div class="transaction-select-row">
-                    <select id="category"></select>
-
-                    <select id="type">
+                    <select id="type" class="native-picker-select" aria-hidden="true" tabindex="-1" onchange="syncTransactionCategoryOptions()">
                         <option value="income">Income</option>
                         <option value="expense">Expense</option>
                     </select>
+                    <div class="category-picker type-picker" id="typePicker">
+                        <button type="button" class="category-picker-button" id="typePickerButton" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="category-picker-icon" id="typePickerIcon"></span>
+                            <span class="category-picker-label" id="typePickerLabel">Expense</span>
+                        </button>
+                        <div class="category-picker-menu type-picker-menu" id="typePickerMenu" role="listbox"></div>
+                    </div>
+
+                    <select id="category" class="native-category-select" aria-hidden="true" tabindex="-1"></select>
+                    <div class="category-picker" id="categoryPicker">
+                        <button type="button" class="category-picker-button" id="categoryPickerButton" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="category-picker-icon" id="categoryPickerIcon"></span>
+                            <span class="category-picker-label" id="categoryPickerLabel">Category</span>
+                        </button>
+                        <div class="category-picker-menu" id="categoryPickerMenu" role="listbox"></div>
+                    </div>
                 </div>
 
                 <button class="income-btn" onclick="addTransaction()">Add Transaction</button>
@@ -2816,7 +2889,7 @@
                     <button id="subscriptionSubmitButton" class="income-btn" onclick="addSubscription()" style="margin-top:0;">Add</button>
                 </div>
                 <button id="cancelSubscriptionEditButton" type="button" class="secondary-btn" style="display:none;" onclick="cancelSubscriptionEdit()">Cancel Edit</button>
-                <h3 style="margin-top:20px;margin-bottom:8px;color:#6b7280;">Monthly Cost: $<span id="subscriptionTotal">0.00</span></h3>
+                <h3 style="margin-top:20px;margin-bottom:8px;color:#6b7280;">Monthly Cost <span id="subscriptionTotal">0.00</span></h3>
                 <div id="nextBillCard" style="background:#eff6ff;border-radius:14px;padding:14px;margin-top:15px;margin-bottom:15px;">
                     <strong>Next Bill</strong>
                     <div id="nextBillText">No subscriptions</div>
@@ -2837,7 +2910,6 @@
         </div>
     </div>
 
-
     <section class="analytics-section" aria-label="Finance analytics">
         <div class="analytics-header">
             <div>
@@ -2847,47 +2919,47 @@
         </div>
 
         <div class="analytics-insights" id="analyticsInsights">
-            <div class="analytics-insight-card insight-red">
+            <div class="analytics-insight-card analytics-accent-red">
                 <div class="insight-icon">💳</div>
                 <span>Biggest Expense</span>
                 <strong id="biggestExpenseMonthInsight">$0.00</strong>
-                <em id="biggestExpenseTrend">↘ 0% vs last month</em>
+                <em id="biggestExpenseTrend">0% vs last month</em>
             </div>
-            <div class="analytics-insight-card insight-amber">
+            <div class="analytics-insight-card analytics-accent-amber">
                 <div class="insight-icon">📆</div>
                 <span>Daily Spend</span>
                 <strong id="averageDailySpendingInsight">$0.00</strong>
-                <em id="dailySpendingTrend">↘ 0% vs last month</em>
+                <em id="dailySpendingTrend">0% vs last month</em>
             </div>
-            <div class="analytics-insight-card insight-blue">
+            <div class="analytics-insight-card analytics-accent-blue">
                 <div class="insight-icon">🧾</div>
                 <span>Avg Transaction</span>
                 <strong id="averageTransactionInsight">$0.00</strong>
-                <em id="transactionAverageTrend">↗ 0% vs last month</em>
+                <em id="transactionAverageTrend">0% vs last month</em>
             </div>
-            <div class="analytics-insight-card insight-green">
+            <div class="analytics-insight-card analytics-accent-green">
                 <div class="insight-icon">🏦</div>
                 <span>Savings Rate</span>
                 <strong id="analyticsSavingsRateInsight">0%</strong>
-                <em id="savingsRateTrend">↗ 0% vs last month</em>
+                <em id="savingsRateTrend">0% vs last month</em>
             </div>
-            <div class="analytics-insight-card insight-purple">
+            <div class="analytics-insight-card analytics-accent-purple">
                 <div class="insight-icon">🏷️</div>
                 <span>Top Category</span>
                 <strong id="highestCategoryInsight">$0.00</strong>
-                <em id="categoryTrend">↘ 0% vs last month</em>
+                <em id="categoryTrend">0% vs last month</em>
             </div>
-            <div class="analytics-insight-card insight-cyan">
+            <div class="analytics-insight-card analytics-accent-cyan">
                 <div class="insight-icon">✨</div>
                 <span>No-Spend Streak</span>
                 <strong id="noSpendStreakInsight">0 days</strong>
-                <em id="streakTrend">↗ Keep it going</em>
+                <em id="streakTrend">Keep it going</em>
             </div>
-            <div class="analytics-insight-card insight-pink">
+            <div class="analytics-insight-card analytics-accent-pink">
                 <div class="insight-icon">🔮</div>
                 <span>Projected Balance</span>
                 <strong id="projectedBalanceInsight">$0.00</strong>
-                <em id="projectedBalanceTrend">↗ 0% vs last month</em>
+                <em id="projectedBalanceTrend">0% vs last month</em>
             </div>
         </div>
 
@@ -3649,7 +3721,6 @@ const defaultTrackerSettings = {
         showHours: true,
         showSubscriptions: true,
         showCalendar: true,
-        showAnalytics: true,
         cardSize: 'comfortable',
         defaultPage: 'dashboard'
     },
@@ -3844,7 +3915,6 @@ function populateSettingsForm() {
     setCheckedValue('settingsShowHours', trackerSettings.dashboard.showHours);
     setCheckedValue('settingsShowSubscriptions', trackerSettings.dashboard.showSubscriptions);
     setCheckedValue('settingsShowCalendar', trackerSettings.dashboard.showCalendar);
-    setCheckedValue('settingsShowAnalytics', trackerSettings.dashboard.showAnalytics);
     setInputValue('settingsCardSize', trackerSettings.dashboard.cardSize);
     setInputValue('settingsDashboardDefaultPage', trackerSettings.dashboard.defaultPage);
     setInputValue('savingsGoal', localStorage.getItem('savingsGoal') || document.getElementById('savingsGoal')?.value || '');
@@ -3857,6 +3927,7 @@ function populateSettingsForm() {
     renderCustomCategories();
     renderBudgets();
     renderAboutSettings();
+    enhanceAllSelectDropdowns();
 }
 
 function applyTrackerSettings() {
@@ -3869,10 +3940,7 @@ function applyTrackerSettings() {
         typeSelect.value = trackerSettings.preferences.defaultType;
     }
 
-    const categorySelect = document.getElementById('category');
-    if (categorySelect && trackerSettings.preferences.defaultCategory) {
-        categorySelect.value = trackerSettings.preferences.defaultCategory;
-    }
+    syncTransactionCategoryOptions(trackerSettings.preferences.defaultCategory);
 }
 
 function setSectionVisible(target, visible) {
@@ -3887,7 +3955,6 @@ function applyDashboardSettings() {
     setSectionVisible(document.getElementById('hoursTrackerCard'), dashboard.showHours);
     setSectionVisible(document.getElementById('subscriptionsCard'), dashboard.showSubscriptions);
     setSectionVisible(document.getElementById('visualCalendar')?.closest('.transactions'), dashboard.showCalendar);
-    setSectionVisible(document.querySelector('.analytics-section'), dashboard.showAnalytics);
 
     document.body.classList.toggle('settings-card-compact', dashboard.cardSize === 'compact');
     document.body.classList.toggle('settings-card-large', dashboard.cardSize === 'large');
@@ -3935,7 +4002,7 @@ function populateCategorySelect(select, options = {}) {
         groupCategories.forEach(category => {
             const option = document.createElement('option');
             option.value = category.name;
-            option.textContent = getCategoryLabel(category.name);
+            option.textContent = category.name;
             group.appendChild(option);
         });
         select.appendChild(group);
@@ -3947,9 +4014,477 @@ function populateCategorySelect(select, options = {}) {
     }
 }
 
+function syncTransactionCategoryOptions(preferredCategory) {
+    const typeSelect = document.getElementById('type');
+    const categorySelect = document.getElementById('category');
+    if (!typeSelect || !categorySelect) return;
+
+    const selectedType = typeSelect.value || trackerSettings.preferences.defaultType || 'expense';
+    const previousCategory = preferredCategory || categorySelect.value || trackerSettings.preferences.defaultCategory;
+    populateCategorySelect(categorySelect, {
+        selected: previousCategory,
+        types: [selectedType]
+    });
+
+    if (!categorySelect.value && categorySelect.options.length) {
+        categorySelect.value = categorySelect.options[0].value;
+    }
+
+    renderTypePicker();
+    renderCategoryPicker();
+}
+
+function renderTypePicker() {
+    const select = document.getElementById('type');
+    const picker = document.getElementById('typePicker');
+    const icon = document.getElementById('typePickerIcon');
+    const label = document.getElementById('typePickerLabel');
+    const menu = document.getElementById('typePickerMenu');
+    if (!select || !picker || !icon || !label || !menu) return;
+
+    const selectedValue = select.value || 'expense';
+    const selectedLabel = selectedValue === 'income' ? 'Income' : 'Expense';
+    const selectedColor = selectedValue === 'income' ? '#2563eb' : '#dc2626';
+    icon.innerHTML = renderCategoryIcon(selectedValue, selectedValue, selectedColor);
+    label.textContent = selectedLabel;
+
+    menu.innerHTML = ['income', 'expense'].map(value => {
+        const optionLabel = value === 'income' ? 'Income' : 'Expense';
+        const optionColor = value === 'income' ? '#2563eb' : '#dc2626';
+        const selected = value === selectedValue;
+        return `
+            <button type="button" class="type-picker-option${selected ? ' active' : ''}" role="option" aria-selected="${selected}" data-type-value="${value}">
+                <span class="category-picker-option-icon">${renderCategoryIcon(value, value, optionColor)}</span>
+                <span>${optionLabel}</span>
+            </button>
+        `;
+    }).join('');
+}
+
+function renderCategoryPicker() {
+    const select = document.getElementById('category');
+    const picker = document.getElementById('categoryPicker');
+    const button = document.getElementById('categoryPickerButton');
+    const icon = document.getElementById('categoryPickerIcon');
+    const label = document.getElementById('categoryPickerLabel');
+    const menu = document.getElementById('categoryPickerMenu');
+    if (!select || !picker || !button || !icon || !label || !menu) return;
+
+    const selectedOption = select.options[select.selectedIndex] || select.options[0];
+    const selectedValue = selectedOption?.value || '';
+    const selectedCategory = categories.find(category => category.name === selectedValue);
+    icon.innerHTML = renderCategoryIcon(selectedValue, selectedCategory?.type, selectedCategory?.color);
+    label.textContent = selectedValue || 'Category';
+
+    const options = [...select.options].map(option => {
+        const category = categories.find(item => item.name === option.value);
+        const selected = option.value === selectedValue;
+        return `
+            <button type="button" class="category-picker-option${selected ? ' active' : ''}" role="option" aria-selected="${selected}" data-category-value="${escapeHTML(option.value)}">
+                <span class="category-picker-option-icon">${renderCategoryIcon(option.value, category?.type, category?.color)}</span>
+                <span>${escapeHTML(option.value)}</span>
+            </button>
+        `;
+    }).join('');
+
+    menu.innerHTML = options || '<div class="category-picker-empty">No categories</div>';
+}
+
+function toggleCategoryPicker(forceOpen) {
+    const picker = document.getElementById('categoryPicker');
+    const button = document.getElementById('categoryPickerButton');
+    const menu = document.getElementById('categoryPickerMenu');
+    if (!picker || !button || !menu) return;
+    const open = typeof forceOpen === 'boolean' ? forceOpen : !picker.classList.contains('open');
+    picker.classList.toggle('open', open);
+    menu.classList.toggle('open', open);
+    button.setAttribute('aria-expanded', String(open));
+    if (open) {
+        positionCategoryPickerMenu();
+    } else {
+        menu.removeAttribute('style');
+    }
+}
+
+function toggleTypePicker(forceOpen) {
+    const picker = document.getElementById('typePicker');
+    const button = document.getElementById('typePickerButton');
+    const menu = document.getElementById('typePickerMenu');
+    if (!picker || !button || !menu) return;
+    const open = typeof forceOpen === 'boolean' ? forceOpen : !picker.classList.contains('open');
+    picker.classList.toggle('open', open);
+    menu.classList.toggle('open', open);
+    button.setAttribute('aria-expanded', String(open));
+    if (open) {
+        toggleCategoryPicker(false);
+        positionTypePickerMenu();
+    } else {
+        menu.removeAttribute('style');
+    }
+}
+
+function positionCategoryPickerMenu() {
+    const picker = document.getElementById('categoryPicker');
+    const button = document.getElementById('categoryPickerButton');
+    const menu = document.getElementById('categoryPickerMenu');
+    if (!picker || !button || !menu || !picker.classList.contains('open')) return;
+
+    if (menu.parentElement !== document.body) {
+        document.body.appendChild(menu);
+    }
+
+    const rect = button.getBoundingClientRect();
+    const gap = 8;
+    const viewportPadding = 12;
+    const spaceBelow = window.innerHeight - rect.bottom - viewportPadding - gap;
+    const spaceAbove = rect.top - viewportPadding - gap;
+    const openAbove = spaceBelow < 220 && spaceAbove > spaceBelow;
+    const availableSpace = openAbove ? spaceAbove : spaceBelow;
+    const maxHeight = Math.min(336, Math.max(190, availableSpace));
+    const left = Math.min(
+        Math.max(viewportPadding, rect.left),
+        window.innerWidth - rect.width - viewportPadding
+    );
+    const top = openAbove
+        ? Math.max(viewportPadding, rect.top - maxHeight - gap)
+        : Math.min(rect.bottom + gap, window.innerHeight - viewportPadding - maxHeight);
+
+    menu.style.setProperty('position', 'fixed', 'important');
+    menu.style.setProperty('left', `${left}px`, 'important');
+    menu.style.setProperty('right', 'auto', 'important');
+    menu.style.setProperty('top', `${top}px`, 'important');
+    menu.style.setProperty('bottom', 'auto', 'important');
+    menu.style.setProperty('width', `${rect.width}px`, 'important');
+    menu.style.setProperty('max-height', `${maxHeight}px`, 'important');
+    menu.style.setProperty('z-index', '2147483000', 'important');
+}
+
+function positionTypePickerMenu() {
+    const picker = document.getElementById('typePicker');
+    const button = document.getElementById('typePickerButton');
+    const menu = document.getElementById('typePickerMenu');
+    if (!picker || !button || !menu || !picker.classList.contains('open')) return;
+
+    if (menu.parentElement !== document.body) {
+        document.body.appendChild(menu);
+    }
+
+    const rect = button.getBoundingClientRect();
+    const gap = 8;
+    const viewportPadding = 12;
+    const menuHeight = Math.min(130, Math.max(100, window.innerHeight - rect.bottom - viewportPadding - gap));
+    const left = Math.min(
+        Math.max(viewportPadding, rect.left),
+        window.innerWidth - rect.width - viewportPadding
+    );
+    const top = Math.min(rect.bottom + gap, window.innerHeight - viewportPadding - menuHeight);
+
+    menu.style.setProperty('position', 'fixed', 'important');
+    menu.style.setProperty('left', `${left}px`, 'important');
+    menu.style.setProperty('right', 'auto', 'important');
+    menu.style.setProperty('top', `${top}px`, 'important');
+    menu.style.setProperty('bottom', 'auto', 'important');
+    menu.style.setProperty('width', `${rect.width}px`, 'important');
+    menu.style.setProperty('max-height', `${menuHeight}px`, 'important');
+    menu.style.setProperty('z-index', '2147483000', 'important');
+}
+
+function selectCategoryOption(value) {
+    const select = document.getElementById('category');
+    if (!select) return;
+    select.value = value;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    renderCategoryPicker();
+    toggleCategoryPicker(false);
+}
+
+function selectTypeOption(value) {
+    const select = document.getElementById('type');
+    if (!select) return;
+    select.value = value;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    renderTypePicker();
+    toggleTypePicker(false);
+}
+
+function getSelectIconName(select, value, text) {
+    if (select?.id?.toLowerCase().includes('category')) {
+        return renderCategoryIcon(value || text, '', getCategoryColor(value || text));
+    }
+    const first = String(text || value || '?').trim().charAt(0).toUpperCase() || '?';
+    return `<span class="category-letter-icon">${escapeHTML(first)}</span>`;
+}
+
+function shouldEnhanceSelect(select) {
+    if (!select || select.dataset.universalPicker === 'true') return false;
+    if (select.classList.contains('native-category-select') || select.classList.contains('native-picker-select')) return false;
+    if (select.type === 'hidden') return false;
+    return true;
+}
+
+function enhanceSelectDropdown(select) {
+    if (!shouldEnhanceSelect(select)) return;
+    if (!select.id) {
+        select.id = `select-${Math.random().toString(36).slice(2, 10)}`;
+    }
+
+    const picker = document.createElement('div');
+    picker.className = 'category-picker universal-select-picker';
+    picker.dataset.selectId = select.id;
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'category-picker-button universal-select-button';
+    button.setAttribute('aria-haspopup', 'listbox');
+    button.setAttribute('aria-expanded', 'false');
+
+    const icon = document.createElement('span');
+    icon.className = 'category-picker-icon universal-select-icon';
+
+    const label = document.createElement('span');
+    label.className = 'category-picker-label universal-select-label';
+
+    const menu = document.createElement('div');
+    menu.className = 'category-picker-menu universal-select-menu';
+    menu.setAttribute('role', 'listbox');
+    menu.dataset.selectId = select.id;
+
+    button.append(icon, label);
+    picker.append(button, menu);
+
+    const width = select.style.width;
+    const flex = select.style.flex;
+    const minWidth = select.style.minWidth;
+    if (width) picker.style.width = width;
+    if (flex) picker.style.flex = flex;
+    if (minWidth) picker.style.minWidth = minWidth;
+
+    select.classList.add('native-universal-select');
+    select.dataset.universalPicker = 'true';
+    select.insertAdjacentElement('afterend', picker);
+
+    const rerender = () => renderUniversalSelectPicker(select);
+    select.addEventListener('change', rerender);
+    const observer = new MutationObserver(rerender);
+    observer.observe(select, { childList: true, subtree: true, attributes: true, attributeFilter: ['label', 'value', 'disabled'] });
+    select._universalPickerObserver = observer;
+
+    renderUniversalSelectPicker(select);
+}
+
+function getUniversalSelectMenu(pickerOrSelectId) {
+    const selectId = typeof pickerOrSelectId === 'string' ? pickerOrSelectId : pickerOrSelectId?.dataset?.selectId;
+    if (!selectId) return null;
+    return document.querySelector(`.universal-select-menu[data-select-id="${selectId}"]`);
+}
+
+function renderUniversalSelectPicker(select) {
+    const picker = select?.nextElementSibling?.classList?.contains('universal-select-picker')
+        ? select.nextElementSibling
+        : null;
+    if (!select || !picker) return;
+
+    const button = picker.querySelector('.universal-select-button');
+    const icon = picker.querySelector('.universal-select-icon');
+    const label = picker.querySelector('.universal-select-label');
+    const menu = getUniversalSelectMenu(picker) || picker.querySelector('.universal-select-menu');
+    const selectedOption = select.options[select.selectedIndex] || select.options[0];
+    const selectedValue = selectedOption?.value || '';
+    const selectedText = selectedOption?.textContent?.trim() || select.getAttribute('aria-label') || 'Select';
+
+    picker.classList.toggle('is-disabled', Boolean(select.disabled));
+    if (button) button.disabled = Boolean(select.disabled);
+    if (icon) icon.innerHTML = getSelectIconName(select, selectedValue, selectedText);
+    if (label) label.textContent = selectedText;
+    if (!menu) return;
+
+    const optionRows = [];
+    [...select.children].forEach(child => {
+        if (child.tagName === 'OPTGROUP') {
+            const groupLabel = child.label || '';
+            if (groupLabel) {
+                optionRows.push(`<div class="universal-picker-group">${escapeHTML(groupLabel)}</div>`);
+            }
+            [...child.children].forEach(option => optionRows.push(renderUniversalSelectOption(select, option, selectedValue)));
+            return;
+        }
+        if (child.tagName === 'OPTION') {
+            optionRows.push(renderUniversalSelectOption(select, child, selectedValue));
+        }
+    });
+
+    menu.innerHTML = optionRows.join('') || '<div class="category-picker-empty">No options</div>';
+}
+
+function renderUniversalSelectOption(select, option, selectedValue) {
+    const value = option.value;
+    const text = option.textContent.trim() || value || 'Select';
+    const selected = value === selectedValue;
+    const disabled = option.disabled;
+    return `
+        <button type="button" class="universal-picker-option${selected ? ' active' : ''}" role="option" aria-selected="${selected}" data-select-value="${escapeHTML(value)}"${disabled ? ' disabled' : ''}>
+            <span class="category-picker-option-icon">${getSelectIconName(select, value, text)}</span>
+            <span>${escapeHTML(text)}</span>
+        </button>
+    `;
+}
+
+function toggleUniversalSelectPicker(picker, forceOpen) {
+    const button = picker?.querySelector('.universal-select-button');
+    const menu = getUniversalSelectMenu(picker) || picker?.querySelector('.universal-select-menu');
+    if (!picker || !button || !menu || picker.classList.contains('is-disabled')) return;
+
+    const open = typeof forceOpen === 'boolean' ? forceOpen : !picker.classList.contains('open');
+    document.querySelectorAll('.universal-select-picker.open').forEach(openPicker => {
+        if (openPicker !== picker) toggleUniversalSelectPicker(openPicker, false);
+    });
+    toggleTypePicker(false);
+    toggleCategoryPicker(false);
+
+    picker.classList.toggle('open', open);
+    menu.classList.toggle('open', open);
+    button.setAttribute('aria-expanded', String(open));
+    if (open) {
+        positionFloatingPickerMenu(picker, button, menu, 260);
+    } else {
+        menu.removeAttribute('style');
+    }
+}
+
+function positionFloatingPickerMenu(picker, button, menu, preferredMaxHeight = 336) {
+    if (!picker || !button || !menu || !picker.classList.contains('open')) return;
+    if (menu.parentElement !== document.body) {
+        document.body.appendChild(menu);
+    }
+
+    const rect = button.getBoundingClientRect();
+    const gap = 8;
+    const viewportPadding = 12;
+    const spaceBelow = window.innerHeight - rect.bottom - viewportPadding - gap;
+    const spaceAbove = rect.top - viewportPadding - gap;
+    const openAbove = spaceBelow < 180 && spaceAbove > spaceBelow;
+    const availableSpace = openAbove ? spaceAbove : spaceBelow;
+    const maxHeight = Math.min(preferredMaxHeight, Math.max(120, availableSpace));
+    const left = Math.min(
+        Math.max(viewportPadding, rect.left),
+        window.innerWidth - rect.width - viewportPadding
+    );
+    const top = openAbove
+        ? Math.max(viewportPadding, rect.top - maxHeight - gap)
+        : Math.min(rect.bottom + gap, window.innerHeight - viewportPadding - maxHeight);
+
+    menu.style.setProperty('position', 'fixed', 'important');
+    menu.style.setProperty('left', `${left}px`, 'important');
+    menu.style.setProperty('right', 'auto', 'important');
+    menu.style.setProperty('top', `${top}px`, 'important');
+    menu.style.setProperty('bottom', 'auto', 'important');
+    menu.style.setProperty('width', `${rect.width}px`, 'important');
+    menu.style.setProperty('max-height', `${maxHeight}px`, 'important');
+    menu.style.setProperty('z-index', '2147483000', 'important');
+}
+
+function selectUniversalOption(option) {
+    const menu = option.closest('.universal-select-menu');
+    const selectId = menu?.dataset.selectId;
+    const select = selectId ? document.getElementById(selectId) : null;
+    const picker = select?.nextElementSibling?.classList?.contains('universal-select-picker') ? select.nextElementSibling : null;
+    if (!select || !picker || option.disabled) return;
+
+    select.value = option.dataset.selectValue || '';
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    renderUniversalSelectPicker(select);
+    toggleUniversalSelectPicker(picker, false);
+}
+
+function enhanceAllSelectDropdowns(root = document) {
+    root.querySelectorAll?.('select')?.forEach(select => {
+        if (select.dataset.universalPicker === 'true') {
+            renderUniversalSelectPicker(select);
+            return;
+        }
+        enhanceSelectDropdown(select);
+    });
+}
+
+document.addEventListener('click', (event) => {
+    const picker = document.getElementById('categoryPicker');
+    const menu = document.getElementById('categoryPickerMenu');
+    const typePicker = document.getElementById('typePicker');
+    const typeMenu = document.getElementById('typePickerMenu');
+    const typePickerButton = event.target.closest?.('#typePickerButton');
+    if (typePickerButton && typePicker?.contains(typePickerButton)) {
+        event.preventDefault();
+        toggleTypePicker();
+        return;
+    }
+
+    const typeOption = event.target.closest?.('.type-picker-option');
+    if (typeOption && typeMenu?.contains(typeOption)) {
+        event.preventDefault();
+        selectTypeOption(typeOption.dataset.typeValue);
+        return;
+    }
+
+    const universalButton = event.target.closest?.('.universal-select-button');
+    if (universalButton) {
+        event.preventDefault();
+        toggleUniversalSelectPicker(universalButton.closest('.universal-select-picker'));
+        return;
+    }
+
+    const universalOption = event.target.closest?.('.universal-picker-option');
+    if (universalOption) {
+        event.preventDefault();
+        selectUniversalOption(universalOption);
+        return;
+    }
+
+    const pickerButton = event.target.closest?.('#categoryPickerButton');
+    if (pickerButton && picker?.contains(pickerButton)) {
+        event.preventDefault();
+        toggleTypePicker(false);
+        toggleCategoryPicker();
+        return;
+    }
+
+    const option = event.target.closest?.('.category-picker-option');
+    if (option && menu?.contains(option)) {
+        event.preventDefault();
+        selectCategoryOption(option.dataset.categoryValue);
+        return;
+    }
+    if (picker && !picker.contains(event.target) && !menu?.contains(event.target)) {
+        toggleCategoryPicker(false);
+    }
+    if (typePicker && !typePicker.contains(event.target) && !typeMenu?.contains(event.target)) {
+        toggleTypePicker(false);
+    }
+    document.querySelectorAll('.universal-select-picker.open').forEach(openPicker => {
+        const openMenu = openPicker.querySelector('.universal-select-menu');
+        if (!openPicker.contains(event.target) && !openMenu?.contains(event.target)) {
+            toggleUniversalSelectPicker(openPicker, false);
+        }
+    });
+});
+
+window.addEventListener('resize', positionCategoryPickerMenu);
+window.addEventListener('scroll', positionCategoryPickerMenu, true);
+window.addEventListener('resize', positionTypePickerMenu);
+window.addEventListener('scroll', positionTypePickerMenu, true);
+window.addEventListener('resize', () => {
+    document.querySelectorAll('.universal-select-picker.open').forEach(picker => {
+        positionFloatingPickerMenu(picker, picker.querySelector('.universal-select-button'), getUniversalSelectMenu(picker), 260);
+    });
+});
+window.addEventListener('scroll', () => {
+    document.querySelectorAll('.universal-select-picker.open').forEach(picker => {
+        positionFloatingPickerMenu(picker, picker.querySelector('.universal-select-button'), getUniversalSelectMenu(picker), 260);
+    });
+}, true);
+
 function applyCustomCategoriesToDropdowns() {
     saveCategories();
-    populateCategorySelect(document.getElementById('category'));
+    syncTransactionCategoryOptions();
     populateCategorySelect(document.getElementById('editTransactionCategory'));
     populateSettingsCategoryOptions();
     populateBudgetCategoryOptions();
@@ -4355,7 +4890,6 @@ function saveDashboardSettings() {
         showHours: Boolean(document.getElementById('settingsShowHours')?.checked),
         showSubscriptions: Boolean(document.getElementById('settingsShowSubscriptions')?.checked),
         showCalendar: Boolean(document.getElementById('settingsShowCalendar')?.checked),
-        showAnalytics: Boolean(document.getElementById('settingsShowAnalytics')?.checked),
         cardSize: document.getElementById('settingsCardSize')?.value || 'comfortable',
         defaultPage: document.getElementById('settingsDashboardDefaultPage')?.value || 'dashboard'
     };
@@ -4719,8 +5253,7 @@ function openStartingPage() {
         savings: '#savingsCard',
         hours: '#hoursTrackerCard',
         subscriptions: '#subscriptionsCard',
-        calendar: '#visualCalendar',
-        analytics: '.analytics-section'
+        calendar: '#visualCalendar'
     };
     trackerSettings.preferences.startingPage = 'dashboard';
     trackerSettings.dashboard.defaultPage = 'dashboard';
@@ -6447,7 +6980,6 @@ function drawChart(options = {}) {
 }
 
 function renderAnalytics() {
-    drawChart({ animate: false });
 }
 
 function setupChartInteractions() {
@@ -6731,14 +7263,19 @@ function prepareChart(canvas) {
     if (!canvas) return null;
     const rect = canvas.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
-    const width = Math.max(320, rect.width || canvas.parentElement?.clientWidth || 640);
-    const height = Math.max(320, rect.height || 380);
+    const parentWidth = canvas.parentElement?.clientWidth || 0;
+    const width = Math.max(260, Math.floor(rect.width || parentWidth || 640));
+    const height = Math.max(width < 520 ? 260 : 320, Math.floor(rect.height || 380));
+    const compact = width < 520;
+    const plot = compact
+        ? { left: 62, right: 18, top: 28, bottom: 48 }
+        : { left: 68, right: 32, top: 34, bottom: 62 };
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     const ctx = canvas.getContext('2d');
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, width, height);
-    return { canvas, ctx, width, height, plot: { left: 68, right: 32, top: 34, bottom: 62 } };
+    return { canvas, ctx, width, height, plot, compact };
 }
 
 function drawLineChart(chart, data, options, progress) {
@@ -7406,6 +7943,7 @@ function populateTransactionFilters(options = {}) {
     monthSelect.value = months[selectedMonth] ? selectedMonth : '';
     yearSelect.value = years[selectedYear] ? selectedYear : '';
     catSelect.value = categories[selectedCategory] ? selectedCategory : '';
+    enhanceAllSelectDropdowns(document.getElementById('transactionFilters') || document);
 }
 
 async function initializeApp() {
@@ -7437,6 +7975,7 @@ async function initializeApp() {
     // populate filter selects
     populateTransactionFilters();
     updateCategoryFilterUI(document.getElementById('filterCategory')?.value || '');
+    enhanceAllSelectDropdowns();
 
     const subscriptionButton = document.querySelector('button[onclick="toggleSection(\'subscriptionCalendarWrapper\', this)"]');
     if (subscriptionButton) {
