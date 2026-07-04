@@ -6492,6 +6492,18 @@ input[type="date"] {
     color-scheme: light !important;
 }
 
+body input[type="date"],
+body #hoursTrackerCard .hours-grid input[type="date"],
+body #subscriptionsCard .subscription-form-grid input[type="date"],
+body #savedJobsPanel input[type="date"] {
+    height: 46px !important;
+    min-height: 46px !important;
+    padding: 0 42px 0 14px !important;
+    border-radius: 14px !important;
+    font-size: 14px !important;
+    line-height: 46px !important;
+}
+
 input[type="date"]::-webkit-date-and-time-value {
     min-height: 1.2em !important;
     text-align: left !important;
@@ -6538,13 +6550,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         height: 44px !important;
         min-height: 44px !important;
         font-size: 16px !important;
-    }
-}
-
-/* Mobile only: remove Finance Analytics from the phone experience. */
-@media (max-width: 768px) {
-    .analytics-section {
-        display: none !important;
     }
 }
 
@@ -7074,6 +7079,84 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     font-weight: 850 !important;
 }
 
+.category-icon-picker {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-height: 178px !important;
+    overflow-y: auto !important;
+    padding: 8px !important;
+    border: 1px solid rgba(203, 213, 225, 0.92) !important;
+    border-radius: var(--app-radius-md, 14px) !important;
+    background: rgba(248, 250, 252, 0.78) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.76) !important;
+    overscroll-behavior: contain !important;
+}
+
+.category-icon-picker.compact {
+    max-height: 210px !important;
+}
+
+.category-icon-choice {
+    display: grid !important;
+    grid-template-columns: 28px minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: 9px !important;
+    min-width: 0 !important;
+    height: 42px !important;
+    padding: 0 10px !important;
+    border: 1px solid rgba(203, 213, 225, 0.82) !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.94) !important;
+    color: var(--app-ink, #0f172a) !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03) !important;
+    font-size: 13px !important;
+    font-weight: 750 !important;
+    line-height: 1.1 !important;
+    text-align: left !important;
+    cursor: pointer !important;
+}
+
+.category-icon-choice:hover,
+.category-icon-choice.active {
+    border-color: color-mix(in srgb, var(--app-primary, #2563eb) 45%, #cbd5e1) !important;
+    background: color-mix(in srgb, var(--category-color, #2563eb) 10%, #ffffff) !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.09) !important;
+}
+
+.category-icon-choice span:last-child {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.category-icon-choice-art,
+.category-manager-icon {
+    display: inline-grid !important;
+    place-items: center !important;
+}
+
+.category-icon-choice-art svg,
+.category-manager-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+    fill: none !important;
+    stroke: var(--category-color, currentColor) !important;
+    stroke-width: 2 !important;
+    stroke-linecap: round !important;
+    stroke-linejoin: round !important;
+}
+
+.category-manager-icon {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 11px !important;
+    background: color-mix(in srgb, var(--category-color, #64748b) 13%, white) !important;
+    color: var(--category-color, #64748b) !important;
+}
+
 .category-picker-menu {
     position: fixed !important;
     z-index: 2147483000 !important;
@@ -7220,6 +7303,28 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         padding: 7px 10px !important;
         font-size: 13px !important;
         line-height: 1.2 !important;
+    }
+
+    .category-icon-picker {
+        grid-template-columns: repeat(auto-fill, minmax(94px, 1fr)) !important;
+        max-height: 152px !important;
+        gap: 6px !important;
+        padding: 6px !important;
+        border-radius: 12px !important;
+    }
+
+    .category-icon-choice {
+        grid-template-columns: 24px minmax(0, 1fr) !important;
+        height: 38px !important;
+        gap: 7px !important;
+        padding: 0 8px !important;
+        border-radius: 10px !important;
+        font-size: 12px !important;
+    }
+
+    .category-icon-choice-art svg {
+        width: 16px !important;
+        height: 16px !important;
     }
 }
 
@@ -7599,17 +7704,189 @@ button,
         grid-template-columns: minmax(0, 1fr) !important;
     }
 }
-/* Absolute EOF mobile money-input spacing pass. */
+/* Absolute EOF money-input alignment pass. */
+.input-with-dollar {
+    position: relative !important;
+    display: block !important;
+    min-width: 0 !important;
+}
+
+.input-with-dollar span {
+    position: absolute !important;
+    left: 12px !important;
+    top: 50% !important;
+    z-index: 2 !important;
+    display: inline-grid !important;
+    place-items: center !important;
+    width: 26px !important;
+    height: 26px !important;
+    margin: 0 !important;
+    border-radius: 8px !important;
+    background: color-mix(in srgb, var(--app-primary, #2563eb) 12%, white) !important;
+    color: var(--app-primary, #2563eb) !important;
+    font-size: 13px !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+    transform: translateY(-50%) !important;
+    pointer-events: none !important;
+}
+
+.input-with-dollar input {
+    width: 100% !important;
+    padding-left: 50px !important;
+}
+
+.input-with-dollar > span,
+.form .input-with-dollar > span,
+.transactions .input-with-dollar > span,
+.dashboard-row.two-column-row > .form .input-with-dollar > span {
+    min-width: 26px !important;
+    max-width: 26px !important;
+    min-height: 26px !important;
+    max-height: 26px !important;
+    padding: 0 !important;
+}
+
 @media (max-width: 768px) {
+    .input-with-dollar span {
+        left: 12px !important;
+        width: 24px !important;
+        height: 24px !important;
+        min-width: 24px !important;
+        max-width: 24px !important;
+        min-height: 24px !important;
+        max-height: 24px !important;
+        border-radius: 8px !important;
+        font-size: 12px !important;
+        padding: 0 !important;
+    }
+
+    .input-with-dollar input,
     .form .input-with-dollar input,
     .transactions .input-with-dollar input,
     .dashboard-row.two-column-row > .form .input-with-dollar input,
-    #savingsCard .input-with-dollar input {
-        padding-left: 48px !important;
-    }
-
+    #savingsCard .input-with-dollar input,
     #hoursTrackerCard .input-with-dollar input,
     #subscriptionsCard .subscription-form-grid .input-with-dollar input {
-        padding-left: 46px !important;
+        padding-left: 50px !important;
+    }
+}
+
+/* True last-word fix for the Add Transaction amount badge. */
+@media (max-width: 768px) {
+    body .input-with-dollar > span,
+    body .container .dashboard-row.two-column-row > .form .input-with-dollar > span {
+        width: 24px !important;
+        min-width: 24px !important;
+        max-width: 24px !important;
+        height: 24px !important;
+        min-height: 24px !important;
+        max-height: 24px !important;
+        line-height: 1 !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+    }
+}
+
+/* Absolute EOF date-input cleanup pass. */
+input[type="date"] {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    margin-top: 0 !important;
+    padding: 0 42px 0 14px !important;
+    border: 1px solid var(--control-line, rgba(203, 213, 225, 0.92)) !important;
+    border-radius: 14px !important;
+    background-color: var(--control-surface, rgba(255, 255, 255, 0.95)) !important;
+    color: var(--app-ink, #0f172a) !important;
+    box-shadow: var(--control-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.76), 0 1px 2px rgba(15, 23, 42, 0.03)) !important;
+    font-size: 14px !important;
+    font-weight: 750 !important;
+    line-height: 46px !important;
+    text-align: left !important;
+    color-scheme: light !important;
+    -webkit-text-fill-color: var(--app-ink, #0f172a) !important;
+}
+
+input[type="date"]::-webkit-date-and-time-value {
+    min-height: 46px !important;
+    line-height: 46px !important;
+    text-align: left !important;
+    margin: 0 !important;
+}
+
+input[type="date"]::-webkit-datetime-edit,
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    min-height: 46px !important;
+    height: 46px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+    padding: 0 !important;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    width: 20px !important;
+    height: 20px !important;
+    margin: 0 !important;
+    padding: 4px !important;
+    border-radius: 8px !important;
+    opacity: 0.72 !important;
+    cursor: pointer !important;
+}
+
+input[type="date"]:focus {
+    border-color: color-mix(in srgb, var(--app-primary, #2563eb) 42%, #cbd5e1) !important;
+    background-color: #ffffff !important;
+    box-shadow: var(--control-shadow-focus, 0 0 0 3px rgba(37, 99, 235, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.82)) !important;
+    outline: none !important;
+}
+
+@media (max-width: 768px) {
+    input[type="date"],
+    body input[type="date"],
+    #hoursTrackerCard .hours-grid input[type="date"],
+    body #hoursTrackerCard .hours-grid input[type="date"],
+    #subscriptionsCard .subscription-form-grid input[type="date"],
+    body #subscriptionsCard .subscription-form-grid input[type="date"],
+    body #savedJobsPanel input[type="date"],
+    #savedJobsPanel input[type="date"] {
+        height: 46px !important;
+        min-height: 46px !important;
+        padding: 0 38px 0 13px !important;
+        border-radius: 12px !important;
+        background-color: #ffffff !important;
+        font-size: 16px !important;
+        font-weight: 750 !important;
+        line-height: 46px !important;
+        -webkit-text-size-adjust: 100% !important;
+    }
+
+    input[type="date"]::-webkit-date-and-time-value,
+    input[type="date"]::-webkit-datetime-edit,
+    input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+        min-height: 46px !important;
+        height: 46px !important;
+        line-height: 46px !important;
+        margin: 0 !important;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        width: 18px !important;
+        height: 18px !important;
+        padding: 5px !important;
+        margin-right: -4px !important;
     }
 }
