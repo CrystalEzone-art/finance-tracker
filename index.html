@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tyler's Finance Tracker</title>
     <meta name="theme-color" content="#22c55e">
-    <meta name="referrer" content="no-referrer">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://ptqdxxtvhimmbozagofp.supabase.co wss://ptqdxxtvhimmbozagofp.supabase.co; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2322c55e'/%3E%3Ctext x='32' y='43' text-anchor='middle' font-size='34' font-family='Arial,sans-serif' fill='white' font-weight='700'%3E$%3C/text%3E%3C/svg%3E">
 
     <style>
@@ -386,6 +384,23 @@
             color: #334155;
         }
 
+        #pieChart {
+            cursor: pointer;
+        }
+
+        #chartTooltip {
+            position: fixed;
+            display: none;
+            pointer-events: none;
+            z-index: 10000;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: rgba(15,23,42,0.92);
+            color: white;
+            font-size: 12px;
+            box-shadow: 0 10px 24px rgba(15,23,42,0.24);
+        }
+
         .progress-fill {
             box-shadow: inset 0 0 0 1px rgba(255,255,255,.22), 0 8px 18px rgba(34,197,94,.24);
         }
@@ -746,6 +761,38 @@
             border: 1px solid #e5e7eb;
         }
 
+        #pieChart {
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            aspect-ratio: 1 / 1;
+            background: linear-gradient(180deg,#ffffff,#f8fafc);
+            border-radius: 20px;
+            border: 1px solid #e5e7eb;
+            margin: 0 auto;
+        }
+
+        #pieLegend {
+            margin-top: 18px;
+            display: grid;
+            gap: 8px;
+            color: #334155;
+            font-size: 14px;
+            max-width: 500px;
+        }
+
+        #pieLegend .legend-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #pieLegend .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 999px;
+            flex-shrink: 0;
+        }
         .stat-value {
             font-size: 32px;
             font-weight: 700;
@@ -985,6 +1032,10 @@
 
             #subscriptionCalendar {
                 max-height: 220px;
+            }
+
+            #pieChart {
+                max-width: 240px;
             }
 
             #visualCalendar {
@@ -1610,6 +1661,7 @@
         body.settings-card-compact .card,
         body.settings-card-compact .form,
         body.settings-card-compact .transactions,
+        body.settings-card-compact .analytics-card,
         body.settings-card-compact .insight-card {
             padding: 16px;
         }
@@ -1617,6 +1669,7 @@
         body.settings-card-large .card,
         body.settings-card-large .form,
         body.settings-card-large .transactions,
+        body.settings-card-large .analytics-card,
         body.settings-card-large .insight-card {
             padding: 28px;
         }
@@ -1624,6 +1677,7 @@
         body.settings-radius-soft .card,
         body.settings-radius-soft .form,
         body.settings-radius-soft .transactions,
+        body.settings-radius-soft .analytics-card,
         body.settings-radius-soft .settings-content,
         body.settings-radius-soft .settings-page {
             border-radius: 14px;
@@ -1631,7 +1685,8 @@
 
         body.settings-radius-extra .card,
         body.settings-radius-extra .form,
-        body.settings-radius-extra .transactions {
+        body.settings-radius-extra .transactions,
+        body.settings-radius-extra .analytics-card {
             border-radius: 28px;
         }
 
@@ -1671,6 +1726,7 @@
         body.settings-theme-dark .card,
         body.settings-theme-dark .form,
         body.settings-theme-dark .transactions,
+        body.settings-theme-dark .analytics-card,
         body.settings-theme-dark .settings-page {
             background: #111827;
             border-color: #334155;
@@ -1931,22 +1987,36 @@
             background: var(--category-color) !important;
         }
 
-        .top-category-row {
+        #pieLegend .legend-name {
+            color: var(--category-color) !important;
+            font-weight: 900;
+        }
+
+        #pieLegend .legend-amount {
+            color: var(--category-color) !important;
+            font-weight: 950;
+        }
+
+        .top-category-row,
+        #pieLegend .legend-row {
             --category-color: #64748b;
         }
 
         .top-category-dot,
-        .top-category-fill {
+        .top-category-fill,
+        #pieLegend .legend-color {
             background: var(--category-color) !important;
         }
 
         .top-category-name,
-        .top-category-amount {
+        .top-category-amount,
+        #pieLegend .legend-name,
+        #pieLegend .legend-amount {
             color: var(--category-color) !important;
             -webkit-text-fill-color: var(--category-color) !important;
         }
     </style>
-    <link rel="stylesheet" href="modern-off.css?v=iphone-date-boxes-20260704">
+    <link rel="stylesheet" href="modern-off.css?v=1.5">
     <script>
         function readStorageJSON(key, fallback) {
             try {
@@ -1960,65 +2030,21 @@
             }
         }
 
-        const categoryIconAliases = {
-            income: 'coins', expense: 'cash', paycheck: 'briefcase', bonus: 'spark', refund: 'return', gift: 'gift', gifts: 'gift',
-            interest: 'coins', investment: 'chart', 'side hustle': 'tool', 'selling items': 'box',
-            cash: 'cash', 'other income': 'plus', food: 'utensils', groceries: 'cart',
-            restaurants: 'utensils', 'fast food': 'utensils', coffee: 'coffee', gas: 'fuel',
-            parking: 'parking', toll: 'road', 'uber/lyft': 'car', 'car maintenance': 'tool',
-            phone: 'phone', clothing: 'shirt', electronics: 'plug', amazon: 'bag',
-            'home goods': 'home', movies: 'film', games: 'game', music: 'music',
-            streaming: 'tv', subscriptions: 'repeat', hobbies: 'palette', doctor: 'medical',
-            dentist: 'tooth', pharmacy: 'pill', gym: 'dumbbell', books: 'book',
-            school: 'school', 'savings transfer': 'bank', pets: 'paw', other: 'plus'
-        };
-
-        const categoryIconChoices = [
-            ['briefcase', 'Work'], ['coins', 'Coins'], ['cash', 'Cash'], ['spark', 'Bonus'], ['return', 'Refund'], ['gift', 'Gift'],
-            ['chart', 'Investment'], ['tool', 'Tools'], ['box', 'Box'], ['utensils', 'Food'], ['cart', 'Groceries'], ['coffee', 'Coffee'],
-            ['fuel', 'Gas'], ['parking', 'Parking'], ['road', 'Toll'], ['car', 'Car'], ['phone', 'Phone'], ['shirt', 'Clothing'],
-            ['plug', 'Electronics'], ['bag', 'Shopping'], ['home', 'Home'], ['film', 'Movies'], ['game', 'Games'], ['music', 'Music'],
-            ['tv', 'Streaming'], ['repeat', 'Recurring'], ['palette', 'Hobbies'], ['medical', 'Medical'], ['tooth', 'Dental'],
-            ['pill', 'Pharmacy'], ['dumbbell', 'Gym'], ['book', 'Books'], ['school', 'School'], ['bank', 'Bank'], ['paw', 'Pets'],
-            ['plus', 'Other']
-        ].map(([key, label]) => ({ key, label }));
-
-        const categoryIconKeySet = new Set(categoryIconChoices.map(choice => choice.key));
-        const legacyCategoryIconMap = {
-            '💼': 'briefcase', '🎉': 'spark', '↩️': 'return', '🎁': 'gift', '💰': 'coins', '📈': 'chart',
-            '🛠️': 'tool', '📦': 'box', '💵': 'cash', '🔸': 'plus', '🍽️': 'utensils', '🛒': 'cart',
-            '🍔': 'utensils', '🍟': 'utensils', '☕': 'coffee', '⛽': 'fuel', '🅿️': 'parking', '🛣️': 'road',
-            '🚕': 'car', '🔧': 'tool', '📱': 'phone', '👕': 'shirt', '🔌': 'plug', '🛍️': 'bag',
-            '🧺': 'home', '🎬': 'film', '🎮': 'game', '🎵': 'music', '📺': 'tv', '🔁': 'repeat',
-            '🎨': 'palette', '🩺': 'medical', '🦷': 'tooth', '💊': 'pill', '🏋️‍♂️': 'dumbbell',
-            '📚': 'book', '🏫': 'school', '🏦': 'bank', '🐶': 'paw', '✨': 'spark'
-        };
-
-        function normalizeStoredCategoryIcon(icon, name = '', type = '') {
-            const rawIcon = String(icon || '').trim();
-            const lowerIcon = rawIcon.toLowerCase();
-            if (categoryIconKeySet.has(lowerIcon)) return lowerIcon;
-            if (legacyCategoryIconMap[rawIcon]) return legacyCategoryIconMap[rawIcon];
-            const alias = categoryIconAliases[String(name || '').trim().toLowerCase()];
-            if (alias) return alias;
-            return type === 'income' ? 'coins' : type === 'transfer' ? 'bank' : 'plus';
-        }
-
         const defaultCategories = [
-            ['Paycheck','briefcase','#16a34a','income'], ['Bonus','spark','#16a34a','income'], ['Refund','return','#16a34a','income'],
-            ['Gift','gift','#16a34a','income'], ['Interest','coins','#16a34a','income'], ['Investment','chart','#16a34a','income'],
-            ['Side Hustle','tool','#16a34a','income'], ['Selling Items','box','#16a34a','income'], ['Cash','cash','#16a34a','income'],
-            ['Other Income','plus','#16a34a','income'], ['Food','utensils','#ef4444','expense'], ['Groceries','cart','#ef4444','expense'],
-            ['Restaurants','utensils','#ef4444','expense'], ['Fast Food','utensils','#ef4444','expense'], ['Coffee','coffee','#ef4444','expense'],
-            ['Gas','fuel','#f97316','expense'], ['Parking','parking','#f97316','expense'], ['Toll','road','#f97316','expense'],
-            ['Uber/Lyft','car','#f97316','expense'], ['Car Maintenance','tool','#f97316','expense'], ['Phone','phone','#3b82f6','expense'],
-            ['Clothing','shirt','#a855f7','expense'], ['Electronics','plug','#a855f7','expense'], ['Amazon','bag','#a855f7','expense'],
-            ['Home Goods','home','#a855f7','expense'], ['Gifts','gift','#a855f7','expense'], ['Movies','film','#ec4899','expense'],
-            ['Games','game','#ec4899','expense'], ['Music','music','#ec4899','expense'], ['Streaming','tv','#ec4899','expense'],
-            ['Subscriptions','repeat','#ec4899','expense'], ['Hobbies','palette','#ec4899','expense'], ['Doctor','medical','#06b6d4','expense'],
-            ['Dentist','tooth','#06b6d4','expense'], ['Pharmacy','pill','#06b6d4','expense'], ['Gym','dumbbell','#06b6d4','expense'],
-            ['Books','book','#64748b','expense'], ['School','school','#64748b','expense'], ['Savings Transfer','bank','#3b82f6','transfer'],
-            ['Pets','paw','#64748b','expense'], ['Other','plus','#64748b','expense']
+            ['Paycheck','💼','#16a34a','income'], ['Bonus','🎉','#16a34a','income'], ['Refund','↩️','#16a34a','income'],
+            ['Gift','🎁','#16a34a','income'], ['Interest','💰','#16a34a','income'], ['Investment','📈','#16a34a','income'],
+            ['Side Hustle','🛠️','#16a34a','income'], ['Selling Items','📦','#16a34a','income'], ['Cash','💵','#16a34a','income'],
+            ['Other Income','🔸','#16a34a','income'], ['Food','🍽️','#ef4444','expense'], ['Groceries','🛒','#ef4444','expense'],
+            ['Restaurants','🍔','#ef4444','expense'], ['Fast Food','🍟','#ef4444','expense'], ['Coffee','☕','#ef4444','expense'],
+            ['Gas','⛽','#f97316','expense'], ['Parking','🅿️','#f97316','expense'], ['Toll','🛣️','#f97316','expense'],
+            ['Uber/Lyft','🚕','#f97316','expense'], ['Car Maintenance','🔧','#f97316','expense'], ['Phone','📱','#3b82f6','expense'],
+            ['Clothing','👕','#a855f7','expense'], ['Electronics','🔌','#a855f7','expense'], ['Amazon','🛍️','#a855f7','expense'],
+            ['Home Goods','🧺','#a855f7','expense'], ['Gifts','🎁','#a855f7','expense'], ['Movies','🎬','#ec4899','expense'],
+            ['Games','🎮','#ec4899','expense'], ['Music','🎵','#ec4899','expense'], ['Streaming','📺','#ec4899','expense'],
+            ['Subscriptions','🔁','#ec4899','expense'], ['Hobbies','🎨','#ec4899','expense'], ['Doctor','🩺','#06b6d4','expense'],
+            ['Dentist','🦷','#06b6d4','expense'], ['Pharmacy','💊','#06b6d4','expense'], ['Gym','🏋️‍♂️','#06b6d4','expense'],
+            ['Books','📚','#64748b','expense'], ['School','🏫','#64748b','expense'], ['Savings Transfer','🏦','#3b82f6','transfer'],
+            ['Pets','🐶','#64748b','expense'], ['Other','🔸','#64748b','expense']
         ].map(([name, icon, color, type], order) => ({ id: `cat-${order + 1}`, name, icon, color, type, order }));
 
         function normalizeCategory(category, order = 0) {
@@ -2027,8 +2053,8 @@
             return {
                 id: category.id || `cat-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-') || Date.now()}`,
                 name,
-                icon: normalizeStoredCategoryIcon(category.icon, name, category.type),
-                color: normalizeHexColor(category.color, '#64748b'),
+                icon: String(category.icon || '🔸').trim() || '🔸',
+                color: category.color || '#64748b',
                 type: ['income', 'expense', 'transfer'].includes(category.type) ? category.type : 'expense',
                 order: Number.isFinite(Number(category.order)) ? Number(category.order) : order
             };
@@ -2101,7 +2127,7 @@
                 .filter(transaction => transaction.category)
                 .map((transaction, index) => ({
                     name: transaction.category,
-                    icon: 'plus',
+                    icon: '🔸',
                     color: transaction.category === 'Savings Transfer' ? '#3b82f6' : '#64748b',
                     type: transaction.category === 'Savings Transfer' ? 'transfer' : (transaction.type === 'income' ? 'income' : 'expense'),
                     order: defaultCategories.length + customMapped.length + index
@@ -2121,8 +2147,21 @@
         }
 
         function getCategoryColor(cat, fallback = '#64748b') {
-            return normalizeHexColor((window.trackerCategories || []).find(item => item.name === cat)?.color, fallback);
+            return (window.trackerCategories || []).find(item => item.name === cat)?.color || fallback;
         }
+
+        const categoryIconAliases = {
+            income: 'coins', expense: 'cash', paycheck: 'briefcase', bonus: 'spark', refund: 'return', gift: 'gift', gifts: 'gift',
+            interest: 'coins', investment: 'chart', 'side hustle': 'tool', 'selling items': 'box',
+            cash: 'cash', 'other income': 'plus', food: 'utensils', groceries: 'cart',
+            restaurants: 'utensils', 'fast food': 'utensils', coffee: 'coffee', gas: 'fuel',
+            parking: 'parking', toll: 'road', 'uber/lyft': 'car', 'car maintenance': 'tool',
+            phone: 'phone', clothing: 'shirt', electronics: 'plug', amazon: 'bag',
+            'home goods': 'home', movies: 'film', games: 'game', music: 'music',
+            streaming: 'tv', subscriptions: 'repeat', hobbies: 'palette', doctor: 'medical',
+            dentist: 'tooth', pharmacy: 'pill', gym: 'dumbbell', books: 'book',
+            school: 'school', 'savings transfer': 'bank', pets: 'paw', other: 'plus'
+        };
 
         const categoryIconPaths = {
             briefcase: '<rect x="4" y="7" width="16" height="11" rx="2"></rect><path d="M9 7V5h6v2"></path><path d="M4 12h16"></path>',
@@ -2163,76 +2202,18 @@
             paw: '<circle cx="8" cy="9" r="1.5"></circle><circle cx="12" cy="7" r="1.5"></circle><circle cx="16" cy="9" r="1.5"></circle><path d="M8 17c0-3 2-5 4-5s4 2 4 5c0 2-2 3-4 2-2 1-4 0-4-2z"></path>'
         };
 
-        function getCategoryIconKey(categoryName, type = '', icon = '') {
-            const savedKey = normalizeStoredCategoryIcon(icon, categoryName, type);
-            if (categoryIconKeySet.has(savedKey)) return savedKey;
+        function getCategoryIconKey(categoryName, type = '') {
             const key = String(categoryName || '').toLowerCase();
             return categoryIconAliases[key] || (type === 'income' ? 'coins' : type === 'transfer' ? 'bank' : 'plus');
         }
 
-        function renderCategoryIcon(categoryName, type = '', color = getCategoryColor(categoryName), icon = '') {
-            const safeColor = normalizeHexColor(color, '#64748b');
-            const key = getCategoryIconKey(categoryName, type, icon);
+        function renderCategoryIcon(categoryName, type = '', color = getCategoryColor(categoryName)) {
+            const key = getCategoryIconKey(categoryName, type);
             const path = categoryIconPaths[key];
             if (!path) {
-                return `<span class="category-letter-icon" style="--category-color:${safeColor}">${escapeHTML(String(categoryName || '?').trim().charAt(0).toUpperCase() || '?')}</span>`;
+                return `<span class="category-letter-icon" style="--category-color:${escapeHTML(color)}">${escapeHTML(String(categoryName || '?').trim().charAt(0).toUpperCase() || '?')}</span>`;
             }
-            return `<svg viewBox="0 0 24 24" aria-hidden="true" style="--category-color:${safeColor}">${path}</svg>`;
-        }
-
-        const categoryIconPickerConfigs = {
-            categoryManagerIconPicker: {
-                inputId: 'categoryManagerIcon',
-                nameId: 'categoryManagerName',
-                typeId: 'categoryManagerType',
-                colorId: 'categoryManagerColor'
-            },
-            categoryEditIconPicker: {
-                inputId: 'categoryEditIcon',
-                nameId: 'categoryEditName',
-                typeId: 'categoryEditType',
-                colorId: 'categoryEditColor'
-            }
-        };
-
-        function getPickerIconValue(config) {
-            const input = document.getElementById(config.inputId);
-            const name = document.getElementById(config.nameId)?.value || '';
-            const type = document.getElementById(config.typeId)?.value || '';
-            const icon = normalizeStoredCategoryIcon(input?.value, name, type);
-            if (input) input.value = icon;
-            return icon;
-        }
-
-        function setCategoryIconChoice(containerId, iconKey) {
-            const config = categoryIconPickerConfigs[containerId];
-            if (!config) return;
-            const input = document.getElementById(config.inputId);
-            if (input) input.value = normalizeStoredCategoryIcon(iconKey);
-            renderCategoryIconPicker(containerId);
-        }
-
-        function renderCategoryIconPicker(containerId) {
-            const container = document.getElementById(containerId);
-            const config = categoryIconPickerConfigs[containerId];
-            if (!container || !config) return;
-            const selectedIcon = getPickerIconValue(config);
-            const color = document.getElementById(config.colorId)?.value || '#64748b';
-            const type = document.getElementById(config.typeId)?.value || 'expense';
-
-            container.innerHTML = categoryIconChoices.map(choice => {
-                const selected = choice.key === selectedIcon;
-                return `
-                    <button type="button" class="category-icon-choice${selected ? ' active' : ''}" aria-pressed="${selected}" onclick="setCategoryIconChoice('${containerId}', '${choice.key}')">
-                        <span class="category-icon-choice-art">${renderCategoryIcon(choice.label, type, color, choice.key)}</span>
-                        <span>${escapeHTML(choice.label)}</span>
-                    </button>
-                `;
-            }).join('');
-        }
-
-        function renderCategoryIconPickers() {
-            Object.keys(categoryIconPickerConfigs).forEach(renderCategoryIconPicker);
+            return `<svg viewBox="0 0 24 24" aria-hidden="true" style="--category-color:${escapeHTML(color)}">${path}</svg>`;
         }
 
         function getCategoryChartColor(categoryName, index = 0) {
@@ -2288,36 +2269,6 @@
                 '"': '&quot;',
                 "'": '&#39;'
             }[char]));
-        }
-
-        function safeText(value, maxLength = 160) {
-            return String(value ?? '')
-                .replace(/[\u0000-\u001f\u007f]/g, '')
-                .trim()
-                .slice(0, maxLength);
-        }
-
-        function normalizeHexColor(value, fallback = '#64748b') {
-            const color = String(value || '').trim();
-            return /^#[0-9a-fA-F]{6}$/.test(color) ? color : fallback;
-        }
-
-        function normalizeTransactionType(type) {
-            return type === 'income' ? 'income' : 'expense';
-        }
-
-        function safeFiniteNumber(value, fallback = 0) {
-            const number = Number(value);
-            return Number.isFinite(number) ? number : fallback;
-        }
-
-        function safePositiveNumber(value, fallback = 0) {
-            return Math.max(0, safeFiniteNumber(value, fallback));
-        }
-
-        function safeDateString(value, fallback = 'No Date') {
-            const parsed = new Date(value);
-            return Number.isNaN(parsed.getTime()) ? fallback : parsed.toLocaleDateString();
         }
 
         function escapeInlineJSString(value) {
@@ -2610,16 +2561,15 @@
                     </div>
                     <div class="settings-field">
                         <label for="categoryManagerIcon">Icon</label>
-                        <input type="hidden" id="categoryManagerIcon" value="plus">
-                        <div id="categoryManagerIconPicker" class="category-icon-picker" aria-label="Choose category icon"></div>
+                        <input type="text" id="categoryManagerIcon" maxlength="4" placeholder="✨">
                     </div>
                     <div class="settings-field">
                         <label for="categoryManagerColor">Color</label>
-                        <input type="color" id="categoryManagerColor" value="#64748b" oninput="renderCategoryIconPickers()">
+                        <input type="color" id="categoryManagerColor" value="#64748b">
                     </div>
                     <div class="settings-field">
                         <label for="categoryManagerType">Type</label>
-                        <select id="categoryManagerType" onchange="renderCategoryIconPickers()">
+                        <select id="categoryManagerType">
                             <option value="income">Income</option>
                             <option value="expense">Expense</option>
                             <option value="transfer">Transfer</option>
@@ -2697,13 +2647,12 @@
                     <input type="text" id="categoryEditName" placeholder="Category name">
                 </div>
                 <div class="settings-field">
-                    <label for="categoryEditIcon">Icon</label>
-                    <input type="hidden" id="categoryEditIcon" value="plus">
-                    <div id="categoryEditIconPicker" class="category-icon-picker compact" aria-label="Choose category icon"></div>
+                    <label for="categoryEditIcon">Emoji/Icon</label>
+                    <input type="text" id="categoryEditIcon" maxlength="4" placeholder="✨">
                 </div>
                 <div class="settings-field">
                     <label for="categoryEditType">Type</label>
-                    <select id="categoryEditType" onchange="renderCategoryIconPickers()">
+                    <select id="categoryEditType">
                         <option value="income">Income</option>
                         <option value="expense">Expense</option>
                         <option value="transfer">Transfer</option>
@@ -2711,7 +2660,7 @@
                 </div>
                 <div class="settings-field">
                     <label for="categoryEditColor">Color</label>
-                    <input type="color" id="categoryEditColor" value="#64748b" oninput="renderCategoryIconPickers()">
+                    <input type="color" id="categoryEditColor" value="#64748b">
                 </div>
             </div>
             <div class="settings-actions">
@@ -2961,10 +2910,142 @@
         </div>
     </div>
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0"
-        integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"
-        crossorigin="anonymous"></script>
+    <section class="analytics-section" aria-label="Finance analytics">
+        <div class="analytics-header">
+            <div>
+                <h2>Finance Analytics</h2>
+                <p>Trends, cash flow, categories, and savings momentum.</p>
+            </div>
+        </div>
+
+        <div class="analytics-insights" id="analyticsInsights">
+            <div class="analytics-insight-card analytics-accent-red">
+                <div class="insight-icon">💳</div>
+                <span>Biggest Expense</span>
+                <strong id="biggestExpenseMonthInsight">$0.00</strong>
+                <em id="biggestExpenseTrend">0% vs last month</em>
+            </div>
+            <div class="analytics-insight-card analytics-accent-amber">
+                <div class="insight-icon">📆</div>
+                <span>Daily Spend</span>
+                <strong id="averageDailySpendingInsight">$0.00</strong>
+                <em id="dailySpendingTrend">0% vs last month</em>
+            </div>
+            <div class="analytics-insight-card analytics-accent-blue">
+                <div class="insight-icon">🧾</div>
+                <span>Avg Transaction</span>
+                <strong id="averageTransactionInsight">$0.00</strong>
+                <em id="transactionAverageTrend">0% vs last month</em>
+            </div>
+            <div class="analytics-insight-card analytics-accent-green">
+                <div class="insight-icon">🏦</div>
+                <span>Savings Rate</span>
+                <strong id="analyticsSavingsRateInsight">0%</strong>
+                <em id="savingsRateTrend">0% vs last month</em>
+            </div>
+            <div class="analytics-insight-card analytics-accent-purple">
+                <div class="insight-icon">🏷️</div>
+                <span>Top Category</span>
+                <strong id="highestCategoryInsight">$0.00</strong>
+                <em id="categoryTrend">0% vs last month</em>
+            </div>
+            <div class="analytics-insight-card analytics-accent-cyan">
+                <div class="insight-icon">✨</div>
+                <span>No-Spend Streak</span>
+                <strong id="noSpendStreakInsight">0 days</strong>
+                <em id="streakTrend">Keep it going</em>
+            </div>
+            <div class="analytics-insight-card analytics-accent-pink">
+                <div class="insight-icon">🔮</div>
+                <span>Projected Balance</span>
+                <strong id="projectedBalanceInsight">$0.00</strong>
+                <em id="projectedBalanceTrend">0% vs last month</em>
+            </div>
+        </div>
+
+        <div class="analytics-grid">
+            <article class="analytics-card analytics-card-wide analytics-accent-blue">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3><span class="chart-title-icon">📈</span> Monthly Spending Trend</h3>
+                        <p>Expenses over time</p>
+                    </div>
+                    <div class="analytics-actions">
+                        <div class="segmented-control" role="group" aria-label="Spending trend range">
+                            <button type="button" class="active" data-period="weekly" onclick="setAnalyticsPeriod('weekly')">Weekly</button>
+                            <button type="button" data-period="monthly" onclick="setAnalyticsPeriod('monthly')">Monthly</button>
+                            <button type="button" data-period="yearly" onclick="setAnalyticsPeriod('yearly')">Yearly</button>
+                        </div>
+                    </div>
+                </div>
+                <canvas id="spendingTrendChart" class="analytics-canvas"></canvas>
+            </article>
+
+            <article class="analytics-card analytics-card-wide analytics-accent-green">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3><span class="chart-title-icon">⚖️</span> Income vs Expenses</h3>
+                        <p>Monthly comparison</p>
+                    </div>
+                </div>
+                <canvas id="incomeExpenseChart" class="analytics-canvas"></canvas>
+            </article>
+
+            <article class="analytics-card analytics-accent-purple">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3><span class="chart-title-icon">🍩</span> Spending by Category</h3>
+                        <p id="categoryFilterStatus">Click a category to filter</p>
+                    </div>
+                    <button
+                        type="button"
+                        id="clearCategoryFilterButton"
+                        class="secondary-btn"
+                        style="display:none;width:auto;margin-top:0;padding:0 14px;"
+                        onclick="clearCategoryFilter(event)">
+                        All Categories
+                    </button>
+                </div>
+                <div class="donut-layout">
+                    <canvas id="pieChart" class="analytics-canvas"></canvas>
+                    <div id="pieLegend" class="analytics-legend"></div>
+                </div>
+            </article>
+
+            <article class="analytics-card analytics-accent-cyan">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3><span class="chart-title-icon">🌱</span> Savings Growth</h3>
+                        <p>Balance and goal progress</p>
+                    </div>
+                </div>
+                <canvas id="savingsGrowthChart" class="analytics-canvas"></canvas>
+            </article>
+
+            <article class="analytics-card analytics-card-wide analytics-accent-amber">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3><span class="chart-title-icon">💸</span> Cash Flow</h3>
+                        <p>Net income by month</p>
+                    </div>
+                </div>
+                <canvas id="cashFlowChart" class="analytics-canvas"></canvas>
+            </article>
+
+            <article class="analytics-card analytics-card-wide analytics-accent-pink">
+                <div class="analytics-card-header">
+                    <div>
+                        <h3><span class="chart-title-icon">🏆</span> Top Spending Categories</h3>
+                        <p>Ranked from highest to lowest</p>
+                    </div>
+                </div>
+                <div id="topSpendingCategories" class="top-spending-list"></div>
+            </article>
+        </div>
+        <div id="chartTooltip"></div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
 function toggleSection(sectionId, button) {
@@ -3059,19 +3140,12 @@ function restoreSectionState(sectionId, buttonSelector) {
     }
 }
 // SUPABASE SETUP
-// Supabase publishable keys are safe to ship in browser apps. Keep Row Level Security enabled in Supabase.
+// Replace the values below with your own Project URL and anon public key.
 const SUPABASE_URL = 'https://ptqdxxtvhimmbozagofp.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_hEpPK61rvIpHhbTtY4dn2g_Ee2JNVYI';
 const supabaseClient = window.supabase?.createClient(
     SUPABASE_URL,
-    SUPABASE_ANON_KEY,
-    {
-        auth: {
-            persistSession: false,
-            autoRefreshToken: false,
-            detectSessionInUrl: false
-        }
-    }
+    SUPABASE_ANON_KEY
 );
 
 function showToast(message, type = 'info') {
@@ -3219,12 +3293,9 @@ function saveSubscriptions() {
 
 async function loadSubscriptions() {
     const savedSubscriptions = readStorageJSON('subscriptions', []);
-    const safeSavedSubscriptions = Array.isArray(savedSubscriptions)
-        ? savedSubscriptions.map(sanitizeSubscriptionRecord)
-        : [];
 
     if (!supabaseClient) {
-        const normalized = ensureSubscriptionIds(safeSavedSubscriptions);
+        const normalized = ensureSubscriptionIds(savedSubscriptions);
         subscriptions = normalized.subscriptions;
         if (normalized.changed) saveSubscriptions();
         renderSubscriptions();
@@ -3240,14 +3311,14 @@ async function loadSubscriptions() {
 
     if (error) {
         console.error('Subscriptions load failed:', error);
-        const normalized = ensureSubscriptionIds(safeSavedSubscriptions);
+        const normalized = ensureSubscriptionIds(savedSubscriptions);
         subscriptions = normalized.subscriptions;
         if (normalized.changed) saveSubscriptions();
         renderSubscriptions();
         return;
     }
 
-    subscriptions = ensureSubscriptionIds((data || []).map(sanitizeSubscriptionRecord)).subscriptions;
+    subscriptions = ensureSubscriptionIds(data || []).subscriptions;
     localStorage.setItem('subscriptions', JSON.stringify(subscriptions));
     renderSubscriptions();
     renderVisualCalendar();
@@ -3256,8 +3327,8 @@ async function loadSubscriptions() {
 async function addSubscription() {
     const editingId = document.getElementById('editingSubscriptionId')?.value || '';
     const isEditing = Boolean(editingId);
-    const name = safeText(document.getElementById('subName').value, 100);
-    const amount = safePositiveNumber(document.getElementById('subAmount').value, 0);
+    const name = document.getElementById('subName').value;
+    const amount = Number(document.getElementById('subAmount').value);
     const selectedDate = document.getElementById('subDay').value;
 
     if (!name || amount <= 0 || !selectedDate) {
@@ -3314,7 +3385,6 @@ async function deleteSubscription(index) {
     const subIndex = subscriptions.findIndex(sub => sameId(sub.id, index));
     const sub = subscriptions[subIndex];
     if (!sub) return;
-    if (!confirm('Delete this subscription?')) return;
 
     if (supabaseClient && sub.id && /^\d+$/.test(String(sub.id))) {
         const { error } = await supabaseClient
@@ -3529,19 +3599,16 @@ function renderSubscriptions() {
     subscriptions
         .sort((a, b) => a.day - b.day)
         .forEach((sub, index) => {
-            const subName = safeText(sub.name || 'Subscription', 100);
-            const subAmount = safePositiveNumber(sub.amount, 0);
-            const subDay = Math.min(31, Math.max(1, Math.round(safeFiniteNumber(sub.day, 1))));
-            total += subAmount;
+            total += sub.amount;
 
             // Insert daysLeft calculation
             const today = new Date();
             const currentDay = today.getDate();
-            let daysLeft = subDay - currentDay;
+            let daysLeft = sub.day - currentDay;
 
             if (daysLeft < 0) {
                 const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-                daysLeft = (daysInMonth - currentDay) + subDay;
+                daysLeft = (daysInMonth - currentDay) + sub.day;
             }
 
             const item = document.createElement('div');
@@ -3550,10 +3617,10 @@ function renderSubscriptions() {
             item.innerHTML = `
                 <div class="subscription-meta">
                     <div>
-                        <strong>${escapeHTML(subName)}</strong><br>
-                        $${subAmount.toFixed(2)}/month
+                        <strong>${escapeHTML(sub.name)}</strong><br>
+                        $${sub.amount.toFixed(2)}/month
                     </div>
-                    <div class="subscription-date">${subDay}${subDay === 1 ? 'st' : subDay === 2 ? 'nd' : subDay === 3 ? 'rd' : 'th'} of each month</div>
+                    <div class="subscription-date">${sub.day}${sub.day === 1 ? 'st' : sub.day === 2 ? 'nd' : sub.day === 3 ? 'rd' : 'th'} of each month</div>
                     <div style="font-size:12px;color:#6b7280;">${daysLeft === 0 ? 'Due Today' : daysLeft + ' day' + (daysLeft === 1 ? '' : 's') + ' left'}</div>
                 </div>
                 <div class="row-actions">
@@ -3622,16 +3689,16 @@ function renderSubscriptions() {
 let income = 0;
 let expenses = 0;
 let savedMoney = Number(localStorage.getItem('savedMoney')) || 0;
-let transactions = (Array.isArray(readStorageJSON('transactions', [])) ? readStorageJSON('transactions', []) : []).map(sanitizeTransactionRecord);
-let savingsTransactions = (Array.isArray(readStorageJSON('savingsTransactions', [])) ? readStorageJSON('savingsTransactions', []) : []).map(sanitizeTransactionRecord);
-let shifts = (Array.isArray(readStorageJSON('shifts', [])) ? readStorageJSON('shifts', []) : []).map(sanitizeShiftRecord);
-let jobs = (Array.isArray(readStorageJSON('jobs', [])) ? readStorageJSON('jobs', []) : []).map(sanitizeJobRecord);
+let transactions = readStorageJSON('transactions', []);
+let savingsTransactions = readStorageJSON('savingsTransactions', []);
+let shifts = readStorageJSON('shifts', []);
+let jobs = readStorageJSON('jobs', []);
 let transactionFilterSignature = '';
 let editingShiftId = null;
 let editingJobId = null;
 let latestPaycheckTotals = {};
+let chartSlices = [];
 let editTransactionScrollPosition = { x: 0, y: 0 };
-let suppressRefreshAnimation = false;
 const defaultTrackerSettings = {
     profile: {
         displayName: '',
@@ -3689,7 +3756,7 @@ async function loadJobsFromSupabase() {
         return;
     }
     if (data) {
-        jobs = data.map(sanitizeJobRecord);
+        jobs = data;
         renderJobs();
     }
 }
@@ -3704,7 +3771,7 @@ async function loadShiftsFromSupabase() {
         return;
     }
     if (data) {
-        shifts = data.map(sanitizeShiftRecord);
+        shifts = data;
         renderShifts();
     }
 }
@@ -3745,7 +3812,7 @@ function loadCategoriesFromTransactions() {
         .filter(transaction => transaction.category)
         .map((transaction, index) => ({
             name: transaction.category,
-            icon: 'plus',
+            icon: '🔸',
             color: transaction.category === 'Savings Transfer' ? '#3b82f6' : '#64748b',
             type: transaction.category === 'Savings Transfer' ? 'transfer' : (transaction.type === 'income' ? 'income' : 'expense'),
             order: categories.length + index
@@ -3858,7 +3925,6 @@ function populateSettingsForm() {
     setCheckedValue('settingsGlassEffect', trackerSettings.appearance.glassEffect);
     setCheckedValue('settingsReducedMotion', trackerSettings.appearance.reducedMotion);
     renderCustomCategories();
-    renderCategoryIconPickers();
     renderBudgets();
     renderAboutSettings();
     enhanceAllSelectDropdowns();
@@ -4007,7 +4073,7 @@ function renderCategoryPicker() {
     const selectedOption = select.options[select.selectedIndex] || select.options[0];
     const selectedValue = selectedOption?.value || '';
     const selectedCategory = categories.find(category => category.name === selectedValue);
-    icon.innerHTML = renderCategoryIcon(selectedValue, selectedCategory?.type, selectedCategory?.color, selectedCategory?.icon);
+    icon.innerHTML = renderCategoryIcon(selectedValue, selectedCategory?.type, selectedCategory?.color);
     label.textContent = selectedValue || 'Category';
 
     const options = [...select.options].map(option => {
@@ -4015,7 +4081,7 @@ function renderCategoryPicker() {
         const selected = option.value === selectedValue;
         return `
             <button type="button" class="category-picker-option${selected ? ' active' : ''}" role="option" aria-selected="${selected}" data-category-value="${escapeHTML(option.value)}">
-                <span class="category-picker-option-icon">${renderCategoryIcon(option.value, category?.type, category?.color, category?.icon)}</span>
+                <span class="category-picker-option-icon">${renderCategoryIcon(option.value, category?.type, category?.color)}</span>
                 <span>${escapeHTML(option.value)}</span>
             </button>
         `;
@@ -4143,8 +4209,7 @@ function selectTypeOption(value) {
 
 function getSelectIconName(select, value, text) {
     if (select?.id?.toLowerCase().includes('category')) {
-        const category = categories.find(item => item.name === (value || text));
-        return renderCategoryIcon(value || text, category?.type || '', category?.color || getCategoryColor(value || text), category?.icon);
+        return renderCategoryIcon(value || text, '', getCategoryColor(value || text));
     }
     const first = String(text || value || '?').trim().charAt(0).toUpperCase() || '?';
     return `<span class="category-letter-icon">${escapeHTML(first)}</span>`;
@@ -4424,6 +4489,7 @@ function applyCustomCategoriesToDropdowns() {
     populateSettingsCategoryOptions();
     populateBudgetCategoryOptions();
     populateTransactionFilters({ force: true });
+    if (typeof drawChart === 'function') drawChart({ animate: false });
 }
 
 function getCategoryUsageCount(name) {
@@ -4433,10 +4499,9 @@ function getCategoryUsageCount(name) {
 function resetCategoryManagerForm() {
     setInputValue('categoryManagerEditingId', '');
     setInputValue('categoryManagerName', '');
-    setInputValue('categoryManagerIcon', 'plus');
+    setInputValue('categoryManagerIcon', '');
     setInputValue('categoryManagerColor', '#64748b');
     setInputValue('categoryManagerType', 'expense');
-    renderCategoryIconPicker('categoryManagerIconPicker');
 }
 
 function renderCategoriesManager() {
@@ -4461,7 +4526,7 @@ function renderCategoriesManager() {
             card.dataset.categoryId = category.id;
             card.style.setProperty('--category-color', category.color || '#64748b');
             card.innerHTML = `
-                <div class="category-manager-icon">${renderCategoryIcon(category.name, category.type, category.color, category.icon)}</div>
+                <div class="category-manager-icon">${escapeHTML(category.icon || '🔸')}</div>
                 <div class="category-manager-meta">
                     <span class="category-manager-title">${escapeHTML(category.name)}</span>
                     <span class="category-manager-detail">${labels[type]} • Used by ${getCategoryUsageCount(category.name)} ${getCategoryUsageCount(category.name) === 1 ? 'transaction' : 'transactions'}</span>
@@ -4496,9 +4561,9 @@ function renderCategoriesManager() {
 async function saveCategoryManagerCategory() {
     const editingId = document.getElementById('categoryManagerEditingId')?.value || '';
     const name = document.getElementById('categoryManagerName')?.value.trim();
+    const icon = document.getElementById('categoryManagerIcon')?.value.trim() || '🔸';
     const color = document.getElementById('categoryManagerColor')?.value || '#64748b';
     const type = document.getElementById('categoryManagerType')?.value || 'expense';
-    const icon = normalizeStoredCategoryIcon(document.getElementById('categoryManagerIcon')?.value, name, type);
     if (!name) {
         showToast('Enter a category name.', 'error');
         return;
@@ -4555,10 +4620,9 @@ function editCategoryManagerCategory(categoryId) {
     if (!category) return;
     setInputValue('categoryManagerEditingId', category.id);
     setInputValue('categoryManagerName', category.name);
-    setInputValue('categoryManagerIcon', normalizeStoredCategoryIcon(category.icon, category.name, category.type));
+    setInputValue('categoryManagerIcon', category.icon);
     setInputValue('categoryManagerColor', category.color || '#64748b');
     setInputValue('categoryManagerType', category.type);
-    renderCategoryIconPicker('categoryManagerIconPicker');
 }
 
 function openCategoryEditModal(categoryId) {
@@ -4566,10 +4630,9 @@ function openCategoryEditModal(categoryId) {
     if (!category) return;
     setInputValue('categoryEditId', category.id);
     setInputValue('categoryEditName', category.name);
-    setInputValue('categoryEditIcon', normalizeStoredCategoryIcon(category.icon, category.name, category.type));
+    setInputValue('categoryEditIcon', category.icon);
     setInputValue('categoryEditType', category.type);
     setInputValue('categoryEditColor', category.color || '#64748b');
-    renderCategoryIconPicker('categoryEditIconPicker');
     const modal = document.getElementById('categoryEditModal');
     if (modal) modal.style.display = 'flex';
 }
@@ -4582,13 +4645,9 @@ function closeCategoryEditModal() {
 async function saveCategoryEditModal() {
     setInputValue('categoryManagerEditingId', document.getElementById('categoryEditId')?.value || '');
     setInputValue('categoryManagerName', document.getElementById('categoryEditName')?.value || '');
+    setInputValue('categoryManagerIcon', document.getElementById('categoryEditIcon')?.value || '');
     setInputValue('categoryManagerType', document.getElementById('categoryEditType')?.value || 'expense');
     setInputValue('categoryManagerColor', document.getElementById('categoryEditColor')?.value || '#64748b');
-    setInputValue('categoryManagerIcon', normalizeStoredCategoryIcon(
-        document.getElementById('categoryEditIcon')?.value,
-        document.getElementById('categoryEditName')?.value || '',
-        document.getElementById('categoryEditType')?.value || 'expense'
-    ));
     await saveCategoryManagerCategory();
     closeCategoryEditModal();
 }
@@ -4629,7 +4688,7 @@ async function deleteCategoryManagerCategory(categoryId) {
     if (usageCount > 0) {
         const otherCategory = categories.find(item => item.name === 'Other' && item.id !== category.id);
         if (!otherCategory && category.name !== 'Other') {
-            categories.push({ id: createLocalId('cat'), name: 'Other', icon: 'plus', color: '#64748b', type: 'expense', order: categories.length });
+            categories.push({ id: createLocalId('cat'), name: 'Other', icon: '🔸', color: '#64748b', type: 'expense', order: categories.length });
         }
         if (supabaseClient) {
             const { error } = await supabaseClient.from('transactions').update({ category: replacement }).eq('category', category.name);
@@ -4646,7 +4705,7 @@ async function deleteCategoryManagerCategory(categoryId) {
     }
     categories = categories.filter(item => item.id !== categoryId);
     if (usageCount > 0 && !categories.some(item => item.name === 'Other')) {
-        categories.push({ id: createLocalId('cat'), name: 'Other', icon: 'plus', color: '#64748b', type: 'expense', order: categories.length });
+        categories.push({ id: createLocalId('cat'), name: 'Other', icon: '🔸', color: '#64748b', type: 'expense', order: categories.length });
     }
     delete categoryBudgets[category.name];
     saveCategoryBudgets();
@@ -4794,26 +4853,10 @@ function saveProfileSettings() {
 async function hashSecurityPin(pin) {
     const value = String(pin || '');
     if (!value) return '';
-    if (!window.crypto?.subtle || !window.crypto?.getRandomValues) {
-        throw new Error('Secure PIN storage is not available in this browser.');
-    }
-    const salt = new Uint8Array(16);
-    crypto.getRandomValues(salt);
-    const keyMaterial = await crypto.subtle.importKey(
-        'raw',
-        new TextEncoder().encode(value),
-        'PBKDF2',
-        false,
-        ['deriveBits']
-    );
-    const bits = await crypto.subtle.deriveBits(
-        { name: 'PBKDF2', salt, iterations: 120000, hash: 'SHA-256' },
-        keyMaterial,
-        256
-    );
-    const hash = [...new Uint8Array(bits)].map(byte => byte.toString(16).padStart(2, '0')).join('');
-    const saltHex = [...salt].map(byte => byte.toString(16).padStart(2, '0')).join('');
-    return `pbkdf2-sha256:120000:${saltHex}:${hash}`;
+    if (!window.crypto?.subtle) return `plain-disabled:${btoa(value)}`;
+    const bytes = new TextEncoder().encode(value);
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
 async function saveSecuritySettings() {
@@ -4821,17 +4864,7 @@ async function saveSecuritySettings() {
     trackerSettings.security.hideBalances = Boolean(document.getElementById('settingsHideBalances')?.checked);
     const nextPin = document.getElementById('settingsPin')?.value.trim();
     if (nextPin) {
-        if (!/^\d{4,12}$/.test(nextPin)) {
-            showToast('Use a numeric PIN with 4 to 12 digits.', 'error');
-            return;
-        }
-        try {
-            trackerSettings.security.pinHash = await hashSecurityPin(nextPin);
-        } catch (error) {
-            console.error('PIN save failed:', error);
-            showToast('This browser cannot store a PIN securely.', 'error');
-            return;
-        }
+        trackerSettings.security.pinHash = await hashSecurityPin(nextPin);
         delete trackerSettings.security.pin;
     }
     saveTrackerSettings();
@@ -4907,7 +4940,7 @@ function renderAboutSettings() {
 }
 
 function sanitizeBackupText(value, maxLength = 160) {
-    return safeText(value, maxLength);
+    return String(value ?? '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, maxLength);
 }
 
 function sanitizeBackupId(value, prefix = 'import') {
@@ -4973,7 +5006,7 @@ function sanitizeBackupCategory(category, index = 0) {
     return normalizeCategory({
         id: sanitizeBackupId(category?.id || `cat-import-${index}`, 'cat'),
         name: sanitizeBackupText(category?.name || 'Imported Category', 80),
-        icon: normalizeStoredCategoryIcon(sanitizeBackupText(category?.icon || 'plus', 24), category?.name, category?.type),
+        icon: sanitizeBackupText(category?.icon || '🔸', 4) || '🔸',
         color: /^#[0-9a-fA-F]{6}$/.test(String(category?.color || '')) ? category.color : '#64748b',
         type: ['income', 'expense', 'transfer'].includes(category?.type) ? category.type : 'expense',
         order: sanitizeBackupNumber(category?.order, index)
@@ -4990,9 +5023,6 @@ function sanitizeBackupBudgets(budgets) {
 function exportBackup() {
     trackerSettings.meta.lastBackupAt = new Date().toISOString();
     saveTrackerSettings();
-    const backupSettings = mergeSettings(trackerSettings);
-    delete backupSettings.security.pin;
-    delete backupSettings.security.pinHash;
     const backup = {
         transactions,
         savingsTransactions,
@@ -5000,7 +5030,7 @@ function exportBackup() {
         subscriptions,
         jobs,
         shifts,
-        settings: backupSettings,
+        settings: trackerSettings,
         categories,
         categoryBudgets,
         exportedAt: new Date().toISOString()
@@ -5021,20 +5051,12 @@ function exportBackup() {
 function importBackupFile(event) {
     const file = event.target.files?.[0];
     if (!file) return;
-    const fileName = String(file.name || '').toLowerCase();
-    const isJsonFile = file.type === 'application/json' || fileName.endsWith('.json');
-    if (!isJsonFile) {
-        showToast('Choose a JSON backup file.', 'error');
+    if (file.size > 2_000_000) {
+        showToast('Backup file is too large.', 'error');
         event.target.value = '';
         return;
     }
-    if (file.size > 1_000_000) {
-        showToast('Backup file is too large. Export a fresh backup and try again.', 'error');
-        event.target.value = '';
-        return;
-    }
-    const confirmation = prompt('Importing replaces tracker data in this browser. Type IMPORT to continue.');
-    if (confirmation !== 'IMPORT') {
+    if (!confirm('Importing this backup will replace the tracker data in this browser. Continue?')) {
         event.target.value = '';
         return;
     }
@@ -5054,7 +5076,6 @@ function importBackupFile(event) {
             shifts = Array.isArray(backup.shifts) ? backup.shifts.slice(0, 5000).map(sanitizeBackupShift) : [];
             trackerSettings = mergeSettings(backup.settings || {});
             delete trackerSettings.security.pin;
-            delete trackerSettings.security.pinHash;
             categories = mergeCategoryList(
                 categories,
                 Array.isArray(backup.categories) ? backup.categories.slice(0, 500).map(sanitizeBackupCategory).filter(Boolean) : [],
@@ -5097,6 +5118,9 @@ function importBackupFile(event) {
 
 async function runSettingsBalanceRepair() {
     try {
+        if (typeof renderAnalytics !== 'function') {
+            window.renderAnalytics = () => drawChart({ animate: false });
+        }
         await repairBalanceNow();
         showToast('Balance repair finished.', 'success');
     } catch (error) {
@@ -5116,6 +5140,7 @@ function refreshDashboardFromSettings() {
     renderCustomCategories();
     renderBudgets();
     updateDashboard();
+    renderAnalytics();
     updateFinanceHealthCards();
     showToast('UI refreshed.', 'success');
 }
@@ -5190,6 +5215,7 @@ async function repairSavingsDuplicatesFromSettings() {
         renderTransactions({ refreshFilters: true, animate: false });
         renderSavingsTransactions();
         updateDashboard({ animate: false });
+        renderAnalytics();
         updateFinanceHealthCards();
         showToast(repaired ? 'Savings duplicates repaired.' : 'No savings duplicates found.', repaired ? 'success' : 'info');
     } catch (error) {
@@ -5199,7 +5225,7 @@ async function repairSavingsDuplicatesFromSettings() {
 }
 
 function clearLocalData() {
-    if (prompt('This clears local finance data in this browser. Type CLEAR to continue.') !== 'CLEAR') return;
+    if (!confirm('Clear local finance data from this browser?')) return;
     ['transactions', 'savingsTransactions', 'savedMoney', 'subscriptions', 'jobs', 'shifts', 'lastSelectedJobId'].forEach(key => localStorage.removeItem(key));
     transactions = [];
     savingsTransactions = [];
@@ -5318,6 +5344,7 @@ async function repairBalanceNow() {
 
     renderTransactions();
     updateDashboard();
+    renderAnalytics();
 
     const afterBalance = Number(document.getElementById('balance')?.textContent || 0);
     console.table({
@@ -5332,8 +5359,8 @@ async function repairBalanceNow() {
 }
 // --- End Repair Tool ---
 async function addJob() {
-    const name = safeText(document.getElementById('jobName').value, 100);
-    const rate = safePositiveNumber(document.getElementById('jobRate').value, 0);
+    const name = document.getElementById('jobName').value.trim();
+    const rate = Number(document.getElementById('jobRate').value);
     const payDate = document.getElementById('jobPayDate').value;
 
     if (!name || rate <= 0 || !payDate) {
@@ -5372,7 +5399,6 @@ async function addJob() {
 }
 
 async function deleteJob(jobId) {
-    if (!confirm('Delete this job?')) return;
     if (supabaseClient && /^\d+$/.test(String(jobId))) {
         const { error } = await supabaseClient.from('jobs').delete().eq('id', jobId);
         if (error) {
@@ -5420,12 +5446,9 @@ function renderJobs() {
     }
 
     jobs.forEach(job => {
-        const safeJobName = safeText(job.name || 'Job', 100);
-        const safeRate = safePositiveNumber(job.rate, 0);
-        const safePayDate = /^\d{4}-\d{2}-\d{2}$/.test(String(job.pay_date || '')) ? job.pay_date : '';
         const option = document.createElement('option');
         option.value = job.id;
-        option.textContent = `${safeJobName} ($${safeRate}/hr)`;
+        option.textContent = `${job.name} ($${job.rate}/hr)`;
         if (sameId(job.id, lastSelectedJobId)) {
             option.selected = true;
         }
@@ -5437,8 +5460,8 @@ function renderJobs() {
 
             row.innerHTML = `
 <div>
-	    <div style="font-weight:600;">${escapeHTML(safeJobName)}</div>
-    <div style="font-size:12px;color:#64748b;">$${safeRate}/hr • Pay cycle starts ${escapeHTML(safePayDate || 'unset')}</div>
+	    <div style="font-weight:600;">${escapeHTML(job.name)}</div>
+    <div style="font-size:12px;color:#64748b;">$${job.rate}/hr • Pay cycle starts ${job.pay_date || 'unset'}</div>
 </div>
 <div class="row-actions">
     <button class="edit-btn" onclick="editJob(${escapeInlineJSString(job.id)})" title="Edit job">
@@ -5485,8 +5508,8 @@ function updateRateFromJob() {
 
 async function addShift() {
     const date = document.getElementById('shiftDate').value;
-    const hours = safePositiveNumber(document.getElementById('hoursInput').value, 0);
-    const rate = safePositiveNumber(document.getElementById('hourlyRate').value, 0);
+    const hours = Number(document.getElementById('hoursInput').value);
+    const rate = Number(document.getElementById('hourlyRate').value);
     const isEditing = Boolean(editingShiftId);
 
     if (!date || hours <= 0 || rate <= 0) {
@@ -5501,7 +5524,7 @@ async function addShift() {
             date,
             hours,
             rate,
-            job: selectedJob ? safeText(selectedJob.name, 100) : 'Unknown Job',
+            job: selectedJob ? selectedJob.name : 'Unknown Job',
             pay: hours * rate
         };
         const query = editingShiftId && /^\d+$/.test(String(editingShiftId))
@@ -5522,7 +5545,7 @@ async function addShift() {
             date,
             hours,
             rate,
-            job: selectedJob ? safeText(selectedJob.name, 100) : 'Unknown Job',
+            job: selectedJob ? selectedJob.name : 'Unknown Job',
             pay: hours * rate
         };
         if (editingShiftId) {
@@ -5551,7 +5574,6 @@ async function addShift() {
 }
 
 async function deleteShift(id) {
-    if (!confirm('Delete this shift?')) return;
     if (supabaseClient && /^\d+$/.test(String(id))) {
         const { error } = await supabaseClient.from('shifts').delete().eq('id', id);
         if (error) {
@@ -5686,19 +5708,14 @@ function renderShifts() {
 
         const card = document.createElement('div');
         card.className = 'transaction-card';
-        const safeShiftJob = safeText(shift.job || 'Job', 100);
-        const safeShiftDate = safeDateString(`${shift.date}T12:00:00`);
-        const safeShiftHours = safePositiveNumber(shift.hours, 0);
-        const safeShiftRate = safePositiveNumber(shift.rate, 0);
-        const safeShiftPay = safePositiveNumber(shift.pay, safeShiftHours * safeShiftRate);
 
         card.innerHTML = `
             <div class="transaction-card-content">
-	                <strong>${escapeHTML(safeShiftJob)}</strong>
-                <span class="transaction-date">${escapeHTML(safeShiftDate)}</span>
-                <span class="transaction-meta">${safeShiftHours} hrs • $${safeShiftRate}/hr</span>
+	                <strong>${escapeHTML(shift.job || 'Job')}</strong>
+                <span class="transaction-date">${new Date(shift.date + 'T12:00:00').toLocaleDateString()}</span>
+                <span class="transaction-meta">${shift.hours} hrs • $${shift.rate}/hr</span>
             </div>
-            <span class="transaction-amount" style="color:green;">$${safeShiftPay.toFixed(2)}</span>
+            <span class="transaction-amount" style="color:green;">$${shift.pay.toFixed(2)}</span>
             <div class="row-actions">
                 <button class="edit-btn" onclick="editShift(${escapeInlineJSString(shift.id)})" title="Edit shift">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -5783,7 +5800,7 @@ function renderShifts() {
     updateDashboardInsights();
 }
 async function addSavings() {
-    const amount = safePositiveNumber(document.getElementById('savingsAmount').value, 0);
+    const amount = Number(document.getElementById('savingsAmount').value);
 
     if (!amount || amount <= 0) {
         showToast('Enter a valid savings amount.', 'error');
@@ -5821,7 +5838,7 @@ async function addSavings() {
 }
 
 async function withdrawSavings() {
-    const amount = safePositiveNumber(document.getElementById('savingsAmount').value, 0);
+    const amount = Number(document.getElementById('savingsAmount').value);
 
     if (!amount || amount <= 0) {
         showToast('Enter a valid withdrawal amount.', 'error');
@@ -5941,7 +5958,7 @@ function renderSavingsTransactions() {
             const card = document.createElement('div');
             card.className = 'transaction-card savings-row';
             card.style.marginBottom = '8px';
-            const amount = safePositiveNumber(t.amount, 0);
+            const amount = Number(t.amount || 0);
             const savingsKey = t.id || index;
             const isDeposit = isSavingsDepositTransaction(t);
             const savingsType = isDeposit ? 'deposit' : 'withdraw';
@@ -5957,7 +5974,7 @@ function renderSavingsTransactions() {
                         <strong>${escapeHTML(t.description)}</strong>
                         <span class="transaction-type-pill">${isDeposit ? 'Moved In' : 'Withdrawn'}</span>
                     </div>
-                    <span class="transaction-meta">${escapeHTML(safeDateString(t.created_at))}</span>
+                    <span class="transaction-meta">${new Date(t.created_at).toLocaleDateString()}</span>
                 </div>
                 <span class="transaction-amount">
                     ${isDeposit ? '+' : '-'}$${amount.toFixed(2)}
@@ -6112,7 +6129,14 @@ async function loadFromSupabase(options = {}) {
         return;
     }
 
-    transactions = (data || []).map(sanitizeTransactionRecord);
+    transactions = data.map(t => ({
+        id: t.id,
+        description: t.description,
+        amount: Number(t.amount),
+        type: t.type,
+        category: t.category,
+        created_at: t.created_at
+    }));
 
     categories = mergeCategoryList(categories, loadCategoriesFromTransactions());
     saveCategories();
@@ -6155,6 +6179,8 @@ function updateDashboard(options = {}) {
     }
 
     updateDashboardInsights();
+    drawChart({ animate });
+    drawTopCategoriesChart(1);
 }
 
 function updateDashboardInsights() {
@@ -6210,50 +6236,6 @@ function createLocalId(prefix = 'local') {
 
 function sameId(a, b) {
     return String(a || '') === String(b || '');
-}
-
-function sanitizeTransactionRecord(transaction, index = 0) {
-    return {
-        id: transaction?.id || createLocalId(`tx-${index}`),
-        description: safeText(transaction?.description || 'Transaction', 140),
-        amount: safePositiveNumber(transaction?.amount, 0),
-        type: normalizeTransactionType(transaction?.type),
-        category: safeText(transaction?.category || 'Other', 80),
-        created_at: sanitizeBackupDate(transaction?.created_at || transaction?.date)
-    };
-}
-
-function sanitizeSubscriptionRecord(subscription, index = 0) {
-    return {
-        id: subscription?.id || createLocalId(`sub-${index}`),
-        name: safeText(subscription?.name || 'Subscription', 100),
-        amount: safePositiveNumber(subscription?.amount, 0),
-        day: Math.min(31, Math.max(1, Math.round(safeFiniteNumber(subscription?.day, 1))))
-    };
-}
-
-function sanitizeJobRecord(job, index = 0) {
-    return {
-        id: job?.id || createLocalId(`job-${index}`),
-        name: safeText(job?.name || 'Job', 100),
-        rate: safePositiveNumber(job?.rate, 0),
-        pay_date: /^\d{4}-\d{2}-\d{2}$/.test(String(job?.pay_date || '')) ? job.pay_date : '',
-        cutoff_days: Math.max(0, Math.min(31, Math.round(safeFiniteNumber(job?.cutoff_days, 0))))
-    };
-}
-
-function sanitizeShiftRecord(shift, index = 0) {
-    const hours = safePositiveNumber(shift?.hours, 0);
-    const rate = safePositiveNumber(shift?.rate, 0);
-    return {
-        id: shift?.id || createLocalId(`shift-${index}`),
-        job: safeText(shift?.job || 'Job', 100),
-        job_id: shift?.job_id || '',
-        date: /^\d{4}-\d{2}-\d{2}$/.test(String(shift?.date || '')) ? shift.date : new Date().toISOString().slice(0, 10),
-        hours,
-        rate,
-        pay: safePositiveNumber(shift?.pay, hours * rate)
-    };
 }
 
 function toInputDate(date) {
@@ -6575,10 +6557,10 @@ function openEditTransactionPanel(transactionId, triggerElement) {
 
 async function saveTransactionEdit() {
     const transactionId = document.getElementById('editTransactionId').value;
-    const description = safeText(document.getElementById('editTransactionDescription').value, 140);
-    const amount = safePositiveNumber(document.getElementById('editTransactionAmount').value, 0);
-    const category = safeText(document.getElementById('editTransactionCategory').value || 'Other', 80);
-    const type = normalizeTransactionType(document.getElementById('editTransactionType').value);
+    const description = document.getElementById('editTransactionDescription').value.trim();
+    const amount = Number(document.getElementById('editTransactionAmount').value);
+    const category = document.getElementById('editTransactionCategory').value;
+    const type = document.getElementById('editTransactionType').value;
 
     if (!description || amount <= 0) {
         showToast('Please enter valid transaction information.', 'error');
@@ -6680,25 +6662,25 @@ function renderTransactions(options = {}) {
         item.style.animation = shouldAnimate ? 'transactionFadeIn 0.32s ease both' : 'none';
         item.style.animationDelay = shouldAnimate ? `${Math.min(index * 25, 180)}ms` : '';
 
-        const transactionType = normalizeTransactionType(t.type);
-        const transactionAmount = safePositiveNumber(t.amount, 0);
-        const transactionDate = t.created_at ? safeDateString(t.created_at) : 'No Date';
+        const transactionDate = t.created_at
+            ? new Date(t.created_at).toLocaleDateString()
+            : 'No Date';
         item.innerHTML = `
     <div class="transaction-card-content">
         <div class="transaction-main">
             <div>
                 <div class="transaction-title-row">
                     <strong>${escapeHTML(t.description)}</strong>
-                    <span class="transaction-type-pill ${transactionType}">${transactionType === 'income' ? 'Income' : 'Expense'}</span>
+                    <span class="transaction-type-pill ${t.type}">${t.type === 'income' ? 'Income' : 'Expense'}</span>
                 </div>
                 <div class="transaction-info-row">
                     <span class="transaction-meta category-badge">${escapeHTML(getCategoryLabel(t.category))}</span>
-                    <span class="transaction-date">${escapeHTML(transactionDate)}</span>
+                    <span class="transaction-date">${transactionDate}</span>
                 </div>
             </div>
             <div class="transaction-amount-wrap">
-                <span class="transaction-amount" style="${transactionType === 'income' ? 'color:green' : 'color:red'}">
-                    ${transactionType === 'income' ? '+' : '-'}$${transactionAmount.toFixed(2)}
+                <span class="transaction-amount" style="${t.type === 'income' ? 'color:green' : 'color:red'}">
+                    ${t.type === 'income' ? '+' : '-'}$${Number(t.amount || 0).toFixed(2)}
                 </span>
             </div>
         </div>
@@ -6806,8 +6788,6 @@ async function deleteTransaction(transactionId, buttonElement) {
         await deleteSavingsTransferTransaction(transactionId, buttonElement);
         return;
     }
-
-    if (!confirm('Delete this transaction?')) return;
 
     const card = buttonElement?.closest('.transaction-card');
     if (card) {
@@ -6925,10 +6905,10 @@ async function migrateSavingsActivityToTransactions() {
 }
 
 async function addTransaction() {
-    const description = safeText(document.getElementById('description').value, 140);
-    const amount = safePositiveNumber(document.getElementById('amount').value, 0);
-    const type = normalizeTransactionType(document.getElementById('type').value);
-    const category = safeText(document.getElementById('category').value || 'Other', 80);
+    const description = document.getElementById('description').value.trim();
+    const amount = Number(document.getElementById('amount').value);
+    const type = document.getElementById('type').value;
+    const category = document.getElementById('category').value;
 
     if (!description || amount <= 0) {
         showToast('Please enter valid information.', 'error');
@@ -6956,6 +6936,727 @@ async function addTransaction() {
     document.getElementById('amount').value = '';
     showToast('Transaction added.', 'success');
     pulseElement('#transactionHistoryCard');
+}
+
+const analyticsColors = {
+    blue: '#2563eb',
+    green: '#16a34a',
+    red: '#dc2626',
+    amber: '#f59e0b',
+    purple: '#7c3aed',
+    cyan: '#0891b2',
+    pink: '#db2777',
+    slate: '#475569',
+    grid: '#e2e8f0',
+    text: '#0f172a',
+    muted: '#64748b',
+    surface: '#ffffff'
+};
+let analyticsPeriod = localStorage.getItem('analyticsPeriod') || 'monthly';
+let analyticsHoverTargets = {};
+let analyticsAnimationFrame = null;
+let suppressRefreshAnimation = false;
+
+function drawChart(options = {}) {
+    const animate = options.animate !== false && !suppressRefreshAnimation;
+    updateAnalyticsInsights();
+    if (analyticsAnimationFrame) cancelAnimationFrame(analyticsAnimationFrame);
+
+    if (!animate) {
+        renderAnalyticsCharts(1);
+        return;
+    }
+
+    const start = performance.now();
+    const duration = 750;
+
+    function frame(now) {
+        const progress = easeOutCubic(Math.min(1, (now - start) / duration));
+        renderAnalyticsCharts(progress);
+        if (progress < 1) analyticsAnimationFrame = requestAnimationFrame(frame);
+    }
+
+    analyticsAnimationFrame = requestAnimationFrame(frame);
+}
+
+function renderAnalytics() {
+}
+
+function setupChartInteractions() {
+    document.querySelectorAll('.segmented-control [data-period]').forEach(button => {
+        button.classList.toggle('active', button.dataset.period === analyticsPeriod);
+    });
+
+    document.querySelectorAll('.analytics-canvas').forEach(canvas => {
+        if (canvas.dataset.bound === 'true') return;
+        canvas.dataset.bound = 'true';
+
+        canvas.addEventListener('mousemove', event => {
+            const target = getAnalyticsTargetAtEvent(canvas, event);
+            showAnalyticsTooltip(event, target, canvas);
+            canvas.style.cursor = target?.category ? 'pointer' : target ? 'default' : '';
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            const tooltip = document.getElementById('chartTooltip');
+            if (tooltip) tooltip.style.display = 'none';
+            canvas.style.cursor = '';
+        });
+
+        canvas.addEventListener('click', event => {
+            const target = getAnalyticsTargetAtEvent(canvas, event);
+            if (target?.category) applyCategoryFilter(target.category, event);
+        });
+    });
+
+    const section = document.querySelector('.analytics-section');
+    if (section && localStorage.getItem('analyticsTheme') === 'dark') {
+        section.classList.add('analytics-dark');
+    }
+}
+
+function renderAnalyticsCharts(progress = 1) {
+    analyticsHoverTargets = {};
+    drawSpendingTrendChart(progress);
+    drawIncomeExpenseChart(progress);
+    drawCategoryDonutChart(progress);
+    drawSavingsGrowthChart(progress);
+    drawCashFlowChart(progress);
+    drawTopCategoriesChart(progress);
+}
+
+function setAnalyticsPeriod(period) {
+    analyticsPeriod = period;
+    localStorage.setItem('analyticsPeriod', period);
+    document.querySelectorAll('.segmented-control [data-period]').forEach(button => {
+        button.classList.toggle('active', button.dataset.period === period);
+    });
+    drawChart();
+}
+
+function updateAnalyticsInsights() {
+    const tx = transactions.slice();
+    const now = new Date();
+    const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const monthTx = tx.filter(t => {
+        const date = getTransactionDate(t);
+        return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+    });
+    const lastMonthTx = tx.filter(t => {
+        const date = getTransactionDate(t);
+        return date.getMonth() === lastMonthDate.getMonth() && date.getFullYear() === lastMonthDate.getFullYear();
+    });
+    const monthExpenses = monthTx.filter(isSpendingExpense);
+    const lastMonthExpenses = lastMonthTx.filter(isSpendingExpense);
+    const allExpenses = tx.filter(isSpendingExpense);
+    const allIncome = tx.filter(t => t.type === 'income');
+    const monthIncomeTotal = monthTx.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const monthExpenseTotal = monthExpenses.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const lastMonthIncomeTotal = lastMonthTx.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const lastMonthExpenseTotal = lastMonthExpenses.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const totalIncome = allIncome.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+    const biggestExpense = monthExpenses.sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0];
+    const lastBiggestExpense = lastMonthExpenses.sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0];
+    const categories = aggregateByCategory(allExpenses);
+    const monthCategories = aggregateByCategory(monthExpenses);
+    const lastMonthCategories = aggregateByCategory(lastMonthExpenses);
+    const topCategory = categories[0];
+    const monthTopCategory = monthCategories[0];
+    const lastMonthTopCategory = lastMonthCategories[0];
+    const daysElapsed = now.getDate();
+    const avgDaily = daysElapsed > 0 ? monthExpenseTotal / daysElapsed : 0;
+    const lastMonthDays = new Date(lastMonthDate.getFullYear(), lastMonthDate.getMonth() + 1, 0).getDate();
+    const lastAvgDaily = lastMonthDays > 0 ? lastMonthExpenseTotal / lastMonthDays : 0;
+    const avgTransaction = tx.length ? tx.reduce((sum, t) => sum + Number(t.amount || 0), 0) / tx.length : 0;
+    const monthAvgTransaction = monthTx.length ? monthTx.reduce((sum, t) => sum + Number(t.amount || 0), 0) / monthTx.length : 0;
+    const lastMonthAvgTransaction = lastMonthTx.length ? lastMonthTx.reduce((sum, t) => sum + Number(t.amount || 0), 0) / lastMonthTx.length : 0;
+    const savingsRate = totalIncome > 0 ? Math.max(0, (savedMoney / totalIncome) * 100) : 0;
+    const monthSavingsRate = monthIncomeTotal > 0 ? Math.max(0, ((monthIncomeTotal - monthExpenseTotal) / monthIncomeTotal) * 100) : 0;
+    const lastMonthSavingsRate = lastMonthIncomeTotal > 0 ? Math.max(0, ((lastMonthIncomeTotal - lastMonthExpenseTotal) / lastMonthIncomeTotal) * 100) : 0;
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const projectedExpenses = avgDaily * daysInMonth;
+    const projectedBalance = monthIncomeTotal - projectedExpenses - savedMoney;
+    const lastProjectedBalance = lastMonthIncomeTotal - lastMonthExpenseTotal - savedMoney;
+
+    setText('biggestExpenseMonthInsight', biggestExpense ? `${biggestExpense.description || 'Expense'} ${formatMoney(Number(biggestExpense.amount || 0))}` : '$0.00');
+    animateInsightValue('averageDailySpendingInsight', avgDaily, formatMoney);
+    animateInsightValue('averageTransactionInsight', avgTransaction, formatMoney);
+    animateInsightValue('analyticsSavingsRateInsight', savingsRate, value => `${value.toFixed(0)}%`);
+    setText('highestCategoryInsight', topCategory ? `${topCategory.label} ${formatMoney(topCategory.value)}` : '$0.00');
+    animateInsightValue('noSpendStreakInsight', calculateNoSpendStreak(), value => `${value.toFixed(0)} days`);
+    animateInsightValue('projectedBalanceInsight', projectedBalance, formatMoney);
+
+    setTrendText('biggestExpenseTrend', Number(biggestExpense?.amount || 0), Number(lastBiggestExpense?.amount || 0), true);
+    setTrendText('dailySpendingTrend', avgDaily, lastAvgDaily, true);
+    setTrendText('transactionAverageTrend', monthAvgTransaction, lastMonthAvgTransaction, false);
+    setTrendText('savingsRateTrend', monthSavingsRate, lastMonthSavingsRate, false);
+    setTrendText('categoryTrend', Number(monthTopCategory?.value || 0), Number(lastMonthTopCategory?.value || 0), true);
+    setText('streakTrend', calculateNoSpendStreak() > 0 ? '↗ Keep it going' : '→ Start today');
+    setTrendText('projectedBalanceTrend', projectedBalance, lastProjectedBalance, false);
+}
+
+function drawSpendingTrendChart(progress) {
+    const canvas = document.getElementById('spendingTrendChart');
+    const chart = prepareChart(canvas);
+    if (!chart) return;
+    const points = getSpendingTrendData();
+    drawLineChart(chart, points, {
+        color: analyticsColors.blue,
+        fill: 'rgba(37, 99, 235, 0.12)',
+        formatter: formatMoney,
+        empty: 'Add expenses to see spending trends'
+    }, progress);
+}
+
+function drawIncomeExpenseChart(progress) {
+    const canvas = document.getElementById('incomeExpenseChart');
+    const chart = prepareChart(canvas);
+    if (!chart) return;
+    const rows = getMonthlyIncomeExpenseData();
+    drawGroupedBarChart(chart, rows, progress);
+}
+
+function drawCategoryDonutChart(progress) {
+    const canvas = document.getElementById('pieChart');
+    const chart = prepareChart(canvas);
+    const legend = document.getElementById('pieLegend');
+    if (!chart) return;
+    if (legend) legend.innerHTML = '';
+
+    const categories = aggregateByCategory(getAnalyticsTransactions().filter(isSpendingExpense));
+    const total = categories.reduce((sum, item) => sum + item.value, 0);
+    chartSlices = [];
+    analyticsHoverTargets[canvas.id] = [];
+
+    if (total <= 0) {
+        drawEmptyChart(chart, 'Add expenses to generate category insights');
+        return;
+    }
+
+    const { ctx, width, height } = chart;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radius = Math.min(width, height) * 0.39;
+    const innerRadius = radius * 0.54;
+    let startAngle = -Math.PI / 2;
+
+    categories.forEach((item, index) => {
+        const categoryName = item.label;
+        const color = getCategoryChartColor(categoryName, index);
+        const slice = (item.value / total) * Math.PI * 2 * progress;
+        const endAngle = startAngle + slice;
+        const percent = (item.value / total) * 100;
+
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+        ctx.arc(centerX, centerY, innerRadius, endAngle, startAngle, true);
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+
+        chartSlices.push({ label: item.label, value: item.value, percent, color, startAngle, endAngle, centerX, centerY, radius, innerRadius });
+        analyticsHoverTargets[canvas.id].push({ type: 'arc', category: item.label, label: item.label, value: item.value, percent, startAngle, endAngle, centerX, centerY, radius, innerRadius });
+        startAngle += (item.value / total) * Math.PI * 2;
+    });
+
+    if (legend) {
+        const entries = categories.map(item => [item.label, item.value]);
+        legend.innerHTML = entries.map(([categoryName, amount], index) => {
+            const color = getCategoryChartColor(categoryName, index);
+            const percent = total ? Math.round((amount / total) * 100) : 0;
+            const safeName = typeof escapeHTML === 'function'
+                ? escapeHTML(categoryName)
+                : String(categoryName);
+
+            return `
+                <div class="legend-row" style="--category-color:${color}">
+                    <div class="legend-main">
+                        <span class="legend-color" style="background:${color}"></span>
+                        <span class="legend-name" style="color:${color}">${safeName} · ${percent}%</span>
+                    </div>
+                    <span class="legend-amount" style="color:${color}">$${Number(amount || 0).toFixed(2)}</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    const dominantPercent = categories[0] ? (categories[0].value / total) * 100 : 0;
+    ctx.fillStyle = getThemeColor('--text', analyticsColors.text);
+    ctx.font = '900 36px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`${dominantPercent.toFixed(0)}%`, centerX, centerY - 16);
+    ctx.fillStyle = getThemeColor('--muted', analyticsColors.muted);
+    ctx.font = '800 12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+    ctx.fillText(categories[0] ? getCategoryLabel(categories[0].label) : 'top category', centerX, centerY + 12);
+    ctx.fillText(formatMoney(total), centerX, centerY + 32);
+}
+
+function drawSavingsGrowthChart(progress) {
+    const canvas = document.getElementById('savingsGrowthChart');
+    const chart = prepareChart(canvas);
+    if (!chart) return;
+    const goal = Number(document.getElementById('savingsGoal')?.value || 0);
+    const data = getSavingsGrowthData();
+    const savingsData = data.length ? data : (goal > 0 ? [{ label: 'Now', value: 0 }] : []);
+    drawLineChart(chart, savingsData, {
+        color: analyticsColors.green,
+        fill: 'rgba(22, 163, 74, 0.12)',
+        formatter: formatMoney,
+        empty: 'Add savings activity to see growth',
+        goal
+    }, progress);
+}
+
+function drawCashFlowChart(progress) {
+    const canvas = document.getElementById('cashFlowChart');
+    const chart = prepareChart(canvas);
+    if (!chart) return;
+    const rows = getMonthlyIncomeExpenseData().map(row => ({ label: row.label, value: row.income - row.expense }));
+    drawCashFlowBars(chart, rows, progress);
+}
+
+function drawTopCategoriesChart(progress) {
+    const container = document.getElementById('topSpendingCategories');
+    if (!container) return;
+    const rows = aggregateByCategory(getAnalyticsTransactions().filter(isSpendingExpense)).slice(0, 8);
+    renderTopSpendingCategories(container, rows, progress);
+}
+
+function renderTopSpendingCategories(container, rows, progress = 1) {
+    container.innerHTML = '';
+
+    if (!rows.length) {
+        container.innerHTML = '<p class="empty-state">Add expenses to rank categories</p>';
+        return;
+    }
+
+    const maxValue = Math.max(...rows.map(row => row.value), 1);
+    rows.forEach((row, index) => {
+        const categoryName = row.label;
+        const amount = row.value;
+        const percent = (amount / maxValue) * 100 * progress;
+        const color = getCategoryChartColor(categoryName, index);
+
+        const template = document.createElement('template');
+        template.innerHTML = `
+            <div class="mini-chart-row" style="--category-color:${color}">
+                <span class="category-color-dot" style="background:${color}"></span>
+                <div class="mini-chart-label">
+                    <strong style="color:${color}">${escapeHTML(categoryName)}</strong>
+                </div>
+                <div class="mini-chart-amount" style="color:${color}">
+                    $${amount.toFixed(2)}
+                </div>
+                <div class="mini-chart-track">
+                    <div class="mini-chart-fill" style="width:${percent}%; background:${color};"></div>
+                </div>
+            </div>
+        `;
+        const item = template.content.firstElementChild;
+        item.onclick = (event) => applyCategoryFilter(categoryName, event);
+        container.appendChild(item);
+    });
+}
+
+function prepareChart(canvas) {
+    if (!canvas) return null;
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const parentWidth = canvas.parentElement?.clientWidth || 0;
+    const width = Math.max(260, Math.floor(rect.width || parentWidth || 640));
+    const height = Math.max(width < 520 ? 260 : 320, Math.floor(rect.height || 380));
+    const compact = width < 520;
+    const plot = compact
+        ? { left: 62, right: 18, top: 28, bottom: 48 }
+        : { left: 68, right: 32, top: 34, bottom: 62 };
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+    return { canvas, ctx, width, height, plot, compact };
+}
+
+function drawLineChart(chart, data, options, progress) {
+    const { ctx, width, height, plot, canvas } = chart;
+    analyticsHoverTargets[canvas.id] = [];
+    if (!data.length || (data.every(point => point.value <= 0) && !options.goal)) {
+        drawEmptyChart(chart, options.empty || 'No data yet');
+        return;
+    }
+
+    const values = data.map(point => point.value);
+    if (options.goal) values.push(options.goal);
+    const maxValue = Math.max(...values, 1) * 1.15;
+    drawGrid(chart, maxValue, options.formatter);
+
+    const plotWidth = width - plot.left - plot.right;
+    const plotHeight = height - plot.top - plot.bottom;
+    const points = data.map((point, index) => ({
+        ...point,
+        x: plot.left + (data.length === 1 ? plotWidth / 2 : (plotWidth / (data.length - 1)) * index),
+        y: plot.top + plotHeight - ((point.value * progress) / maxValue) * plotHeight
+    }));
+
+    if (options.goal) {
+        [0.25, 0.5, 0.75, 1].forEach(milestone => {
+            const milestoneValue = options.goal * milestone;
+            const milestoneY = plot.top + plotHeight - (Math.min(milestoneValue, maxValue) / maxValue) * plotHeight;
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.16)';
+            ctx.beginPath();
+            ctx.moveTo(plot.left, milestoneY);
+            ctx.lineTo(width - plot.right, milestoneY);
+            ctx.stroke();
+            ctx.fillStyle = analyticsColors.amber;
+            ctx.font = '700 10px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText(`${Math.round(milestone * 100)}%`, width - plot.right - 28, milestoneY - 5);
+        });
+
+        const goalY = plot.top + plotHeight - (Math.min(options.goal, maxValue) / maxValue) * plotHeight;
+        ctx.setLineDash([6, 6]);
+        ctx.strokeStyle = analyticsColors.amber;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(plot.left, goalY);
+        ctx.lineTo(width - plot.right, goalY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = analyticsColors.amber;
+        ctx.font = '700 12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+        ctx.fillText(`Goal ${formatMoney(options.goal)}`, plot.left + 4, goalY - 8);
+    }
+
+    const fillGradient = ctx.createLinearGradient(0, plot.top, 0, height - plot.bottom);
+    fillGradient.addColorStop(0, options.fill);
+    fillGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+    ctx.beginPath();
+    traceSmoothLine(ctx, points);
+    ctx.lineTo(points[points.length - 1].x, height - plot.bottom);
+    ctx.lineTo(points[0].x, height - plot.bottom);
+    ctx.closePath();
+    ctx.fillStyle = fillGradient;
+    ctx.fill();
+
+    ctx.beginPath();
+    traceSmoothLine(ctx, points);
+    ctx.strokeStyle = options.color;
+    ctx.lineWidth = 4;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    points.forEach((point, index) => {
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = options.color;
+        ctx.fill();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.stroke();
+        analyticsHoverTargets[canvas.id].push({ type: 'point', x: point.x, y: point.y, label: point.label, value: point.value });
+
+        if (index % Math.ceil(points.length / 6) === 0 || index === points.length - 1) {
+            ctx.fillStyle = getThemeColor('--muted', analyticsColors.muted);
+            ctx.font = '700 11px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(point.label, point.x, height - 18);
+        }
+
+        if (point.value > 0 && (index === points.length - 1 || data.length <= 6)) {
+            ctx.fillStyle = getThemeColor('--text', analyticsColors.text);
+            ctx.font = '800 11px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(formatMoney(point.value), point.x, Math.max(plot.top + 12, point.y - 12));
+        }
+    });
+}
+
+function drawGroupedBarChart(chart, rows, progress) {
+    const { ctx, width, height, plot, canvas } = chart;
+    analyticsHoverTargets[canvas.id] = [];
+    const maxValue = Math.max(...rows.flatMap(row => [row.income, row.expense]), 1) * 1.18;
+    drawGrid(chart, maxValue, formatMoney);
+    const plotWidth = width - plot.left - plot.right;
+    const plotHeight = height - plot.top - plot.bottom;
+    const groupWidth = plotWidth / rows.length;
+    const barWidth = Math.max(7, Math.min(22, groupWidth * 0.28));
+
+    rows.forEach((row, index) => {
+        const cx = plot.left + groupWidth * index + groupWidth / 2;
+        drawBar(ctx, canvas.id, cx - barWidth - 2, row.income, maxValue, plot, plotHeight, barWidth, analyticsColors.green, row.label, 'Income', progress);
+        drawBar(ctx, canvas.id, cx + 2, row.expense, maxValue, plot, plotHeight, barWidth, analyticsColors.red, row.label, 'Expenses', progress);
+        if (index % 2 === 0 || rows.length <= 8) drawXAxisLabel(ctx, row.label, cx, height);
+    });
+
+    drawLegend(ctx, width, [{ label: 'Income', color: analyticsColors.green }, { label: 'Expenses', color: analyticsColors.red }]);
+}
+
+function drawCashFlowBars(chart, rows, progress) {
+    const { ctx, width, height, plot, canvas } = chart;
+    analyticsHoverTargets[canvas.id] = [];
+    const maxAbs = Math.max(...rows.map(row => Math.abs(row.value)), 1) * 1.25;
+    const plotWidth = width - plot.left - plot.right;
+    const plotHeight = height - plot.top - plot.bottom;
+    const zeroY = plot.top + plotHeight / 2;
+    drawGrid(chart, maxAbs, formatMoney, true);
+    ctx.strokeStyle = getThemeColor('--line', analyticsColors.grid);
+    ctx.beginPath();
+    ctx.moveTo(plot.left, zeroY);
+    ctx.lineTo(width - plot.right, zeroY);
+    ctx.stroke();
+
+    const groupWidth = plotWidth / rows.length;
+    const barWidth = Math.max(9, Math.min(28, groupWidth * 0.48));
+    rows.forEach((row, index) => {
+        const x = plot.left + groupWidth * index + (groupWidth - barWidth) / 2;
+        const barHeight = Math.abs(row.value) / maxAbs * (plotHeight / 2) * progress;
+        const y = row.value >= 0 ? zeroY - barHeight : zeroY;
+        ctx.fillStyle = row.value >= 0 ? analyticsColors.green : analyticsColors.red;
+        roundRect(ctx, x, y, barWidth, barHeight, 8);
+        ctx.fill();
+        if (Math.abs(row.value) > 0 && progress > 0.92) {
+            ctx.fillStyle = getThemeColor('--text', analyticsColors.text);
+            ctx.font = '800 11px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(formatCompactMoney(row.value), x + barWidth / 2, row.value >= 0 ? y - 8 : y + barHeight + 16);
+        }
+        analyticsHoverTargets[canvas.id].push({ type: 'rect', x, y, width: barWidth, height: barHeight, label: row.label, series: 'Net income', value: row.value });
+        if (index % 2 === 0 || rows.length <= 8) drawXAxisLabel(ctx, row.label, x + barWidth / 2, height);
+    });
+}
+
+function drawHorizontalBars(chart, rows, progress) {
+    const { ctx, width, height, plot, canvas } = chart;
+    analyticsHoverTargets[canvas.id] = [];
+    if (!rows.length) {
+        drawEmptyChart(chart, 'Add expenses to rank categories');
+        return;
+    }
+    const maxValue = Math.max(...rows.map(row => row.value), 1);
+    const rowHeight = (height - plot.top - plot.bottom) / rows.length;
+    rows.forEach((row, index) => {
+        const y = plot.top + rowHeight * index + rowHeight * 0.22;
+        const barHeight = Math.max(16, rowHeight * 0.48);
+        const x = plot.left + 112;
+        const available = width - x - plot.right;
+        const barWidth = (row.value / maxValue) * available * progress;
+        const color = getCategoryChartColor(row.label, index);
+        ctx.fillStyle = getThemeColor('--text', analyticsColors.text);
+        ctx.font = '700 12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(getCategoryLabel(row.label), x - 12, y + barHeight / 2 + 4);
+        ctx.fillStyle = 'rgba(148, 163, 184, 0.16)';
+        roundRect(ctx, x, y, available, barHeight, 9);
+        ctx.fill();
+        ctx.fillStyle = color;
+        roundRect(ctx, x, y, barWidth, barHeight, 9);
+        ctx.fill();
+        ctx.fillStyle = getThemeColor('--muted', analyticsColors.muted);
+        ctx.textAlign = 'left';
+        ctx.fillText(formatMoney(row.value), x + Math.min(barWidth + 8, available - 64), y + barHeight / 2 + 4);
+        analyticsHoverTargets[canvas.id].push({ type: 'rect', x, y, width: Math.max(barWidth, 8), height: barHeight, label: row.label, value: row.value, category: row.label });
+    });
+}
+
+function drawBar(ctx, canvasId, x, value, maxValue, plot, plotHeight, width, color, label, series, progress) {
+    const height = (value / maxValue) * plotHeight * progress;
+    const y = plot.top + plotHeight - height;
+    ctx.fillStyle = color;
+    roundRect(ctx, x, y, width, height, 7);
+    ctx.fill();
+    if (value > 0 && progress > 0.92) {
+        ctx.fillStyle = getThemeColor('--text', analyticsColors.text);
+        ctx.font = '800 10px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(formatCompactMoney(value), x + width / 2, Math.max(plot.top + 10, y - 7));
+    }
+    analyticsHoverTargets[canvasId].push({ type: 'rect', x, y, width, height, label, series, value });
+}
+
+function drawGrid(chart, maxValue, formatter, centered = false) {
+    const { ctx, width, height, plot } = chart;
+    const plotHeight = height - plot.top - plot.bottom;
+    ctx.strokeStyle = getThemeColor('--line', analyticsColors.grid);
+    ctx.fillStyle = getThemeColor('--muted', analyticsColors.muted);
+    ctx.font = '700 11px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.lineWidth = 1;
+
+    for (let i = 0; i <= 4; i++) {
+        const y = plot.top + (plotHeight / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(plot.left, y);
+        ctx.lineTo(width - plot.right, y);
+        ctx.stroke();
+        const value = centered ? maxValue - (maxValue / 2) * i : maxValue - (maxValue / 4) * i;
+        ctx.fillText(formatter ? formatter(value) : value.toFixed(0), plot.left - 8, y + 4);
+    }
+}
+
+function drawLegend(ctx, width, items) {
+    let x = width - 190;
+    items.forEach(item => {
+        ctx.fillStyle = item.color;
+        roundRect(ctx, x, 18, 10, 10, 5);
+        ctx.fill();
+        ctx.fillStyle = getThemeColor('--muted', analyticsColors.muted);
+        ctx.font = '700 12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(item.label, x + 16, 27);
+        x += 88;
+    });
+}
+
+function drawXAxisLabel(ctx, label, x, height) {
+    ctx.fillStyle = getThemeColor('--muted', analyticsColors.muted);
+    ctx.font = '700 11px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x, height - 18);
+}
+
+function traceSmoothLine(ctx, points) {
+    if (!points.length) return;
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+    }
+}
+
+function drawEmptyChart(chart, message) {
+    const { ctx, width, height } = chart;
+    ctx.fillStyle = getThemeColor('--muted', analyticsColors.muted);
+    ctx.font = '700 15px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(message, width / 2, height / 2);
+}
+
+function getAnalyticsTransactions() {
+    return typeof getFilteredTransactions === 'function' ? getFilteredTransactions() : transactions.slice();
+}
+
+function getSpendingTrendData() {
+    const expensesOnly = getAnalyticsTransactions().filter(isSpendingExpense);
+    if (analyticsPeriod === 'weekly') return buildWeeklySeries(expensesOnly, 12, 'expense');
+    if (analyticsPeriod === 'yearly') return buildYearlySeries(expensesOnly, 5, 'expense');
+    return buildMonthlySeries(expensesOnly, 12, 'expense');
+}
+
+function getMonthlyIncomeExpenseData() {
+    const months = buildMonthKeys(12);
+    const source = getAnalyticsTransactions();
+    return months.map(item => {
+        const monthTx = source.filter(t => formatMonthKey(getTransactionDate(t)) === item.key);
+        return {
+            label: item.label,
+            income: monthTx.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount || 0), 0),
+            expense: monthTx.filter(isSpendingExpense).reduce((sum, t) => sum + Number(t.amount || 0), 0)
+        };
+    });
+}
+
+function getSavingsGrowthData() {
+    const sorted = savingsTransactions.slice().sort((a, b) => getTransactionDate(a) - getTransactionDate(b));
+    if (!sorted.length) {
+        return savedMoney > 0 ? [{ label: 'Now', value: savedMoney }] : [];
+    }
+    let running = 0;
+    return sorted.map(item => {
+        running += savingsDelta(item);
+        return {
+            label: getTransactionDate(item).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+            value: Math.max(0, running)
+        };
+    });
+}
+
+function buildMonthlySeries(source, count, type) {
+    return buildMonthKeys(count).map(item => ({
+        label: item.label,
+        value: source
+            .filter(t => (!type || t.type === type) && formatMonthKey(getTransactionDate(t)) === item.key)
+            .reduce((sum, t) => sum + Number(t.amount || 0), 0)
+    }));
+}
+
+function buildWeeklySeries(source, count, type) {
+    const weeks = [];
+    const today = new Date();
+    const start = new Date(today);
+    start.setDate(today.getDate() - ((today.getDay() + 6) % 7) - (count - 1) * 7);
+    start.setHours(0, 0, 0, 0);
+    for (let i = 0; i < count; i++) {
+        const weekStart = new Date(start);
+        weekStart.setDate(start.getDate() + i * 7);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 7);
+        weeks.push({
+            label: weekStart.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
+            value: source
+                .filter(t => {
+                    const date = getTransactionDate(t);
+                    return (!type || t.type === type) && date >= weekStart && date < weekEnd;
+                })
+                .reduce((sum, t) => sum + Number(t.amount || 0), 0)
+        });
+    }
+    return weeks;
+}
+
+function buildYearlySeries(source, count, type) {
+    const year = new Date().getFullYear();
+    const years = [];
+    for (let y = year - count + 1; y <= year; y++) {
+        years.push({
+            label: String(y),
+            value: source
+                .filter(t => (!type || t.type === type) && getTransactionDate(t).getFullYear() === y)
+                .reduce((sum, t) => sum + Number(t.amount || 0), 0)
+        });
+    }
+    return years;
+}
+
+function buildMonthKeys(count) {
+    const now = new Date();
+    const months = [];
+    for (let i = count - 1; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        months.push({
+            key: formatMonthKey(d),
+            label: d.toLocaleDateString(undefined, { month: 'short' })
+        });
+    }
+    return months;
+}
+
+function aggregateByCategory(source) {
+    const categories = {};
+    source.forEach(t => {
+        const category = t.category || 'Other';
+        categories[category] = (categories[category] || 0) + Number(t.amount || 0);
+    });
+    return Object.keys(categories)
+        .map(label => ({ label, value: categories[label] }))
+        .sort((a, b) => b.value - a.value);
+}
+
+function calculateNoSpendStreak() {
+    const expenseDays = new Set(transactions
+        .filter(isSpendingExpense)
+        .map(t => getTransactionDate(t).toISOString().slice(0, 10)));
+    let streak = 0;
+    const day = new Date();
+    day.setHours(0, 0, 0, 0);
+    while (!expenseDays.has(day.toISOString().slice(0, 10))) {
+        streak++;
+        day.setDate(day.getDate() - 1);
+        if (streak > 365) break;
+    }
+    return streak;
 }
 
 function preserveScroll(callback) {
@@ -7004,6 +7705,74 @@ function clearCategoryFilter(event) {
     });
 }
 
+function getAnalyticsTargetAtEvent(canvas, event) {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    return (analyticsHoverTargets[canvas.id] || []).find(target => {
+        if (target.type === 'rect') return x >= target.x && x <= target.x + target.width && y >= target.y && y <= target.y + target.height;
+        if (target.type === 'point') return Math.hypot(x - target.x, y - target.y) <= 12;
+        if (target.type === 'arc') {
+            const dx = x - target.centerX;
+            const dy = y - target.centerY;
+            const distance = Math.hypot(dx, dy);
+            if (distance < target.innerRadius || distance > target.radius) return false;
+            let angle = Math.atan2(dy, dx);
+            if (angle < -Math.PI / 2) angle += Math.PI * 2;
+            return angle >= target.startAngle && angle <= target.endAngle;
+        }
+        return false;
+    });
+}
+
+function showAnalyticsTooltip(event, target, canvas) {
+    const tooltip = document.getElementById('chartTooltip');
+    if (!tooltip || !target) {
+        if (tooltip) tooltip.style.display = 'none';
+        return;
+    }
+    const displayLabel = target.category && target.label === target.category
+        ? getCategoryLabel(target.label)
+        : target.label;
+    const label = target.series ? `${target.series} • ${displayLabel}` : displayLabel;
+    const percent = typeof target.percent === 'number' ? `<br>${target.percent.toFixed(1)}% of spending` : '';
+    tooltip.innerHTML = `<strong>${escapeHTML(label)}</strong><br>${formatMoney(target.value)}${percent}`;
+    tooltip.style.display = 'block';
+
+    const rect = canvas?.getBoundingClientRect?.();
+    const anchor = rect && target.type === 'point' && typeof target.x === 'number' && typeof target.y === 'number'
+        ? { x: rect.left + target.x, y: rect.top + target.y }
+        : rect && target.type === 'rect'
+            ? { x: rect.left + target.x + target.width / 2, y: rect.top + target.y }
+            : rect && target.type === 'arc'
+                ? { x: rect.left + target.centerX, y: rect.top + target.centerY - target.radius }
+                : { x: event.clientX, y: event.clientY };
+
+    const margin = 8;
+    const tooltipWidth = tooltip.offsetWidth;
+    const tooltipHeight = tooltip.offsetHeight;
+    const left = Math.min(
+        window.innerWidth - tooltipWidth - margin,
+        Math.max(margin, anchor.x - tooltipWidth / 2)
+    );
+    const top = Math.max(margin, anchor.y - tooltipHeight - 12);
+
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
+}
+
+function getChartSliceAtPoint(x, y) {
+    return chartSlices.find(slice => {
+        const dx = x - slice.centerX;
+        const dy = y - slice.centerY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < slice.innerRadius || distance > slice.radius) return false;
+        let angle = Math.atan2(dy, dx);
+        if (angle < -Math.PI / 2) angle += Math.PI * 2;
+        return angle >= slice.startAngle && angle <= slice.endAngle;
+    });
+}
+
 function getTransactionDate(transaction) {
     const date = transaction?.created_at ? new Date(transaction.created_at) : new Date();
     return Number.isNaN(date.getTime()) ? new Date() : date;
@@ -7016,6 +7785,15 @@ function formatMonthKey(date) {
 function formatMoney(value) {
     const amount = Number(value || 0);
     return `${amount < 0 ? '-' : ''}$${Math.abs(amount).toFixed(2)}`;
+}
+
+function formatCompactMoney(value) {
+    const amount = Number(value || 0);
+    const sign = amount < 0 ? '-' : '';
+    const absolute = Math.abs(amount);
+    if (absolute >= 1000000) return `${sign}$${(absolute / 1000000).toFixed(1)}M`;
+    if (absolute >= 1000) return `${sign}$${(absolute / 1000).toFixed(1)}K`;
+    return `${sign}$${absolute.toFixed(0)}`;
 }
 
 function setText(id, value) {
@@ -7073,6 +7851,31 @@ function calculatePercentChange(current, previous) {
     if (!previous) return current ? 100 : 0;
     return ((current - previous) / Math.abs(previous)) * 100;
 }
+
+function getThemeColor(name, fallback) {
+    const section = document.querySelector('.analytics-section');
+    return getComputedStyle(section || document.documentElement).getPropertyValue(name).trim()
+        || getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+        || fallback;
+}
+
+function roundRect(ctx, x, y, width, height, radius) {
+    const r = Math.min(radius, Math.abs(width) / 2, Math.abs(height) / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + width - r, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+    ctx.lineTo(x + width, y + height - r);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+    ctx.lineTo(x + r, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+}
+
+    // Redraw charts on resize but debounce
+    window.addEventListener('resize', debounce(()=>{ drawChart({ animate: false }); populateTransactionFilters(); }));
 
 function setTodayDate() {
     const dateInput = document.getElementById('shiftDate');
@@ -7160,6 +7963,7 @@ async function initializeApp() {
     renderSavingsTransactions();
     renderShifts();
     renderVisualCalendar();
+    setupChartInteractions();
     setupKeyboardShortcuts();
     populateSettingsCategoryOptions();
     renderCustomCategories();
