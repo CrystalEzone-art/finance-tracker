@@ -5980,3 +5980,47 @@ button,
         backdrop-filter: none !important;
     }
 }
+
+/* Absolute final fix for the Add Transaction amount marker on mobile. */
+@media (max-width: 768px) {
+    #transactionAmountField {
+        position: relative !important;
+        display: block !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        margin-top: 5px !important;
+    }
+
+    #transactionAmountField span {
+        display: none !important;
+    }
+
+    #transactionAmountField::before {
+        content: "$" !important;
+        position: absolute !important;
+        left: 14px !important;
+        top: 50% !important;
+        z-index: 3 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 24px !important;
+        height: 24px !important;
+        border-radius: 8px !important;
+        background: color-mix(in srgb, var(--app-primary, #2563eb) 12%, white) !important;
+        color: var(--app-primary, #2563eb) !important;
+        font-size: 13px !important;
+        font-weight: 850 !important;
+        line-height: 1 !important;
+        transform: translateY(-50%) !important;
+        pointer-events: none !important;
+    }
+
+    #transactionAmountField #amount {
+        width: 100% !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        margin-top: 0 !important;
+        padding-left: 52px !important;
+    }
+}
