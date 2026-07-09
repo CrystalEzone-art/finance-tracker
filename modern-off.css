@@ -1076,6 +1076,25 @@ button:focus-visible,
     #subscriptionsCard .subscription-form-grid .input-with-dollar input {
         padding-left: 46px !important;
     }
+
+    #transactionAmountField {
+        height: 44px !important;
+        min-height: 44px !important;
+    }
+
+    #transactionAmountField span {
+        top: 0 !important;
+        bottom: 0 !important;
+        left: 14px !important;
+        height: auto !important;
+        transform: none !important;
+    }
+
+    #transactionAmountField input {
+        height: 44px !important;
+        min-height: 44px !important;
+        padding-left: 46px !important;
+    }
 }
 
 @media (max-width: 430px) {
@@ -5454,6 +5473,26 @@ button,
     #subscriptionsCard .subscription-form-grid .input-with-dollar input {
         padding-left: 46px !important;
     }
+
+    #transactionAmountField {
+        height: 44px !important;
+        min-height: 44px !important;
+    }
+
+    #transactionAmountField span {
+        top: 0 !important;
+        bottom: 0 !important;
+        left: 14px !important;
+        height: auto !important;
+        transform: none !important;
+    }
+
+    #transactionAmountField input {
+        height: 44px !important;
+        min-height: 44px !important;
+        margin-top: 0 !important;
+        padding-left: 46px !important;
+    }
 }
 
 /* Absolute EOF iOS date-field alignment pass. */
@@ -5493,5 +5532,226 @@ button,
     input[type="date"]::-webkit-calendar-picker-indicator {
         align-self: center !important;
         margin-left: auto !important;
+    }
+}
+
+/* Mobile settings refresh: readable controls and faster tab access. */
+@media (max-width: 768px) {
+    #settingsPanel {
+        align-items: stretch !important;
+        justify-content: stretch !important;
+        padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom) !important;
+        overflow: hidden !important;
+        background: rgba(15, 23, 42, 0.42) !important;
+    }
+
+    .settings-content {
+        width: 100vw !important;
+        height: 100dvh !important;
+        max-width: none !important;
+        max-height: none !important;
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        grid-template-rows: 58px 92px minmax(0, 1fr) !important;
+        overflow: hidden !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: #f8fafc !important;
+    }
+
+    .settings-header {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        min-height: 58px !important;
+        height: 58px !important;
+        padding: 0 62px 0 16px !important;
+        border-bottom: 1px solid rgba(203, 213, 225, 0.82) !important;
+        background: rgba(255, 255, 255, 0.96) !important;
+    }
+
+    .settings-header h2 {
+        font-size: 22px !important;
+        line-height: 1 !important;
+        letter-spacing: 0 !important;
+    }
+
+    .settings-close {
+        top: 10px !important;
+        right: 12px !important;
+        width: 38px !important;
+        min-width: 38px !important;
+        max-width: 38px !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        max-height: 38px !important;
+        border-radius: 12px !important;
+    }
+
+    .settings-tabs {
+        grid-column: 1 !important;
+        grid-row: 2 !important;
+        display: grid !important;
+        grid-auto-flow: column !important;
+        grid-auto-columns: minmax(112px, 1fr) !important;
+        grid-template-rows: repeat(2, 34px) !important;
+        gap: 6px !important;
+        height: 92px !important;
+        min-height: 92px !important;
+        padding: 10px 12px !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        border-right: 0 !important;
+        border-bottom: 1px solid rgba(203, 213, 225, 0.82) !important;
+        background: #eef4fb !important;
+        scrollbar-width: none !important;
+        scroll-snap-type: x proximity !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .settings-tabs::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .settings-tab {
+        width: 100% !important;
+        min-width: 0 !important;
+        height: 34px !important;
+        min-height: 34px !important;
+        margin: 0 !important;
+        padding: 0 10px !important;
+        justify-content: center !important;
+        border-radius: 10px !important;
+        font-size: 12px !important;
+        line-height: 1 !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        scroll-snap-align: start !important;
+    }
+
+    .settings-tab.active {
+        border-color: rgba(37, 99, 235, 0.28) !important;
+        background: #ffffff !important;
+        color: #1d4ed8 !important;
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12) !important;
+    }
+
+    .settings-page {
+        grid-column: 1 !important;
+        grid-row: 3 !important;
+        min-width: 0 !important;
+        height: auto !important;
+        min-height: 0 !important;
+        padding: 16px 14px 34px !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        background: #f8fafc !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .settings-page h3 {
+        margin: 0 0 6px !important;
+        font-size: 22px !important;
+        line-height: 1.1 !important;
+        letter-spacing: 0 !important;
+    }
+
+    .settings-page > p,
+    .settings-page .settings-subtitle {
+        margin: 0 0 14px !important;
+        font-size: 13px !important;
+        line-height: 1.35 !important;
+    }
+
+    .settings-grid {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 10px !important;
+    }
+
+    .settings-field,
+    .settings-toggle,
+    .settings-list-row,
+    .budget-row {
+        min-height: 0 !important;
+        padding: 12px !important;
+        border-radius: 12px !important;
+        gap: 10px !important;
+        background: #ffffff !important;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    }
+
+    .settings-field label,
+    .settings-toggle label {
+        margin-bottom: 6px !important;
+        font-size: 11px !important;
+        line-height: 1.15 !important;
+        letter-spacing: 0.25px !important;
+    }
+
+    .settings-toggle {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto !important;
+        align-items: center !important;
+    }
+
+    .settings-toggle strong,
+    .settings-list-row strong,
+    .budget-row strong {
+        font-size: 15px !important;
+        line-height: 1.2 !important;
+    }
+
+    .settings-toggle span,
+    .settings-list-row span,
+    .budget-row span {
+        font-size: 12px !important;
+        line-height: 1.25 !important;
+    }
+
+    .settings-toggle input[type="checkbox"] {
+        width: 24px !important;
+        min-width: 24px !important;
+        height: 24px !important;
+        min-height: 24px !important;
+        margin: 0 !important;
+    }
+
+    .settings-field input,
+    .settings-field select {
+        width: 100% !important;
+        min-height: 44px !important;
+        height: 44px !important;
+        margin-top: 0 !important;
+        padding: 0 12px !important;
+        border-radius: 11px !important;
+        font-size: 15px !important;
+    }
+
+    .settings-actions {
+        position: sticky !important;
+        bottom: -1px !important;
+        z-index: 3 !important;
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 8px !important;
+        margin: 14px -14px -34px !important;
+        padding: 12px 14px calc(14px + env(safe-area-inset-bottom)) !important;
+        border-top: 1px solid rgba(203, 213, 225, 0.82) !important;
+        background: rgba(248, 250, 252, 0.96) !important;
+        backdrop-filter: blur(16px);
+    }
+
+    .settings-actions button {
+        width: 100% !important;
+        min-height: 44px !important;
+        height: 44px !important;
+        margin: 0 !important;
+        padding: 0 12px !important;
+        border-radius: 11px !important;
+        font-size: 14px !important;
+    }
+
+    .settings-list-row,
+    .budget-row {
+        grid-template-columns: minmax(0, 1fr) !important;
     }
 }
