@@ -5404,6 +5404,45 @@ button,
 }
 /* Absolute EOF mobile money-input spacing pass. */
 @media (max-width: 768px) {
+    .input-with-dollar {
+        position: relative !important;
+        display: block !important;
+        min-height: 44px !important;
+    }
+
+    #hoursTrackerCard .input-with-dollar,
+    #subscriptionsCard .subscription-form-grid .input-with-dollar {
+        min-height: 40px !important;
+    }
+
+    .input-with-dollar span {
+        position: absolute !important;
+        left: 12px !important;
+        top: 50% !important;
+        z-index: 2 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 24px !important;
+        height: 24px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 1 !important;
+        transform: translateY(-50%) !important;
+        pointer-events: none !important;
+    }
+
+    #hoursTrackerCard .input-with-dollar span,
+    #subscriptionsCard .subscription-form-grid .input-with-dollar span {
+        width: 22px !important;
+        height: 22px !important;
+    }
+
+    .input-with-dollar input {
+        width: 100% !important;
+        margin-top: 0 !important;
+    }
+
     .form .input-with-dollar input,
     .transactions .input-with-dollar input,
     .dashboard-row.two-column-row > .form .input-with-dollar input,
@@ -5414,5 +5453,45 @@ button,
     #hoursTrackerCard .input-with-dollar input,
     #subscriptionsCard .subscription-form-grid .input-with-dollar input {
         padding-left: 46px !important;
+    }
+}
+
+/* Absolute EOF iOS date-field alignment pass. */
+@media (max-width: 768px) {
+    input[type="date"] {
+        box-sizing: border-box !important;
+        display: block !important;
+        align-items: center !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        line-height: 40px !important;
+    }
+
+    #savedJobsPanel input[type="date"] {
+        line-height: 44px !important;
+    }
+
+    input[type="date"]::-webkit-date-and-time-value {
+        display: flex !important;
+        align-items: center !important;
+        min-height: 0 !important;
+        height: 100% !important;
+        line-height: 1 !important;
+        padding: 0 !important;
+        text-align: left !important;
+    }
+
+    input[type="date"]::-webkit-datetime-edit,
+    input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+        display: flex !important;
+        align-items: center !important;
+        min-height: 0 !important;
+        height: 100% !important;
+        line-height: 1 !important;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        align-self: center !important;
+        margin-left: auto !important;
     }
 }

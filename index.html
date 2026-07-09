@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Tyler's Finance Tracker</title>
     <meta name="theme-color" content="#22c55e">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2322c55e'/%3E%3Ctext x='32' y='43' text-anchor='middle' font-size='34' font-family='Arial,sans-serif' fill='white' font-weight='700'%3E$%3C/text%3E%3C/svg%3E">
@@ -2830,7 +2830,7 @@
                 </div>
                 <div class="hours-career-row" style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin:10px 0;">
                     <div id="shiftSummary" style="flex:1;padding:14px 16px;background:linear-gradient(135deg,#eff6ff,#f8fafc);border:1px solid #e5e7eb;border-radius:14px;color:#334155;display:flex;justify-content:space-between;align-items:center;">
-                        <span style="font-size:13px;font-weight:600;">Career Hours</span>
+                        <span style="font-size:13px;font-weight:600;">Last 3 Weeks</span>
                         <span id="hoursWorked" style="font-size:24px;font-weight:700;">0</span>
                     </div>
                     <button
@@ -3541,6 +3541,7 @@ let editingJobId = null;
 let latestPaycheckTotals = {};
 let suppressRefreshAnimation = false;
 let editTransactionScrollPosition = { x: 0, y: 0 };
+const SHIFT_RETENTION_DAYS = 21;
 const defaultTrackerSettings = {
     profile: {
         displayName: '',
@@ -3614,6 +3615,7 @@ async function loadShiftsFromSupabase() {
     }
     if (data) {
         shifts = data;
+        await pruneExpiredShiftsFromSupabase();
         renderShifts();
     }
 }
@@ -5457,6 +5459,8 @@ function cancelShiftEdit() {
 }
 
 function renderShifts() {
+    pruneExpiredLocalShifts();
+
     const list = document.getElementById('shiftList');
     if (!list) return;
 
@@ -5468,20 +5472,22 @@ function renderShifts() {
     let weekHours = 0;
     let biWeeklyPay = 0;
     const paycheckTotals = {};
+    const { start: weekStart, end: weekEnd } = getCurrentWeekBounds();
 
     [...shifts]
-        .sort((a, b) => new Date(b.date + 'T12:00:00') - new Date(a.date + 'T12:00:00'))
+        .sort((a, b) => (parseShiftDate(b.date)?.getTime() || 0) - (parseShiftDate(a.date)?.getTime() || 0))
         .forEach(shift => {
-        totalHours += shift.hours;
-        totalPay += shift.pay;
-        takeHomePay += shift.pay * 0.85;
-        const shiftDate = new Date(shift.date + 'T12:00:00');
-        const now = new Date();
-        const weekAgo = new Date();
-        weekAgo.setDate(now.getDate() - 7);
+        const hours = Number(shift.hours) || 0;
+        const rate = Number(shift.rate) || 0;
+        const pay = Number(shift.pay) || (hours * rate);
+        const shiftDate = parseShiftDate(shift.date);
 
-        if (shiftDate >= weekAgo) {
-            weekHours += shift.hours;
+        totalHours += hours;
+        totalPay += pay;
+        takeHomePay += pay * 0.85;
+
+        if (shiftDate && shiftDate >= weekStart && shiftDate < weekEnd) {
+            weekHours += hours;
         }
 
         // --- NEW LOGIC FOR NEXT PAYCHECK BASED ON JOB PAYDATE ---
@@ -5507,9 +5513,9 @@ function renderShifts() {
                 testPeriodStart.setHours(0, 0, 0, 0);
 
                 // Normalize shift date so the entire selected day counts
-                shiftDate.setHours(12, 0, 0, 0);
+                if (shiftDate) shiftDate.setHours(12, 0, 0, 0);
 
-                if (shiftDate >= testPeriodStart && shiftDate <= testPeriodEnd) {
+                if (shiftDate && shiftDate >= testPeriodStart && shiftDate <= testPeriodEnd) {
                     break;
                 }
 
@@ -5529,9 +5535,9 @@ function renderShifts() {
             periodStart.setHours(0, 0, 0, 0);
 
             // Normalize shift date so the entire selected day counts
-            shiftDate.setHours(12, 0, 0, 0);
-            if (shiftDate >= periodStart && shiftDate <= periodEnd && nextPayDate >= today) {
-                biWeeklyPay += shift.pay;
+            if (shiftDate) shiftDate.setHours(12, 0, 0, 0);
+            if (shiftDate && shiftDate >= periodStart && shiftDate <= periodEnd && nextPayDate >= today) {
+                biWeeklyPay += pay;
 
                 if (!paycheckTotals[jobInfo.name]) {
                     paycheckTotals[jobInfo.name] = {
@@ -5542,8 +5548,8 @@ function renderShifts() {
                     };
                 }
 
-                paycheckTotals[jobInfo.name].amount += shift.pay;
-                paycheckTotals[jobInfo.name].takeHome += shift.pay * 0.85;
+                paycheckTotals[jobInfo.name].amount += pay;
+                paycheckTotals[jobInfo.name].takeHome += pay * 0.85;
             }
         }
         // --- END NEW LOGIC ---
@@ -5554,10 +5560,10 @@ function renderShifts() {
         card.innerHTML = `
             <div class="transaction-card-content">
 	                <strong>${escapeHTML(shift.job || 'Job')}</strong>
-                <span class="transaction-date">${new Date(shift.date + 'T12:00:00').toLocaleDateString()}</span>
-                <span class="transaction-meta">${shift.hours} hrs • $${shift.rate}/hr</span>
+                <span class="transaction-date">${shiftDate ? shiftDate.toLocaleDateString() : 'No Date'}</span>
+                <span class="transaction-meta">${hours} hrs • $${rate}/hr</span>
             </div>
-            <span class="transaction-amount" style="color:green;">$${shift.pay.toFixed(2)}</span>
+            <span class="transaction-amount" style="color:green;">$${pay.toFixed(2)}</span>
             <div class="row-actions">
                 <button class="edit-btn" onclick="editShift(${escapeInlineJSString(shift.id)})" title="Edit shift">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -6087,6 +6093,66 @@ function toInputDate(date) {
     const month = String(value.getMonth() + 1).padStart(2, '0');
     const day = String(value.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+}
+
+function parseShiftDate(value) {
+    if (!value) return null;
+    const parsed = new Date(`${String(value).slice(0, 10)}T12:00:00`);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function getCurrentWeekBounds(referenceDate = new Date()) {
+    const start = new Date(referenceDate);
+    start.setHours(0, 0, 0, 0);
+    start.setDate(start.getDate() - start.getDay());
+
+    const end = new Date(start);
+    end.setDate(start.getDate() + 7);
+
+    return { start, end };
+}
+
+function getShiftRetentionCutoff(referenceDate = new Date()) {
+    const cutoff = new Date(referenceDate);
+    cutoff.setHours(0, 0, 0, 0);
+    cutoff.setDate(cutoff.getDate() - SHIFT_RETENTION_DAYS);
+    return cutoff;
+}
+
+function pruneExpiredLocalShifts({ persist = true } = {}) {
+    const cutoff = getShiftRetentionCutoff();
+    const activeShifts = shifts.filter(shift => {
+        const shiftDate = parseShiftDate(shift.date);
+        return !shiftDate || shiftDate >= cutoff;
+    });
+
+    if (activeShifts.length === shifts.length) return false;
+
+    shifts = activeShifts;
+
+    if (persist && !supabaseClient) {
+        saveData();
+    }
+
+    return true;
+}
+
+async function pruneExpiredShiftsFromSupabase() {
+    if (!supabaseClient) return false;
+
+    const pruned = pruneExpiredLocalShifts({ persist: false });
+    if (!pruned) return false;
+
+    const cutoffDate = toInputDate(getShiftRetentionCutoff());
+    const { error } = await supabaseClient.from('shifts').delete().lt('date', cutoffDate);
+
+    if (error) {
+        console.error('Old shift cleanup failed:', error);
+        showToast('Old shifts could not be cleaned up: ' + error.message, 'error');
+        return false;
+    }
+
+    return true;
 }
 
 function getTransactionDate(transaction) {
