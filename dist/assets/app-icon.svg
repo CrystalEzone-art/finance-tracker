@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Tyler's Finance Tracker icon">
+  <defs>
+    <linearGradient id="bg" x1="74" y1="40" x2="438" y2="472" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="0.48" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+    <linearGradient id="card" x1="112" y1="142" x2="400" y2="374" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.98"/>
+      <stop offset="1" stop-color="#dbeafe" stop-opacity="0.92"/>
+    </linearGradient>
+    <filter id="shadow" x="56" y="76" width="400" height="388" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="24" stdDeviation="22" flood-color="#020617" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <circle cx="414" cy="104" r="70" fill="#ffffff" opacity="0.14"/>
+  <circle cx="110" cy="408" r="92" fill="#ffffff" opacity="0.10"/>
+  <g filter="url(#shadow)">
+    <rect x="104" y="148" width="304" height="232" rx="54" fill="url(#card)"/>
+    <rect x="132" y="188" width="248" height="34" rx="17" fill="#0f172a" opacity="0.12"/>
+    <path d="M156 318c34-34 62-32 86-8 24 24 48 26 78-10 19-23 35-49 52-78" fill="none" stroke="#2563eb" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="156" cy="318" r="16" fill="#2563eb"/>
+    <circle cx="372" cy="222" r="16" fill="#22c55e"/>
+    <circle cx="336" cy="322" r="42" fill="#0f172a"/>
+    <path d="M336 296v52M320 310c6-9 26-11 34 0 8 12-2 22-18 24-16 2-26 10-18 21 8 11 30 9 38-2" fill="none" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
+  </g>
+</svg>
