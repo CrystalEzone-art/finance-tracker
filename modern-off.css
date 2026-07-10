@@ -3615,11 +3615,11 @@ button:hover {
 }
 
 #transactionHistoryCard > div:first-child button {
-    width: 44px !important;
-    min-width: 44px !important;
+    width: auto !important;
+    min-width: 58px !important;
     height: 34px !important;
     min-height: 34px !important;
-    padding: 0 !important;
+    padding: 0 12px !important;
     font-size: 11px !important;
     border-radius: 10px !important;
 }
@@ -7185,6 +7185,350 @@ body.setup-open {
         margin-top: 8px !important;
         margin-bottom: 8px !important;
         padding: 10px !important;
+    }
+
+    #transactionHistoryCard > div:first-child button {
+        width: auto !important;
+        min-width: 58px !important;
+        padding: 0 12px !important;
+        white-space: nowrap !important;
+    }
+}
+
+/* Match mobile colors to the desktop theme after compact spacing overrides. */
+@media (max-width: 768px) {
+    html,
+    body {
+        background:
+            radial-gradient(circle at 8% -10%, rgba(96, 165, 250, 0.28), transparent 34rem),
+            radial-gradient(circle at 92% 0%, rgba(74, 222, 128, 0.18), transparent 28rem),
+            linear-gradient(180deg, #fbfdff 0%, var(--app-bg) 38%, var(--app-bg-2) 100%) !important;
+    }
+
+    .income-btn,
+    .settings-actions .income-btn,
+    #shiftSubmitButton,
+    #subscriptionSubmitButton,
+    .dashboard-row.two-column-row > .form button[onclick="addTransaction()"] {
+        border-color: transparent !important;
+        background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+        color: #ffffff !important;
+        box-shadow: 0 10px 24px rgba(37, 99, 235, 0.20) !important;
+    }
+
+    .expense-btn,
+    .settings-actions .expense-btn,
+    #savingsCard .expense-btn {
+        border-color: transparent !important;
+        background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+        color: #ffffff !important;
+        box-shadow: 0 10px 24px rgba(220, 38, 38, 0.18) !important;
+    }
+
+    .secondary-btn,
+    .settings-actions .secondary-btn,
+    .shift-calendar-header .secondary-btn {
+        border: 1px solid var(--control-line, rgba(148, 163, 184, 0.24)) !important;
+        background: var(--control-surface, #eef2f7) !important;
+        color: #334155 !important;
+        box-shadow: var(--control-shadow, none) !important;
+    }
+
+    .cards {
+        gap: 12px !important;
+    }
+
+    .card {
+        min-height: 102px !important;
+        border: 1px solid rgba(255, 255, 255, 0.38) !important;
+        box-shadow: var(--app-shadow-sm) !important;
+        overflow: hidden !important;
+        isolation: isolate !important;
+    }
+
+    .balance-card {
+        background: linear-gradient(135deg, #2563eb, #60a5fa) !important;
+    }
+
+    .income-card {
+        background: linear-gradient(135deg, #16a34a, #4ade80) !important;
+    }
+
+    .expense-card {
+        background: linear-gradient(135deg, #ef4444, #fb7185) !important;
+    }
+
+    .savings-card,
+    .goal-card {
+        background: linear-gradient(135deg, #0f766e, #14b8a6) !important;
+    }
+
+    .card h2 {
+        color: rgba(255, 255, 255, 0.88) !important;
+    }
+
+    .card h3,
+    .card .stat-value,
+    .cards .stat-value,
+    .stat-value {
+        color: #ffffff !important;
+    }
+
+    .insight-card,
+    .mini-card {
+        border: 1px solid var(--app-line) !important;
+        background: rgba(255, 255, 255, 0.82) !important;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.045) !important;
+    }
+
+    .insight-value {
+        color: var(--app-ink) !important;
+    }
+
+    .shift-calendar-day.has-events {
+        background: color-mix(in srgb, var(--app-primary, #2563eb) 12%, #ffffff) !important;
+    }
+
+    .shift-calendar-times b,
+    #transactionAmountField::before {
+        background: color-mix(in srgb, var(--app-primary, #2563eb) 12%, white) !important;
+        color: var(--app-primary, #2563eb) !important;
+    }
+}
+
+/* Absolute final fix for the Add Transaction amount marker on mobile. */
+/* Match mobile boxes to the desktop card/panel treatment. */
+@media (max-width: 768px) {
+    .form,
+    .transactions,
+    .insight-card,
+    .mini-card,
+    .shift-calendar-wrapper,
+    .shift-calendar-details,
+    #hoursTrackerCard .hours-week-card,
+    #hoursTrackerCard .hours-paycheck-card,
+    #hoursTrackerCard #paydayCountdown,
+    #hoursTrackerCard #paycheckBreakdown .paycheck-row,
+    #subscriptionsCard #nextBillCard {
+        border: 1px solid var(--app-line, rgba(148, 163, 184, 0.22)) !important;
+        border-radius: var(--app-radius-md, 16px) !important;
+        background: rgba(255, 255, 255, 0.82) !important;
+        box-shadow:
+            0 8px 24px rgba(15, 23, 42, 0.045),
+            inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
+        backdrop-filter: blur(16px) !important;
+    }
+
+    .form,
+    .transactions {
+        box-shadow:
+            0 18px 44px rgba(15, 23, 42, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.72) !important;
+    }
+
+    .transaction-card,
+    .subscription-item,
+    .job-row,
+    .subscription-row,
+    .budget-row {
+        border: 1px solid rgba(148, 163, 184, 0.24) !important;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94)) !important;
+        box-shadow:
+            0 10px 24px rgba(15, 23, 42, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.82) !important;
+    }
+
+    .transaction-filters,
+    #transactionHistoryCard .transaction-filters {
+        border: 1px solid rgba(148, 163, 184, 0.20) !important;
+        background:
+            linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(241, 245, 249, 0.92)) !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.76) !important;
+    }
+
+    input,
+    select,
+    textarea,
+    .category-picker-button,
+    .universal-select-button {
+        border: 1px solid rgba(148, 163, 184, 0.24) !important;
+        background: rgba(255, 255, 255, 0.92) !important;
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.86),
+            0 1px 2px rgba(15, 23, 42, 0.03) !important;
+    }
+
+    .card {
+        border: 1px solid rgba(255, 255, 255, 0.38) !important;
+        box-shadow: var(--app-shadow-sm, 0 10px 28px rgba(15, 23, 42, 0.06)) !important;
+    }
+}
+
+/* Desktop-style inner boxes for transaction history and subscriptions. */
+#transactionHistoryCard #transactionList .transaction-history-card,
+#subscriptionsCard #subscriptionCalendar .subscription-item,
+#subscriptionsCard #subscriptionCalendar .subscription-row {
+    position: relative !important;
+    isolation: isolate !important;
+    overflow: hidden !important;
+    margin-bottom: 10px !important;
+    border: 2px solid rgba(100, 116, 139, 0.22) !important;
+    border-radius: 16px !important;
+    background:
+        radial-gradient(circle at 96% 0%, rgba(255, 255, 255, 0.98), transparent 6rem),
+        linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+    box-shadow:
+        0 16px 36px rgba(15, 23, 42, 0.14),
+        0 3px 8px rgba(15, 23, 42, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+}
+
+#transactionHistoryCard #transactionList .transaction-history-card::before,
+#subscriptionsCard #subscriptionCalendar .subscription-item::before,
+#subscriptionsCard #subscriptionCalendar .subscription-row::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 auto 0 0 !important;
+    width: 7px !important;
+    background: var(--app-primary, #2563eb) !important;
+    opacity: 1 !important;
+}
+
+#transactionHistoryCard #transactionList .transaction-history-card.income-transaction::before {
+    background: #16a34a !important;
+}
+
+#transactionHistoryCard #transactionList .transaction-history-card.expense-transaction::before {
+    background: #ef4444 !important;
+}
+
+#subscriptionsCard #subscriptionCalendar .subscription-item::before,
+#subscriptionsCard #subscriptionCalendar .subscription-row::before {
+    background: #7c3aed !important;
+}
+
+#transactionHistoryCard #transactionList .transaction-history-card:hover,
+#subscriptionsCard #subscriptionCalendar .subscription-item:hover,
+#subscriptionsCard #subscriptionCalendar .subscription-row:hover {
+    transform: translateY(-1px) !important;
+    border-color: rgba(37, 99, 235, 0.34) !important;
+    background: #ffffff !important;
+    box-shadow:
+        0 20px 42px rgba(15, 23, 42, 0.17),
+        0 4px 10px rgba(15, 23, 42, 0.07),
+        inset 0 1px 0 rgba(255, 255, 255, 0.92) !important;
+}
+
+#transactionHistoryCard #transactionList .transaction-history-card {
+    padding-left: 18px !important;
+}
+
+#subscriptionsCard #subscriptionCalendar .subscription-item,
+#subscriptionsCard #subscriptionCalendar .subscription-row {
+    padding-left: 18px !important;
+}
+
+@media (max-width: 768px) {
+    #transactionHistoryCard #transactionList .transaction-history-card,
+    #subscriptionsCard #subscriptionCalendar .subscription-item,
+    #subscriptionsCard #subscriptionCalendar .subscription-row {
+        margin-bottom: 9px !important;
+        border-width: 2px !important;
+        border-radius: 15px !important;
+        border-color: rgba(100, 116, 139, 0.24) !important;
+        background:
+            radial-gradient(circle at 96% 0%, rgba(255, 255, 255, 0.98), transparent 5rem),
+            linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+        box-shadow:
+            0 14px 30px rgba(15, 23, 42, 0.16),
+            0 3px 8px rgba(15, 23, 42, 0.07),
+            inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+    }
+
+    #transactionHistoryCard #transactionList .transaction-history-card::before,
+    #subscriptionsCard #subscriptionCalendar .subscription-item::before,
+    #subscriptionsCard #subscriptionCalendar .subscription-row::before {
+        width: 7px !important;
+    }
+}
+
+/* Absolute final fix for the Add Transaction amount marker on mobile. */
+/* Final mobile Hours Tracker form fix: prevent iOS time inputs from overflowing. */
+@media (max-width: 768px) {
+    #hoursTrackerCard {
+        overflow: hidden !important;
+    }
+
+    #hoursTrackerCard .hours-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+        align-items: end !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    #hoursTrackerCard .hours-grid > * {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    #shiftDate {
+        grid-column: 1 / -1 !important;
+    }
+
+    #hoursTrackerCard .time-field {
+        display: grid !important;
+        grid-column: span 1 !important;
+        gap: 4px !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    #hoursTrackerCard .time-field span {
+        min-width: 0 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+
+    #hoursTrackerCard .time-field input,
+    #hoursTrackerCard .hours-grid input,
+    #hoursTrackerCard .hours-grid button,
+    #hoursTrackerCard .hours-grid .input-with-dollar {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        margin-top: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    #hoursTrackerCard input[type="time"] {
+        min-inline-size: 0 !important;
+        -webkit-appearance: none !important;
+        appearance: none !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    #hoursInput {
+        grid-column: 1 / -1 !important;
+    }
+
+    #hoursTrackerCard .hours-grid .input-with-dollar {
+        grid-column: span 1 !important;
+    }
+
+    #shiftSubmitButton {
+        grid-column: span 1 !important;
+    }
+
+    #cancelShiftEditButton {
+        grid-column: 1 / -1 !important;
     }
 }
 

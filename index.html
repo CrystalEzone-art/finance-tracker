@@ -1919,7 +1919,7 @@
 
 
     </style>
-    <link rel="stylesheet" href="modern-off.css?v=1.7.18">
+    <link rel="stylesheet" href="modern-off.css?v=1.7.28">
     <script>
         function readStorageJSON(key, fallback) {
             try {
@@ -6894,7 +6894,7 @@ function renderTransactions(options = {}) {
 
     visible.forEach((t, index) => {
         const item = document.createElement('li');
-        item.className = 'transaction-card transaction-history-card';
+        item.className = `transaction-card transaction-history-card ${t.type === 'income' ? 'income-transaction' : 'expense-transaction'}`;
         item.style.animation = shouldAnimate ? 'transactionFadeIn 0.32s ease both' : 'none';
         item.style.animationDelay = shouldAnimate ? `${Math.min(index * 25, 180)}ms` : '';
 
