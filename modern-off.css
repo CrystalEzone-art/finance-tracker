@@ -357,7 +357,6 @@ button:focus-visible,
 
 #transactionList,
 #savingsList,
-#shiftListWrapper,
 #subscriptionCalendarWrapper {
     scrollbar-width: thin;
     scrollbar-color: rgba(100, 116, 139, 0.42) transparent;
@@ -535,7 +534,6 @@ button:focus-visible,
     grid-template-columns: 1fr 0.8fr 0.8fr auto !important;
 }
 
-#shiftSummary,
 #nextBillCard,
 #paydayCountdown,
 #calendarDayDetails {
@@ -1345,7 +1343,6 @@ button:disabled {
 
 #transactionList,
 #subscriptionCalendar,
-#shiftListWrapper,
 #savingsList {
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
@@ -1539,27 +1536,23 @@ li {
 
 #calendarDayDetails,
 #nextBillCard,
-#paydayCountdown,
-#shiftSummary {
+#paydayCountdown {
   background: var(--surface-soft) !important;
   border: 1px solid var(--line) !important;
   border-radius: var(--radius-md) !important;
 }
 
-#savedJobsPanel,
 #editTransactionPanel {
   backdrop-filter: blur(8px);
   background: rgba(15, 23, 42, 0.28) !important;
 }
 
-#savedJobsPanelContent,
 #editTransactionPanelContent {
   border-radius: 22px !important;
   border: 1px solid var(--line) !important;
   box-shadow: var(--shadow-lg) !important;
 }
 
-#savedJobsPanelContent h2,
 #editTransactionPanelContent h2 {
   color: var(--text) !important;
 }
@@ -1905,7 +1898,6 @@ li {
   }
 
   #transactionList,
-  #shiftListWrapper,
   #subscriptionCalendarWrapper,
   #savingsList {
     max-height: none !important;
@@ -1913,7 +1905,6 @@ li {
     padding-right: 0 !important;
   }
 
-  #savedJobsPanelContent,
   #editTransactionPanelContent {
     width: calc(100vw - 20px) !important;
     max-width: none !important;
@@ -1923,7 +1914,6 @@ li {
     border-radius: 18px !important;
   }
 
-  #savedJobsPanelContent h2,
   #editTransactionPanelContent h2 {
     font-size: 22px !important;
   }
@@ -2245,7 +2235,6 @@ li {
     }
 
     #transactionList,
-    #shiftListWrapper,
     #subscriptionCalendarWrapper,
     #savingsList {
         padding-right: 0 !important;
@@ -2256,8 +2245,7 @@ li {
 
     #calendarDayDetails,
     #nextBillCard,
-    #paydayCountdown,
-    #shiftSummary {
+    #paydayCountdown {
         padding: 9px !important;
     }
 }
@@ -2710,8 +2698,7 @@ li {
 
     #calendarDayDetails,
     #nextBillCard,
-    #paydayCountdown,
-    #shiftSummary {
+    #paydayCountdown {
         padding: 7px !important;
         font-size: 11px !important;
         line-height: 1.2 !important;
@@ -3485,8 +3472,7 @@ button,
     padding: 8px 10px !important;
 }
 
-#hoursTrackerCard .hours-week-card [style*="font-size:24px"],
-#hoursTrackerCard #hoursWorked {
+#hoursTrackerCard .hours-week-card [style*="font-size:24px"] {
     font-size: 19px !important;
     line-height: 1.05 !important;
 }
@@ -3543,30 +3529,6 @@ button,
     font-size: 15px !important;
 }
 
-#hoursTrackerCard .hours-career-row {
-    margin: 8px 0 !important;
-}
-
-#hoursTrackerCard #shiftSummary {
-    padding: 9px 11px !important;
-    border-radius: 11px !important;
-}
-
-#hoursTrackerCard .hours-career-row > button {
-    height: 40px !important;
-    min-height: 40px !important;
-    padding: 0 12px !important;
-}
-
-#hoursTrackerCard #shiftListWrapper {
-    max-height: 170px !important;
-}
-
-#hoursTrackerCard #shiftList .transaction-card {
-    padding: 9px 10px !important;
-    margin-bottom: 7px !important;
-}
-
 @media (max-width: 768px) {
     #hoursTrackerCard {
         padding: 12px !important;
@@ -3576,9 +3538,6 @@ button,
         grid-template-columns: 1fr !important;
     }
 
-    #hoursTrackerCard #shiftListWrapper {
-        max-height: 160px !important;
-    }
 }
 
 /* Dashboard polish pass */
@@ -3818,7 +3777,6 @@ button:hover {
 
 #hoursTrackerCard .hours-week-card,
 #hoursTrackerCard .hours-paycheck-card,
-#hoursTrackerCard #shiftSummary,
 #hoursTrackerCard #paydayCountdown,
 #hoursTrackerCard #paycheckBreakdown .paycheck-row {
     border-color: var(--finish-line) !important;
@@ -3842,21 +3800,7 @@ button:hover {
     grid-template-columns: minmax(0, 1fr) auto !important;
 }
 
-#hoursTrackerCard .hours-career-row {
-    gap: 7px !important;
-    margin: 7px 0 0 !important;
-}
-
-#hoursTrackerCard #shiftSummary {
-    min-height: 38px !important;
-}
-
-#hoursTrackerCard #shiftListWrapper {
-    margin-top: 7px !important;
-}
-
 #savingsCard .savings-row,
-#shiftList .transaction-card,
 .subscription-item {
     box-shadow: none !important;
 }
@@ -4145,7 +4089,6 @@ button:hover {
     #transactionHistoryCard #transactionList,
     #transactionList,
     #savingsList,
-    #shiftListWrapper,
     #subscriptionCalendar {
         max-height: 320px !important;
         overflow-y: auto !important;
@@ -4250,14 +4193,12 @@ button:hover {
         width: 100% !important;
     }
 
-    #savedJobsPanel,
     #editTransactionPanel {
         padding: 10px !important;
         align-items: stretch !important;
         justify-content: stretch !important;
     }
 
-    #savedJobsPanelContent,
     #editTransactionPanelContent,
     .modal-panel {
         width: 100% !important;
@@ -4338,8 +4279,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     }
 
     .hours-grid input[type="date"],
-    .subscription-form-grid input[type="date"],
-    #savedJobsPanel input[type="date"] {
+    .subscription-form-grid input[type="date"] {
         width: 100% !important;
         max-width: 100% !important;
         height: 44px !important;
@@ -4492,95 +4432,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
         line-height: 1.1 !important;
     }
 
-    #hoursTrackerCard .hours-career-row {
-        display: grid !important;
-        grid-template-columns: minmax(0, 1fr) auto !important;
-        gap: 6px !important;
-        margin: 6px 0 !important;
-    }
-
-    #hoursTrackerCard #shiftSummary {
-        min-height: 40px !important;
-        padding: 7px 9px !important;
-        border-radius: 10px !important;
-    }
-
-    #hoursTrackerCard #shiftSummary span:first-child {
-        font-size: 12px !important;
-    }
-
-    #hoursTrackerCard #hoursWorked {
-        font-size: 18px !important;
-        line-height: 1 !important;
-    }
-
-    #hoursTrackerCard .hours-career-row > button {
-        width: auto !important;
-        min-width: 60px !important;
-        height: 40px !important;
-        min-height: 40px !important;
-        padding: 0 10px !important;
-        font-size: 13px !important;
-    }
-
-    #hoursTrackerCard #shiftListWrapper {
-        max-height: 132px !important;
-        margin-top: 4px !important;
-        padding-right: 0 !important;
-    }
-
-    #hoursTrackerCard #shiftList .transaction-card {
-        display: grid !important;
-        grid-template-columns: minmax(0, 1fr) auto auto !important;
-        align-items: center !important;
-        gap: 8px !important;
-        margin-bottom: 5px !important;
-        padding: 8px !important;
-        border-radius: 10px !important;
-    }
-
-    #hoursTrackerCard #shiftList .transaction-card-content {
-        gap: 2px !important;
-        min-width: 0 !important;
-    }
-
-    #hoursTrackerCard #shiftList .transaction-card-content strong {
-        font-size: 13px !important;
-        line-height: 1.15 !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
-    }
-
-    #hoursTrackerCard #shiftList .transaction-date,
-    #hoursTrackerCard #shiftList .transaction-meta {
-        font-size: 10px !important;
-        line-height: 1.15 !important;
-    }
-
-    #hoursTrackerCard #shiftList .transaction-amount {
-        align-self: center !important;
-        font-size: 14px !important;
-        line-height: 1.1 !important;
-        white-space: nowrap !important;
-    }
-
-    #hoursTrackerCard #shiftList .row-actions {
-        display: flex !important;
-        flex-direction: row !important;
-        gap: 4px !important;
-        justify-content: flex-end !important;
-        align-items: center !important;
-    }
-
-    #hoursTrackerCard #shiftList .edit-btn,
-    #hoursTrackerCard #shiftList .delete-btn {
-        width: 28px !important;
-        min-width: 28px !important;
-        height: 28px !important;
-        min-height: 28px !important;
-        border-radius: 8px !important;
-    }
 }
 
 @media (max-width: 380px) {
@@ -5506,10 +5357,6 @@ button,
         line-height: 40px !important;
     }
 
-    #savedJobsPanel input[type="date"] {
-        line-height: 44px !important;
-    }
-
     input[type="date"]::-webkit-date-and-time-value {
         display: flex !important;
         align-items: center !important;
@@ -5978,6 +5825,1366 @@ button,
         background: transparent !important;
         box-shadow: none !important;
         backdrop-filter: none !important;
+    }
+}
+
+/* App polish: setup flow and richer blank states. */
+body.setup-open {
+    overflow: hidden !important;
+}
+
+.setup-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 2147483100 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 24px !important;
+    background: rgba(15, 23, 42, 0.42) !important;
+    backdrop-filter: blur(18px) saturate(145%) !important;
+}
+
+.setup-sheet {
+    width: min(680px, 100%) !important;
+    max-height: min(760px, calc(100vh - 48px)) !important;
+    overflow: auto !important;
+    border-radius: 28px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    border: 1px solid rgba(255, 255, 255, 0.72) !important;
+    box-shadow: 0 28px 80px rgba(15, 23, 42, 0.28) !important;
+}
+
+.setup-hero {
+    display: flex !important;
+    gap: 16px !important;
+    align-items: flex-start !important;
+    padding: 24px 24px 16px !important;
+}
+
+.setup-icon {
+    display: grid !important;
+    place-items: center !important;
+    width: 54px !important;
+    height: 54px !important;
+    flex: 0 0 54px !important;
+    border-radius: 18px !important;
+    background: #111827 !important;
+    color: white !important;
+    font-size: 25px !important;
+}
+
+.setup-kicker {
+    margin: 0 0 4px !important;
+    color: #6b7280 !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0 !important;
+    text-transform: uppercase !important;
+}
+
+.setup-hero h2 {
+    margin: 0 !important;
+    color: #111827 !important;
+    font-size: 30px !important;
+    line-height: 1.05 !important;
+    letter-spacing: 0 !important;
+}
+
+.setup-hero p:last-child {
+    margin: 8px 0 0 !important;
+    color: #64748b !important;
+    line-height: 1.45 !important;
+}
+
+.setup-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    padding: 0 24px 14px !important;
+}
+
+.setup-field {
+    display: grid !important;
+    gap: 7px !important;
+    padding: 12px !important;
+    border-radius: 18px !important;
+    background: #f2f2f7 !important;
+}
+
+.setup-field span {
+    color: #6b7280 !important;
+    font-size: 12px !important;
+    font-weight: 760 !important;
+}
+
+.setup-field input,
+.setup-field select {
+    width: 100% !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 14px !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06) !important;
+}
+
+.setup-preview {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    padding: 0 24px 18px !important;
+}
+
+.setup-preview > div {
+    padding: 14px !important;
+    border-radius: 18px !important;
+    background: rgba(17, 24, 39, 0.04) !important;
+}
+
+.setup-preview strong,
+.setup-preview span {
+    display: block !important;
+}
+
+.setup-preview strong {
+    color: #111827 !important;
+    font-size: 14px !important;
+}
+
+.setup-preview span {
+    margin-top: 5px !important;
+    color: #64748b !important;
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+}
+
+.setup-actions {
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 10px !important;
+    padding: 16px 24px 24px !important;
+    border-top: 1px solid rgba(15, 23, 42, 0.07) !important;
+}
+
+.setup-actions button {
+    width: auto !important;
+    min-width: 132px !important;
+    height: 46px !important;
+    margin: 0 !important;
+    border-radius: 15px !important;
+}
+
+.empty-state-polished {
+    display: grid !important;
+    justify-items: center !important;
+    gap: 7px !important;
+    padding: 22px 16px !important;
+    border: 1px solid rgba(148, 163, 184, 0.24) !important;
+    border-radius: 18px !important;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.92)) !important;
+    color: #64748b !important;
+    text-align: center !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.62) !important;
+}
+
+.empty-state-polished .empty-state-icon {
+    display: grid !important;
+    place-items: center !important;
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 14px !important;
+    background: #eef2ff !important;
+    font-size: 22px !important;
+}
+
+.empty-state-polished strong {
+    color: #111827 !important;
+    font-size: 15px !important;
+    font-weight: 780 !important;
+}
+
+.empty-state-polished span:last-child {
+    max-width: 34ch !important;
+    color: #64748b !important;
+    font-size: 13px !important;
+    font-weight: 560 !important;
+    line-height: 1.35 !important;
+}
+
+/* Hours Tracker time entry. */
+#hoursTrackerCard .hours-grid {
+    grid-template-columns: minmax(130px, 1fr) minmax(104px, 0.8fr) minmax(104px, 0.8fr) minmax(118px, 0.8fr) minmax(130px, 0.85fr) auto auto !important;
+}
+
+#hoursTrackerCard .time-field {
+    display: grid !important;
+    gap: 5px !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+}
+
+#hoursTrackerCard .time-field span {
+    color: #64748b !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+}
+
+#hoursTrackerCard .time-field input {
+    width: 100% !important;
+}
+
+#hoursInput[readonly] {
+    color: #111827 !important;
+    font-weight: 760 !important;
+    background: #f8fafc !important;
+}
+
+/* Hours Tracker shift calendar. */
+.shift-calendar-wrapper {
+    margin: 7px 0 !important;
+    padding: 9px !important;
+    border-radius: 16px !important;
+    background: rgba(255, 255, 255, 0.94) !important;
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.06) !important;
+}
+
+.shift-calendar-header {
+    display: grid !important;
+    grid-template-columns: 36px minmax(0, 1fr) 36px !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin-bottom: 6px !important;
+}
+
+.shift-calendar-header h3 {
+    margin: 0 !important;
+    color: #111827 !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+}
+
+.shift-calendar-header button {
+    width: 36px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    margin-top: 0 !important;
+    padding: 0 !important;
+}
+
+.shift-calendar {
+    display: grid !important;
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+}
+
+.shift-calendar-weekday {
+    min-height: 22px !important;
+    padding: 3px 2px !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: #64748b !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+}
+
+.shift-calendar-day {
+    display: grid !important;
+    align-content: start !important;
+    gap: 2px !important;
+    min-height: 52px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 5px 4px !important;
+    border: 0 !important;
+    border-radius: 13px !important;
+    background: #f2f2f7 !important;
+    color: #111827 !important;
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.045) !important;
+    text-align: left !important;
+}
+
+.shift-calendar-day.today {
+    box-shadow: inset 0 0 0 2px var(--app-primary, #2563eb) !important;
+}
+
+.shift-calendar-day.has-events {
+    background: color-mix(in srgb, var(--app-primary, #2563eb) 10%, #ffffff) !important;
+}
+
+.shift-calendar-times {
+    display: grid !important;
+    gap: 1px !important;
+    min-width: 0 !important;
+}
+
+.shift-calendar-times b,
+.shift-calendar-more,
+.shift-calendar-hours,
+.shift-calendar-pay {
+    display: block !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    line-height: 1.05 !important;
+}
+
+.shift-calendar-times b {
+    width: 100% !important;
+    padding: 1px 3px !important;
+    border-radius: 6px !important;
+    background: rgba(37, 99, 235, 0.10) !important;
+    color: #1d4ed8 !important;
+}
+
+.shift-calendar-more {
+    color: #64748b !important;
+    font-size: 9px !important;
+}
+
+.shift-calendar-hours {
+    color: var(--app-primary, #2563eb) !important;
+}
+
+.shift-calendar-pay {
+    color: #16a34a !important;
+}
+
+.shift-calendar-details {
+    display: grid !important;
+    gap: 5px !important;
+    margin-top: 7px !important;
+    padding: 9px 10px !important;
+    border-radius: 13px !important;
+    background: #f2f2f7 !important;
+    color: #64748b !important;
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.045) !important;
+}
+
+.shift-calendar-details > strong {
+    color: #111827 !important;
+}
+
+.shift-calendar-detail-list {
+    display: grid !important;
+    gap: 5px !important;
+}
+
+.shift-calendar-detail-card {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 8px !important;
+    border-radius: 12px !important;
+}
+
+.shift-calendar-detail-main {
+    display: grid !important;
+    gap: 2px !important;
+    min-width: 0 !important;
+}
+
+.shift-calendar-detail-main strong,
+.shift-calendar-detail-main span {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.shift-calendar-detail-main span {
+    color: #64748b !important;
+    font-size: 12px !important;
+}
+
+.shift-calendar-detail-main b {
+    color: #16a34a !important;
+}
+
+.shift-calendar-detail-actions {
+    display: flex !important;
+    gap: 5px !important;
+}
+
+.shift-calendar-detail-actions .edit-btn,
+.shift-calendar-detail-actions .delete-btn {
+    width: 32px !important;
+    min-width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    margin: 0 !important;
+}
+
+/* App polish: consistent iOS-style mobile layout. */
+@media (max-width: 768px) {
+    html,
+    body {
+        background: #f2f2f7 !important;
+    }
+
+    body {
+        padding: 0 !important;
+        color: #111827 !important;
+    }
+
+    .container {
+        width: 100% !important;
+        max-width: none !important;
+        padding: calc(12px + env(safe-area-inset-top)) 12px calc(24px + env(safe-area-inset-bottom)) !important;
+    }
+
+    .app-header {
+        display: grid !important;
+        gap: 5px !important;
+        padding: 12px 4px 10px !important;
+        text-align: left !important;
+    }
+
+    .app-header h1 {
+        margin: 0 !important;
+        font-size: 30px !important;
+        line-height: 1.05 !important;
+        letter-spacing: 0 !important;
+    }
+
+    .app-header p {
+        margin: 0 !important;
+        color: #6b7280 !important;
+        font-size: 14px !important;
+    }
+
+    .settings-button {
+        position: fixed !important;
+        top: calc(10px + env(safe-area-inset-top)) !important;
+        right: 12px !important;
+        z-index: 1200 !important;
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        overflow: hidden !important;
+        color: transparent !important;
+        background: rgba(255, 255, 255, 0.86) !important;
+        box-shadow: 0 8px 22px rgba(15, 23, 42, 0.12), inset 0 0 0 1px rgba(15, 23, 42, 0.06) !important;
+        backdrop-filter: blur(16px) !important;
+    }
+
+    .settings-button::before {
+        content: "⚙" !important;
+        position: absolute !important;
+        inset: 0 !important;
+        display: grid !important;
+        place-items: center !important;
+        color: #111827 !important;
+        font-size: 18px !important;
+        line-height: 1 !important;
+    }
+
+    .cards,
+    .insight-strip,
+    .dashboard-row,
+    .dashboard-row.two-column-row,
+    .dashboard-row[style*="grid-template-columns"] {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .card,
+    .form,
+    .transactions,
+    .insight-card,
+    .mini-card {
+        border: 0 !important;
+        border-radius: 18px !important;
+        background: rgba(255, 255, 255, 0.94) !important;
+        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.045), 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    }
+
+    .card {
+        min-height: 102px !important;
+        padding: 15px !important;
+    }
+
+    .card h2,
+    .transactions h2,
+    .form h2 {
+        letter-spacing: 0 !important;
+    }
+
+    .card h2 {
+        font-size: 12px !important;
+        color: #6b7280 !important;
+    }
+
+    .card h3,
+    .stat-value {
+        font-size: clamp(20px, 7vw, 30px) !important;
+        line-height: 1.05 !important;
+        color: #111827 !important;
+    }
+
+    .form,
+    .transactions {
+        padding: 14px !important;
+    }
+
+    .form h2,
+    .transactions h2 {
+        margin: 0 0 11px !important;
+        color: #111827 !important;
+        font-size: 19px !important;
+        line-height: 1.15 !important;
+        font-weight: 800 !important;
+    }
+
+    input,
+    select,
+    button,
+    .category-picker-button,
+    .universal-select-button {
+        min-height: 44px !important;
+        border-radius: 13px !important;
+        font-size: 16px !important;
+    }
+
+    input,
+    select,
+    textarea,
+    .category-picker-button,
+    .universal-select-button {
+        border: 0 !important;
+        background: #f2f2f7 !important;
+        color: #111827 !important;
+        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.05) !important;
+    }
+
+    button,
+    .income-btn,
+    .expense-btn,
+    .secondary-btn {
+        font-weight: 760 !important;
+        box-shadow: none !important;
+    }
+
+    .income-btn {
+        background: #111827 !important;
+        color: #ffffff !important;
+    }
+
+    .secondary-btn {
+        background: #ffffff !important;
+        color: #111827 !important;
+        border-color: rgba(15, 23, 42, 0.08) !important;
+    }
+
+    .expense-btn {
+        background: #ff3b30 !important;
+        color: #ffffff !important;
+    }
+
+    .transaction-card,
+    .subscription-item,
+    .job-row,
+    .subscription-row,
+    .budget-row {
+        border: 0 !important;
+        border-radius: 16px !important;
+        background: #ffffff !important;
+        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.045) !important;
+    }
+
+    .transaction-filters {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 7px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .transaction-filters > :first-child {
+        grid-column: 1 / -1 !important;
+    }
+
+    #transactionList,
+    #savingsList,
+    #subscriptionCalendar {
+        padding-right: 0 !important;
+    }
+
+    .setup-overlay {
+        align-items: flex-end !important;
+        padding: 10px !important;
+    }
+
+    .setup-sheet {
+        width: 100% !important;
+        max-height: calc(100vh - 20px - env(safe-area-inset-top)) !important;
+        border-radius: 26px !important;
+    }
+
+    .setup-hero {
+        padding: 20px 18px 14px !important;
+    }
+
+    .setup-hero h2 {
+        font-size: 27px !important;
+    }
+
+    .setup-grid,
+    .setup-preview {
+        grid-template-columns: 1fr !important;
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+    }
+
+    .setup-actions {
+        padding: 14px 18px calc(18px + env(safe-area-inset-bottom)) !important;
+    }
+
+    .setup-actions button {
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+}
+
+/* Keep Add Transaction and Savings Vault visually even on wider screens. */
+@media (min-width: 769px) {
+    .dashboard-row.two-column-row {
+        align-items: stretch !important;
+    }
+
+    .dashboard-row.two-column-row > .form,
+    .dashboard-row.two-column-row > #savingsCard {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+        min-height: 330px !important;
+    }
+
+    .dashboard-row.two-column-row > .form button[onclick="addTransaction()"] {
+        margin-top: auto !important;
+    }
+
+    #savingsCard .savings-activity {
+        display: flex !important;
+        flex: 1 1 auto !important;
+        flex-direction: column !important;
+        min-height: 0 !important;
+    }
+
+    #savingsCard #savingsList {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+    }
+}
+
+/* Hours Tracker job chooser and Settings job manager. */
+#settingsPageJobs #savedJobsList {
+    margin-bottom: 14px !important;
+}
+
+#settingsPageJobs .job-settings-grid {
+    margin-top: 14px !important;
+}
+
+#settingsPageJobs .input-with-dollar {
+    margin-top: 0 !important;
+}
+
+#settingsPageJobs .input-with-dollar input {
+    margin-top: 0 !important;
+}
+
+#hoursTrackerCard > div > div:first-child {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+#hoursTrackerCard .universal-select-picker[data-select-id="jobSelect"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    flex: 1 1 auto !important;
+}
+
+#hoursTrackerCard .universal-select-picker[data-select-id="jobSelect"] .universal-select-button {
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+@media (max-width: 768px) {
+    #hoursTrackerCard > div > div:first-child {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+
+    #hoursTrackerCard .universal-select-picker[data-select-id="jobSelect"] {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        flex: 1 1 auto !important;
+        grid-column: 1 !important;
+    }
+
+    #hoursTrackerCard .universal-select-picker[data-select-id="jobSelect"] .universal-select-button {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+}
+
+/* Final mobile tidy pass: cleaner spacing, controls, and section rhythm. */
+@media (max-width: 768px) {
+    .container {
+        display: grid !important;
+        gap: 10px !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    .app-header {
+        padding-right: 54px !important;
+    }
+
+    .app-header h1 {
+        max-width: 11ch !important;
+        font-size: 28px !important;
+    }
+
+    .app-header p {
+        max-width: 24ch !important;
+        line-height: 1.35 !important;
+    }
+
+    .cards {
+        gap: 8px !important;
+        margin: 0 !important;
+    }
+
+    .card {
+        min-height: 88px !important;
+        padding: 12px !important;
+        border-radius: 17px !important;
+    }
+
+    .card h2 {
+        font-size: 11px !important;
+        line-height: 1.1 !important;
+    }
+
+    .card h3,
+    .stat-value {
+        font-size: clamp(19px, 6vw, 26px) !important;
+    }
+
+    .insight-strip {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 8px !important;
+        margin: 0 !important;
+    }
+
+    .insight-card {
+        min-height: 70px !important;
+        padding: 10px !important;
+        border-radius: 16px !important;
+    }
+
+    .insight-label {
+        font-size: 10px !important;
+        line-height: 1.1 !important;
+        text-transform: none !important;
+    }
+
+    .insight-value {
+        margin-top: 5px !important;
+        font-size: clamp(13px, 4vw, 17px) !important;
+        line-height: 1.12 !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    .dashboard-row,
+    .dashboard-row.two-column-row,
+    .dashboard-row[style*="grid-template-columns"] {
+        gap: 10px !important;
+        margin: 0 !important;
+    }
+
+    .form,
+    .transactions {
+        padding: 13px !important;
+        border-radius: 18px !important;
+    }
+
+    .form h2,
+    .transactions h2 {
+        margin-bottom: 10px !important;
+        font-size: 18px !important;
+    }
+
+    input,
+    select,
+    button,
+    .category-picker,
+    .category-picker-button,
+    .universal-select-picker,
+    .universal-select-button {
+        min-width: 0 !important;
+        max-width: 100% !important;
+    }
+
+    input,
+    select,
+    button,
+    .category-picker-button,
+    .universal-select-button {
+        height: 44px !important;
+        min-height: 44px !important;
+        margin-top: 7px !important;
+        font-size: 15px !important;
+    }
+
+    #hoursTrackerCard .time-field {
+        gap: 4px !important;
+    }
+
+    #hoursTrackerCard .time-field span {
+        padding-left: 2px !important;
+        font-size: 10px !important;
+    }
+
+    #hoursTrackerCard .time-field input {
+        margin-top: 0 !important;
+    }
+
+    .transaction-select-row,
+    #hoursTrackerCard .hours-grid,
+    #subscriptionsCard .subscription-form-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 7px !important;
+    }
+
+    .transaction-select-row .category-picker,
+    .transaction-select-row .type-picker {
+        width: 100% !important;
+    }
+
+    .category-picker-button,
+    .universal-select-button {
+        margin-top: 0 !important;
+        padding: 0 12px !important;
+        grid-template-columns: 24px minmax(0, 1fr) 12px !important;
+    }
+
+    .category-picker-icon,
+    .category-picker-option-icon,
+    .category-letter-icon {
+        width: 24px !important;
+        height: 24px !important;
+        border-radius: 8px !important;
+    }
+
+    .category-picker-label,
+    .universal-select-label {
+        min-width: 0 !important;
+    }
+
+    .dashboard-row.two-column-row > .form button[onclick="addTransaction()"],
+    #subscriptionSubmitButton,
+    #shiftSubmitButton,
+    #cancelShiftEditButton {
+        width: 100% !important;
+    }
+
+    #savingsCard .savings-actions {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 7px !important;
+    }
+
+    #savingsCard .savings-actions button {
+        width: 100% !important;
+        padding: 0 8px !important;
+        font-size: 13px !important;
+        white-space: normal !important;
+        line-height: 1.15 !important;
+    }
+
+    #savingsCard .savings-activity h3,
+    #subscriptionsCard h3 {
+        margin: 14px 0 8px !important;
+        font-size: 13px !important;
+    }
+
+    #savingsList,
+    #subscriptionCalendarWrapper,
+    #subscriptionCalendar {
+        max-height: none !important;
+        overflow: visible !important;
+        border-top-color: rgba(15, 23, 42, 0.06) !important;
+    }
+
+    .transaction-card,
+    .subscription-item,
+    .job-row,
+    .subscription-row,
+    .budget-row {
+        gap: 8px !important;
+        padding: 12px !important;
+        margin-bottom: 8px !important;
+        border-radius: 15px !important;
+    }
+
+    .transaction-main,
+    .transaction-title-row,
+    .transaction-info-row {
+        min-width: 0 !important;
+    }
+
+    .transaction-title-row strong,
+    .transaction-card-content strong,
+    .subscription-meta strong {
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    .transaction-card .transaction-amount {
+        font-size: 18px !important;
+        line-height: 1.1 !important;
+        white-space: nowrap !important;
+    }
+
+    .transaction-card-actions,
+    .row-actions {
+        gap: 6px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .edit-btn,
+    .delete-btn {
+        width: 36px !important;
+        min-width: 36px !important;
+        height: 36px !important;
+        min-height: 36px !important;
+        border-radius: 12px !important;
+    }
+
+    #hoursTrackerCard > div > div:first-child {
+        gap: 7px !important;
+    }
+
+    #hoursTrackerCard > div > div:first-child > button {
+        height: 44px !important;
+        min-height: 44px !important;
+        padding: 0 11px !important;
+        font-size: 13px !important;
+    }
+
+    #hoursTrackerCard .hours-grid .input-with-dollar,
+    #hoursTrackerCard #shiftSubmitButton,
+    #hoursTrackerCard #cancelShiftEditButton {
+        grid-column: span 1 !important;
+    }
+
+    #hoursTrackerCard .hours-overview {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+        margin: 10px 0 !important;
+    }
+
+    #hoursTrackerCard .hours-week-card,
+    #hoursTrackerCard .hours-paycheck-card,
+    #hoursTrackerCard #paydayCountdown,
+    #hoursTrackerCard #paycheckBreakdown .paycheck-row,
+    #subscriptionsCard #nextBillCard,
+    #calendarDayDetails {
+        border: 0 !important;
+        border-radius: 16px !important;
+        background: #f2f2f7 !important;
+        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.045) !important;
+    }
+
+    .shift-calendar-wrapper {
+        margin: 6px 0 !important;
+        padding: 7px !important;
+        border-radius: 14px !important;
+    }
+
+    .shift-calendar-header {
+        grid-template-columns: 32px minmax(0, 1fr) 32px !important;
+        gap: 4px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .shift-calendar-header h3 {
+        font-size: 14px !important;
+    }
+
+    .shift-calendar-header button {
+        width: 32px !important;
+        height: 32px !important;
+        min-height: 32px !important;
+    }
+
+    .shift-calendar {
+        gap: 3px !important;
+    }
+
+    .shift-calendar-day {
+        min-height: 46px !important;
+        padding: 4px 3px !important;
+        border-radius: 10px !important;
+    }
+
+    .shift-calendar-times b,
+    .shift-calendar-more,
+    .shift-calendar-hours,
+    .shift-calendar-pay {
+        font-size: 9px !important;
+    }
+
+    .shift-calendar-times b {
+        padding: 1px 2px !important;
+        border-radius: 5px !important;
+    }
+
+    .shift-calendar-details {
+        margin-top: 6px !important;
+        padding: 8px !important;
+        border-radius: 12px !important;
+    }
+
+    .shift-calendar-detail-card {
+        padding: 7px !important;
+        border-radius: 11px !important;
+    }
+
+    .shift-calendar-detail-actions .edit-btn,
+    .shift-calendar-detail-actions .delete-btn {
+        width: 30px !important;
+        min-width: 30px !important;
+        height: 30px !important;
+        min-height: 30px !important;
+        border-radius: 10px !important;
+    }
+
+    #subscriptionsCard > div:first-child,
+    #transactionHistoryCard > div:first-child {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto !important;
+        gap: 8px !important;
+    }
+
+    #subscriptionsCard > div:first-child button,
+    #transactionHistoryCard > div:first-child button {
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 0 12px !important;
+        font-size: 13px !important;
+    }
+
+    #subscriptionsCard #cancelSubscriptionEditButton {
+        width: 100% !important;
+        margin-top: 7px !important;
+    }
+
+    #visualCalendar {
+        gap: 4px !important;
+    }
+
+    #visualCalendar .calendar-day,
+    .calendar-day {
+        min-height: 48px !important;
+        padding: 5px !important;
+        border-radius: 12px !important;
+        font-size: 11px !important;
+    }
+
+    .calendar-day-number {
+        font-size: 12px !important;
+    }
+
+    .calendar-sub {
+        max-width: 100% !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        font-size: 9px !important;
+    }
+
+    .empty-state-polished {
+        padding: 18px 12px !important;
+        border-radius: 16px !important;
+    }
+
+    #hoursTrackerCard .shift-calendar-day {
+        min-height: 46px !important;
+    }
+
+    #hoursTrackerCard .shift-calendar-weekday {
+        min-height: 20px !important;
+        padding: 2px !important;
+    }
+}
+
+/* Final dead-space cleanup for desktop and mobile. */
+@media (min-width: 769px) {
+    .container {
+        padding-top: 20px !important;
+        padding-bottom: 34px !important;
+    }
+
+    .dashboard-row,
+    .dashboard-row.two-column-row,
+    .dashboard-row[style*="grid-template-columns"] {
+        gap: 10px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .form,
+    .transactions {
+        padding: 16px !important;
+    }
+
+    .form h2,
+    .transactions h2 {
+        margin-bottom: 9px !important;
+    }
+
+    #transactionHistoryCard {
+        padding: 16px !important;
+    }
+
+    #transactionHistoryCard .transaction-filters {
+        margin: 6px 0 !important;
+        padding: 5px !important;
+    }
+
+    #transactionHistoryCard #transactionList {
+        padding-top: 5px !important;
+        min-height: 390px !important;
+    }
+
+    #transactionHistoryCard .transaction-history-card {
+        min-height: 54px !important;
+        margin-bottom: 5px !important;
+        padding: 8px 10px !important;
+    }
+
+    #hoursTrackerCard {
+        padding: 16px !important;
+    }
+
+    #hoursTrackerCard > div > div:first-child {
+        margin-bottom: 7px !important;
+    }
+
+    #hoursTrackerCard .hours-grid {
+        gap: 6px !important;
+    }
+
+    #hoursTrackerCard .hours-overview {
+        gap: 7px !important;
+        margin: 8px 0 6px !important;
+    }
+
+    #hoursTrackerCard .hours-week-card,
+    #hoursTrackerCard .hours-paycheck-card {
+        padding: 9px !important;
+        border-radius: 14px !important;
+    }
+
+    #hoursTrackerCard #paycheckBreakdown {
+        margin-top: 5px !important;
+    }
+
+    #hoursTrackerCard #paydayCountdown {
+        margin-top: 6px !important;
+        padding: 7px !important;
+    }
+
+    #hoursTrackerCard .hours-paycheck-card > div[style*="border-top"] {
+        margin-top: 7px !important;
+        padding-top: 7px !important;
+    }
+
+    .shift-calendar-wrapper {
+        margin: 6px 0 0 !important;
+        padding: 7px !important;
+        border-radius: 14px !important;
+    }
+
+    .shift-calendar-header {
+        grid-template-columns: 32px minmax(0, 1fr) 32px !important;
+        gap: 4px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .shift-calendar-header button {
+        width: 32px !important;
+        height: 30px !important;
+        min-height: 30px !important;
+    }
+
+    .shift-calendar {
+        gap: 3px !important;
+    }
+
+    .shift-calendar-weekday {
+        min-height: 18px !important;
+        padding: 2px !important;
+    }
+
+    .shift-calendar-day {
+        min-height: 46px !important;
+        padding: 4px 3px !important;
+        border-radius: 10px !important;
+    }
+
+    .shift-calendar-details {
+        margin-top: 5px !important;
+        padding: 7px 8px !important;
+    }
+
+    .shift-calendar-detail-card {
+        padding: 7px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        gap: 8px !important;
+        padding-left: 8px !important;
+        padding-right: 8px !important;
+        padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important;
+    }
+
+    .app-header {
+        padding-top: 8px !important;
+        padding-bottom: 6px !important;
+    }
+
+    .cards,
+    .insight-strip,
+    .dashboard-row,
+    .dashboard-row.two-column-row,
+    .dashboard-row[style*="grid-template-columns"] {
+        gap: 8px !important;
+    }
+
+    .form,
+    .transactions {
+        padding: 11px !important;
+        border-radius: 16px !important;
+    }
+
+    .form h2,
+    .transactions h2 {
+        margin-bottom: 8px !important;
+        font-size: 17px !important;
+    }
+
+    .transaction-filters {
+        gap: 6px !important;
+        margin-bottom: 8px !important;
+    }
+
+    .transaction-card,
+    .subscription-item,
+    .job-row,
+    .subscription-row,
+    .budget-row {
+        margin-bottom: 6px !important;
+        padding: 10px !important;
+    }
+
+    #hoursTrackerCard > div > div:first-child {
+        gap: 5px !important;
+        margin-bottom: 6px !important;
+    }
+
+    #hoursTrackerCard .hours-grid {
+        gap: 6px !important;
+    }
+
+    #hoursTrackerCard .hours-overview {
+        gap: 6px !important;
+        margin: 7px 0 5px !important;
+    }
+
+    #hoursTrackerCard .hours-week-card,
+    #hoursTrackerCard .hours-paycheck-card,
+    #hoursTrackerCard #paydayCountdown,
+    #hoursTrackerCard #paycheckBreakdown .paycheck-row {
+        border-radius: 13px !important;
+        padding: 7px !important;
+    }
+
+    #hoursTrackerCard #paycheckBreakdown {
+        margin-top: 4px !important;
+    }
+
+    #hoursTrackerCard #paydayCountdown {
+        margin-top: 5px !important;
+    }
+
+    #hoursTrackerCard .hours-paycheck-card > div[style*="border-top"] {
+        margin-top: 6px !important;
+        padding-top: 6px !important;
+    }
+
+    .shift-calendar-wrapper {
+        margin: 5px 0 0 !important;
+        padding: 6px !important;
+    }
+
+    .shift-calendar-header {
+        margin-bottom: 3px !important;
+    }
+
+    .shift-calendar-day,
+    #hoursTrackerCard .shift-calendar-day {
+        min-height: 42px !important;
+        padding: 3px !important;
+    }
+
+    .shift-calendar-details {
+        margin-top: 5px !important;
+        padding: 7px !important;
+    }
+
+    .shift-calendar-detail-list {
+        gap: 4px !important;
+    }
+
+    .shift-calendar-detail-card {
+        padding: 6px !important;
+    }
+
+    #subscriptionsCard h3,
+    #savingsCard .savings-activity h3 {
+        margin: 10px 0 6px !important;
+    }
+
+    #subscriptionsCard #nextBillCard {
+        margin-top: 8px !important;
+        margin-bottom: 8px !important;
+        padding: 10px !important;
     }
 }
 

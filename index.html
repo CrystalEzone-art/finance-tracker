@@ -1010,10 +1010,6 @@
                 max-height: 250px !important;
             }
 
-            #shiftListWrapper {
-                max-height: 220px !important;
-            }
-
             #subscriptionCalendar {
                 max-height: 220px;
             }
@@ -1082,14 +1078,6 @@
                 flex: 3 !important;
             }
 
-            #shiftSummary {
-                flex: 1 !important;
-            }
-
-            #shiftSummary + button {
-                width: 90px !important;
-                flex-shrink: 0 !important;
-            }
         }
 
         #toastContainer {
@@ -1931,7 +1919,7 @@
 
 
     </style>
-    <link rel="stylesheet" href="modern-off.css?v=1.7.5">
+    <link rel="stylesheet" href="modern-off.css?v=1.7.18">
     <script>
         function readStorageJSON(key, fallback) {
             try {
@@ -2280,6 +2268,7 @@
                 <button type="button" class="settings-tab active" data-settings-tab="health" onclick="showSettingsPage('health')">Finance Health</button>
                 <button type="button" class="settings-tab" data-settings-tab="profile" onclick="showSettingsPage('profile')">Profile</button>
                 <button type="button" class="settings-tab" data-settings-tab="dashboard" onclick="showSettingsPage('dashboard')">Dashboard</button>
+                <button type="button" class="settings-tab" data-settings-tab="jobs" onclick="showSettingsPage('jobs')">Jobs</button>
                 <button type="button" class="settings-tab" data-settings-tab="appearance" onclick="showSettingsPage('appearance')">Appearance</button>
                 <button type="button" class="settings-tab" data-settings-tab="security" onclick="showSettingsPage('security')">Security</button>
                 <button type="button" class="settings-tab" data-settings-tab="data" onclick="showSettingsPage('data')">Data & Backup</button>
@@ -2467,6 +2456,33 @@
                 <div class="settings-actions">
                     <button type="button" class="income-btn" onclick="saveAppearanceSettings()">Save Appearance</button>
                     <button type="button" class="secondary-btn" onclick="resetAppearanceSettings()">Reset Appearance</button>
+                </div>
+            </div>
+
+            <div id="settingsPageJobs" class="settings-page">
+                <h3>Jobs</h3>
+                <p class="settings-subtitle">Manage saved jobs, hourly rates, and paycheck cycle dates.</p>
+                <div id="savedJobsList" class="settings-list"></div>
+                <div class="settings-grid job-settings-grid">
+                    <div class="settings-field">
+                        <label for="jobName">Job name</label>
+                        <input type="text" id="jobName" placeholder="Job name">
+                    </div>
+                    <div class="settings-field">
+                        <label for="jobRate">Hourly rate</label>
+                        <div class="input-with-dollar">
+                            <span>$</span>
+                            <input type="number" id="jobRate" placeholder="Hourly rate" step="0.01">
+                        </div>
+                    </div>
+                    <div class="settings-field">
+                        <label for="jobPayDate">Last paycheck date</label>
+                        <input type="date" id="jobPayDate">
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button type="button" class="income-btn" onclick="addJob()">Save Job</button>
+                    <button type="button" class="secondary-btn" onclick="cancelJobEdit()">Cancel Edit</button>
                 </div>
             </div>
 
@@ -2663,6 +2679,61 @@
             </div>
         </div>
     </div>
+    <div id="firstRunSetup" class="setup-overlay" aria-modal="true" role="dialog" aria-labelledby="setupTitle" style="display:none;">
+        <div class="setup-sheet">
+            <div class="setup-hero">
+                <span class="setup-icon">💸</span>
+                <div>
+                    <p class="setup-kicker">Quick Setup</p>
+                    <h2 id="setupTitle">Make the tracker yours</h2>
+                    <p>Pick a few defaults now. You can change everything later in Settings.</p>
+                </div>
+            </div>
+            <div class="setup-grid">
+                <label class="setup-field" for="setupDisplayName">
+                    <span>Name</span>
+                    <input type="text" id="setupDisplayName" placeholder="Tyler">
+                </label>
+                <label class="setup-field" for="setupDefaultType">
+                    <span>Default transaction</span>
+                    <select id="setupDefaultType">
+                        <option value="expense">Expense</option>
+                        <option value="income">Income</option>
+                    </select>
+                </label>
+                <label class="setup-field" for="setupSavingsGoal">
+                    <span>Savings goal</span>
+                    <input type="number" id="setupSavingsGoal" min="0" step="0.01" placeholder="1000">
+                </label>
+                <label class="setup-field" for="setupJobName">
+                    <span>Main job</span>
+                    <input type="text" id="setupJobName" placeholder="Optional">
+                </label>
+                <label class="setup-field" for="setupHourlyRate">
+                    <span>Hourly rate</span>
+                    <input type="number" id="setupHourlyRate" min="0" step="0.01" placeholder="18.00">
+                </label>
+                <label class="setup-field" for="setupPayDate">
+                    <span>Last payday</span>
+                    <input type="date" id="setupPayDate">
+                </label>
+            </div>
+            <div class="setup-preview">
+                <div>
+                    <strong>Starter layout</strong>
+                    <span>Dashboard, transactions, savings, hours, subscriptions, and calendar stay ready.</span>
+                </div>
+                <div>
+                    <strong>Clean start</strong>
+                    <span>Empty sections will show tips until you add real data.</span>
+                </div>
+            </div>
+            <div class="setup-actions">
+                <button type="button" class="secondary-btn" onclick="skipFirstRunSetup()">Skip</button>
+                <button type="button" class="income-btn" onclick="finishFirstRunSetup()">Start Tracking</button>
+            </div>
+        </div>
+    </div>
     <div class="container">
         <div class="app-header">
             <button type="button" class="settings-button" onclick="openSettingsPanel()">Settings</button>
@@ -2799,17 +2870,18 @@
                     <select id="jobSelect" onchange="updateRateFromJob()" style="margin-top:0;flex:1;">
                         <option value="">Select Job</option>
                     </select>
-                    <button
-                        type="button"
-                        class="income-btn"
-                        style="width:auto;height:52px;margin-top:0;padding:0 16px;white-space:nowrap;"
-                        onclick="openSavedJobsPanel(this)">
-                        💼 Manage
-                    </button>
                 </div>
                 <div class="hours-grid">
                     <input type="date" id="shiftDate" onfocus="setTodayDate()" style="margin-top:0;">
-                    <input type="number" id="hoursInput" placeholder="Hours" step="0.1" style="margin-top:0;">
+                    <label class="time-field" for="shiftStartTime">
+                        <span>Start</span>
+                        <input type="time" id="shiftStartTime" aria-label="Shift start time" title="Start time" onchange="updateShiftHoursFromTimes()" oninput="updateShiftHoursFromTimes()" style="margin-top:0;">
+                    </label>
+                    <label class="time-field" for="shiftEndTime">
+                        <span>End</span>
+                        <input type="time" id="shiftEndTime" aria-label="Shift end time" title="End time" onchange="updateShiftHoursFromTimes()" oninput="updateShiftHoursFromTimes()" style="margin-top:0;">
+                    </label>
+                    <input type="number" id="hoursInput" placeholder="Calculated hours" step="0.1" readonly style="margin-top:0;">
                     <div class="input-with-dollar" style="margin-top:0;">
                         <span>$</span>
                         <input type="number" id="hourlyRate" placeholder="Rate" step="0.01">
@@ -2834,21 +2906,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="hours-career-row" style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin:10px 0;">
-                    <div id="shiftSummary" style="flex:1;padding:14px 16px;background:linear-gradient(135deg,#eff6ff,#f8fafc);border:1px solid #e5e7eb;border-radius:14px;color:#334155;display:flex;justify-content:space-between;align-items:center;">
-                        <span style="font-size:13px;font-weight:600;">Last 3 Weeks</span>
-                        <span id="hoursWorked" style="font-size:24px;font-weight:700;">0</span>
+                <div id="shiftCalendarWrapper" class="shift-calendar-wrapper">
+                    <div class="shift-calendar-header">
+                        <button type="button" class="secondary-btn" onclick="changeShiftCalendarMonth(-1)">‹</button>
+                        <h3 id="shiftCalendarTitle">Hours Calendar</h3>
+                        <button type="button" class="secondary-btn" onclick="changeShiftCalendarMonth(1)">›</button>
                     </div>
-                    <button
-                        type="button"
-                        class="income-btn"
-                        style="width:auto;height:48px;margin-top:0;padding:0 16px;flex-shrink:0;"
-                        onclick="toggleSection('shiftListWrapper', this)">
-                        Hide
-                    </button>
-                </div>
-                <div id="shiftListWrapper" style="max-height:340px;overflow-y:auto;padding-right:4px;">
-                    <div id="shiftList"></div>
+                    <div id="shiftCalendar" class="shift-calendar"></div>
+                    <div id="shiftCalendarDetails" class="shift-calendar-details">Select a work day to view shifts.</div>
                 </div>
             </div>
         </div>
@@ -2957,23 +3022,6 @@ function stopPopupViewportTracking(key) {
     delete window.popupViewportHandlers[key];
 }
 
-function openSavedJobsPanel(button) {
-    const panel = document.getElementById('savedJobsPanel');
-    const content = document.getElementById('savedJobsPanelContent');
-
-    if (!panel || !content) return;
-
-    panel.style.display = 'flex';
-    panel.style.visibility = 'visible';
-    panel.style.opacity = '1';
-    panel.style.pointerEvents = 'auto';
-    panel.style.justifyContent = 'flex-start';
-    panel.style.alignItems = 'flex-start';
-
-    positionPopupInViewport(content, { verticalAnchor: button });
-    trackPopupInViewport('savedJobsPanel', content, { verticalAnchor: button });
-}
-
 function restoreSectionState(sectionId, buttonSelector) {
     const section = document.getElementById(sectionId);
     const button = document.querySelector(buttonSelector);
@@ -3016,10 +3064,60 @@ window.alert = (message) => showToast(String(message || ''), 'error');
 function setEmptyState(container, message) {
     if (!container) return;
     container.innerHTML = '';
-    const empty = document.createElement('p');
-    empty.className = 'empty-state';
-    empty.textContent = message;
+    const empty = createEmptyStateElement(message, container.tagName === 'UL' || container.tagName === 'OL' ? 'li' : 'div');
     container.appendChild(empty);
+}
+
+function getEmptyStateCopy(message) {
+    const states = {
+        'No transactions found': {
+            icon: '🧾',
+            title: 'No transactions found',
+            body: 'Add income or expenses above. Your newest activity will appear here.'
+        },
+        'No savings activity yet': {
+            icon: '🏦',
+            title: 'No savings activity yet',
+            body: 'Move money into savings or withdraw it to build a clean savings timeline.'
+        },
+        'No shifts yet': {
+            icon: '⏱',
+            title: 'No shifts yet',
+            body: 'Add a job and log your first shift to track weekly hours and paycheck totals.'
+        },
+        'No jobs yet': {
+            icon: '💼',
+            title: 'No saved jobs',
+            body: 'Save a job once, then shifts can automatically use its hourly rate.'
+        },
+        'No subscriptions yet': {
+            icon: '📅',
+            title: 'No subscriptions yet',
+            body: 'Add recurring bills here to see what is due next and what lands on the calendar.'
+        },
+        'No budgets set yet': {
+            icon: '🎯',
+            title: 'No budgets set yet',
+            body: 'Set monthly limits for categories you want to keep an eye on.'
+        }
+    };
+    return states[message] || {
+        icon: '✨',
+        title: message || 'Nothing here yet',
+        body: 'Once you add data, this section will fill in automatically.'
+    };
+}
+
+function createEmptyStateElement(message, tagName = 'div') {
+    const empty = document.createElement(tagName);
+    const copy = getEmptyStateCopy(message);
+    empty.className = 'empty-state empty-state-polished';
+    empty.innerHTML = `
+        <span class="empty-state-icon" aria-hidden="true">${copy.icon}</span>
+        <strong>${escapeHTML(copy.title)}</strong>
+        <span>${escapeHTML(copy.body)}</span>
+    `;
+    return empty;
 }
 
 function showLoadingSkeleton(containerId, count = 3) {
@@ -3104,7 +3202,7 @@ function setupKeyboardShortcuts() {
             '/': 'transactionSearch',
             t: 'description',
             s: 'savingsAmount',
-            h: 'hoursInput'
+            h: 'shiftStartTime'
         };
 
         if (targets[key]) {
@@ -3121,6 +3219,8 @@ document.addEventListener('scroll', hideContextMenu, { passive: true });
 let subscriptions = [];
 let calendarDate = new Date();
 let selectedCalendarDay = null;
+let shiftCalendarDate = new Date();
+let selectedShiftCalendarDay = null;
 
 function ensureSubscriptionIds(list) {
     let changed = false;
@@ -3433,6 +3533,134 @@ function showCalendarDayDetails(year, month, day, remember = true) {
     `;
 }
 
+function changeShiftCalendarMonth(offset) {
+    shiftCalendarDate.setMonth(shiftCalendarDate.getMonth() + offset);
+    renderShiftCalendar();
+}
+
+function getShiftsForCalendarDay(year, month, day) {
+    return (shifts || []).filter(shift => {
+        const shiftDate = parseShiftDate(shift.date);
+        return shiftDate &&
+            shiftDate.getFullYear() === year &&
+            shiftDate.getMonth() === month &&
+            shiftDate.getDate() === day;
+    });
+}
+
+function renderShiftCalendar() {
+    const calendar = document.getElementById('shiftCalendar');
+    const title = document.getElementById('shiftCalendarTitle');
+    if (!calendar) return;
+
+    calendar.innerHTML = '';
+    const year = shiftCalendarDate.getFullYear();
+    const month = shiftCalendarDate.getMonth();
+    const today = new Date();
+    const monthName = shiftCalendarDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+    if (title) title.textContent = `Hours • ${monthName}`;
+
+    ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
+        const header = document.createElement('div');
+        header.className = 'calendar-day shift-calendar-weekday';
+        header.textContent = day;
+        calendar.appendChild(header);
+    });
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    for (let i = 0; i < firstDay; i++) {
+        const blank = document.createElement('div');
+        blank.className = 'calendar-day shift-calendar-day blank';
+        blank.style.visibility = 'hidden';
+        calendar.appendChild(blank);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dayShifts = getShiftsForCalendarDay(year, month, day);
+        const totalHours = dayShifts.reduce((sum, shift) => sum + Number(shift.hours || 0), 0);
+        const totalPay = dayShifts.reduce((sum, shift) => sum + Number(shift.pay || (Number(shift.hours || 0) * Number(shift.rate || 0))), 0);
+        const timeRanges = dayShifts.map(formatShiftTimeRange).filter(Boolean);
+        const visibleTimes = timeRanges.slice(0, 2);
+        const extraTimeCount = Math.max(0, timeRanges.length - visibleTimes.length);
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = `calendar-day shift-calendar-day${dayShifts.length ? ' has-events' : ''}`;
+        if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+            cell.classList.add('today');
+        }
+        cell.onclick = () => showShiftCalendarDayDetails(year, month, day);
+        cell.innerHTML = `
+            <span class="calendar-day-number">${day}</span>
+            ${visibleTimes.length ? `<span class="shift-calendar-times">${visibleTimes.map(time => `<b>${escapeHTML(time)}</b>`).join('')}</span>` : ''}
+            ${extraTimeCount ? `<span class="shift-calendar-more">+${extraTimeCount} more</span>` : ''}
+            ${dayShifts.length ? `<span class="shift-calendar-hours">${totalHours.toFixed(1)}h</span>` : ''}
+            ${dayShifts.length ? `<span class="shift-calendar-pay">$${totalPay.toFixed(0)}</span>` : ''}
+        `;
+        calendar.appendChild(cell);
+    }
+
+    if (selectedShiftCalendarDay) {
+        showShiftCalendarDayDetails(
+            selectedShiftCalendarDay.year,
+            selectedShiftCalendarDay.month,
+            selectedShiftCalendarDay.day,
+            false
+        );
+    }
+}
+
+function showShiftCalendarDayDetails(year, month, day, remember = true) {
+    const details = document.getElementById('shiftCalendarDetails');
+    if (!details) return;
+
+    if (remember) selectedShiftCalendarDay = { year, month, day };
+    const date = new Date(year, month, day);
+    const dayShifts = getShiftsForCalendarDay(year, month, day);
+    const totalHours = dayShifts.reduce((sum, shift) => sum + Number(shift.hours || 0), 0);
+    const totalPay = dayShifts.reduce((sum, shift) => sum + Number(shift.pay || (Number(shift.hours || 0) * Number(shift.rate || 0))), 0);
+    const rows = dayShifts.map(shift => {
+        const hours = Number(shift.hours || 0);
+        const rate = Number(shift.rate || 0);
+        const pay = Number(shift.pay || (hours * rate));
+        const timeRange = formatShiftTimeRange(shift);
+        return `
+            <div class="mini-card shift-calendar-detail-card">
+                <div class="shift-calendar-detail-main">
+                    <strong>${escapeHTML(shift.job || 'Job')}</strong>
+                    <span>${timeRange ? `${escapeHTML(timeRange)} • ` : ''}${hours.toFixed(2)} hrs • $${rate.toFixed(2)}/hr</span>
+                    <b>$${pay.toFixed(2)}</b>
+                </div>
+                <div class="row-actions shift-calendar-detail-actions">
+                    <button class="edit-btn" onclick="editShift(${escapeInlineJSString(shift.id)})" title="Edit shift">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
+                        </svg>
+                    </button>
+                    <button class="delete-btn" onclick="deleteShift(${escapeInlineJSString(shift.id)})" title="Delete shift">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6l-1 14H6L5 6"></path>
+                            <path d="M10 11v6"></path>
+                            <path d="M14 11v6"></path>
+                            <path d="M9 6V4h6v2"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+
+    details.innerHTML = `
+        <strong>${date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</strong>
+        ${dayShifts.length ? `<span>${totalHours.toFixed(2)} hours • $${totalPay.toFixed(2)}</span>` : '<span>No shifts logged for this day.</span>'}
+        <div class="shift-calendar-detail-list">
+            ${rows.join('')}
+        </div>
+    `;
+}
+
 function renderSubscriptions() {
     const container = document.getElementById('subscriptionCalendar');
     if (!container) return;
@@ -3582,7 +3810,8 @@ const defaultTrackerSettings = {
         reducedMotion: false
     },
     meta: {
-        lastBackupAt: ''
+        lastBackupAt: '',
+        setupComplete: false
     }
 };
 let trackerSettings = loadTrackerSettings();
@@ -3594,6 +3823,45 @@ let lastSelectedJobId = localStorage.getItem('lastSelectedJobId') || null;
 localStorage.removeItem('income');
 localStorage.removeItem('expenses');
 localStorage.removeItem('balance');
+
+function loadShiftTimeOverrides() {
+    return readStorageJSON('shiftTimeOverrides', {});
+}
+
+let shiftTimeOverrides = loadShiftTimeOverrides();
+
+function getShiftTimeSignature(shift) {
+    return [
+        String(shift?.date || ''),
+        String(shift?.job || ''),
+        Number(shift?.hours || 0).toFixed(2),
+        Number(shift?.rate || 0).toFixed(2),
+        Number(shift?.pay || (Number(shift?.hours || 0) * Number(shift?.rate || 0))).toFixed(2)
+    ].join('|');
+}
+
+function saveShiftTimeOverride(shift, startTime, endTime) {
+    if (!startTime || !endTime) return;
+
+    const override = {
+        start_time: startTime,
+        end_time: endTime
+    };
+    const id = shift?.id ? String(shift.id) : '';
+    if (id) shiftTimeOverrides[`id:${id}`] = override;
+    shiftTimeOverrides[`sig:${getShiftTimeSignature(shift)}`] = override;
+    localStorage.setItem('shiftTimeOverrides', JSON.stringify(shiftTimeOverrides));
+}
+
+function applyShiftTimeOverrides(list) {
+    return (list || []).map(shift => {
+        if (shift?.start_time && shift?.end_time) return shift;
+        const byId = shift?.id ? shiftTimeOverrides[`id:${String(shift.id)}`] : null;
+        const bySignature = shiftTimeOverrides[`sig:${getShiftTimeSignature(shift)}`];
+        const override = byId || bySignature;
+        return override ? { ...shift, ...override } : shift;
+    });
+}
 
 async function loadJobsFromSupabase() {
     if (!supabaseClient) return;
@@ -3612,7 +3880,6 @@ async function loadJobsFromSupabase() {
 
 async function loadShiftsFromSupabase() {
     if (!supabaseClient) return;
-    showLoadingSkeleton('shiftList', 3);
     const { data, error } = await supabaseClient.from('shifts').select('*').order('date', { ascending: false });
     if (error) {
         console.error('Shifts load failed:', error);
@@ -3620,7 +3887,7 @@ async function loadShiftsFromSupabase() {
         return;
     }
     if (data) {
-        shifts = data;
+        shifts = applyShiftTimeOverrides(data);
         await pruneExpiredShiftsFromSupabase();
         renderShifts();
     }
@@ -3654,6 +3921,99 @@ function loadTrackerSettings() {
 
 function saveTrackerSettings() {
     localStorage.setItem('trackerSettings', JSON.stringify(trackerSettings));
+}
+
+function hasAnyTrackerData() {
+    return transactions.length > 0 ||
+        savingsTransactions.length > 0 ||
+        subscriptions.length > 0 ||
+        jobs.length > 0 ||
+        shifts.length > 0 ||
+        Number(savedMoney || 0) > 0 ||
+        Number(localStorage.getItem('savingsGoal') || 0) > 0;
+}
+
+function shouldShowFirstRunSetup() {
+    if (localStorage.getItem('firstRunSetupComplete') === 'true') return false;
+    if (trackerSettings.meta.setupComplete) return false;
+    return !hasAnyTrackerData();
+}
+
+function markFirstRunSetupComplete() {
+    trackerSettings.meta.setupComplete = true;
+    saveTrackerSettings();
+    localStorage.setItem('firstRunSetupComplete', 'true');
+}
+
+function openFirstRunSetup() {
+    const setup = document.getElementById('firstRunSetup');
+    if (!setup) return;
+    setInputValue('setupDisplayName', trackerSettings.profile.displayName || '');
+    setInputValue('setupDefaultType', trackerSettings.preferences.defaultType || 'expense');
+    setInputValue('setupSavingsGoal', localStorage.getItem('savingsGoal') || '');
+    setInputValue('setupPayDate', toInputDate(new Date()));
+    setup.style.display = 'flex';
+    document.body.classList.add('setup-open');
+    setTimeout(() => document.getElementById('setupDisplayName')?.focus(), 80);
+}
+
+function closeFirstRunSetup() {
+    const setup = document.getElementById('firstRunSetup');
+    if (setup) setup.style.display = 'none';
+    document.body.classList.remove('setup-open');
+}
+
+function skipFirstRunSetup() {
+    markFirstRunSetupComplete();
+    closeFirstRunSetup();
+    showToast('Setup skipped. You can change everything in Settings.', 'info');
+}
+
+async function finishFirstRunSetup() {
+    const displayName = document.getElementById('setupDisplayName')?.value.trim() || '';
+    const defaultType = document.getElementById('setupDefaultType')?.value || 'expense';
+    const savingsGoal = Number(document.getElementById('setupSavingsGoal')?.value || 0);
+    const jobName = document.getElementById('setupJobName')?.value.trim() || '';
+    const hourlyRate = Number(document.getElementById('setupHourlyRate')?.value || 0);
+    const payDate = document.getElementById('setupPayDate')?.value || '';
+
+    trackerSettings.profile.displayName = displayName;
+    trackerSettings.preferences.defaultType = defaultType;
+    trackerSettings.dashboard.defaultPage = 'dashboard';
+    if (savingsGoal > 0) {
+        localStorage.setItem('savingsGoal', String(savingsGoal));
+    }
+
+    if (jobName && hourlyRate > 0 && payDate) {
+        const jobPayload = {
+            name: jobName,
+            rate: hourlyRate,
+            pay_date: payDate
+        };
+        let createdJob = { id: createLocalId('job'), ...jobPayload };
+        if (supabaseClient) {
+            const { data, error } = await supabaseClient.from('jobs').insert(jobPayload).select();
+            if (!error && Array.isArray(data) && data[0]) {
+                createdJob = data[0];
+            } else if (error) {
+                console.error('Setup job save failed:', error);
+            }
+        }
+        jobs.unshift(createdJob);
+        lastSelectedJobId = createdJob.id;
+        localStorage.setItem('lastSelectedJobId', lastSelectedJobId);
+    }
+
+    markFirstRunSetupComplete();
+    saveData();
+    saveTrackerSettings();
+    populateSettingsForm();
+    applyTrackerSettings();
+    renderJobs();
+    renderShifts();
+    calculateBalance();
+    closeFirstRunSetup();
+    showToast('Setup complete. You are ready to track.', 'success');
 }
 
 function loadCategoriesFromTransactions() {
@@ -3711,6 +4071,7 @@ function showSettingsPage(page) {
     if (page === 'about') renderAboutSettings();
     if (page === 'categories') renderCustomCategories();
     if (page === 'budgets') renderBudgets();
+    if (page === 'jobs') renderJobs();
 }
 
 document.addEventListener('keydown', function(event) {
@@ -4642,10 +5003,7 @@ function renderBudgets() {
         .sort(([a], [b]) => a.localeCompare(b));
 
     if (entries.length === 0) {
-        const empty = document.createElement('div');
-        empty.className = 'empty-state';
-        empty.textContent = 'No budgets set yet';
-        list.appendChild(empty);
+        list.appendChild(createEmptyStateElement('No budgets set yet'));
         return;
     }
 
@@ -4852,6 +5210,8 @@ function sanitizeBackupShift(shift, index = 0) {
         job: sanitizeBackupText(shift?.job || 'Job', 100),
         job_id: sanitizeBackupId(shift?.job_id || '', 'job'),
         date: sanitizeBackupText(shift?.date || new Date().toISOString().slice(0, 10), 20),
+        start_time: sanitizeBackupText(shift?.start_time || '', 8),
+        end_time: sanitizeBackupText(shift?.end_time || '', 8),
         hours,
         rate,
         pay: Math.max(0, sanitizeBackupNumber(shift?.pay, hours * rate))
@@ -5356,14 +5716,47 @@ function updateRateFromJob() {
     }
 }
 
+function parseTimeToMinutes(value) {
+    const match = String(value || '').match(/^(\d{1,2}):(\d{2})$/);
+    if (!match) return null;
+    const hours = Number(match[1]);
+    const minutes = Number(match[2]);
+    if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null;
+    return hours * 60 + minutes;
+}
+
+function calculateShiftHours(startTime, endTime) {
+    const startMinutes = parseTimeToMinutes(startTime);
+    let endMinutes = parseTimeToMinutes(endTime);
+    if (startMinutes === null || endMinutes === null) return 0;
+    if (endMinutes <= startMinutes) endMinutes += 24 * 60;
+    return Math.round(((endMinutes - startMinutes) / 60) * 100) / 100;
+}
+
+function updateShiftHoursFromTimes() {
+    const startTime = document.getElementById('shiftStartTime')?.value || '';
+    const endTime = document.getElementById('shiftEndTime')?.value || '';
+    const hours = calculateShiftHours(startTime, endTime);
+    const input = document.getElementById('hoursInput');
+    if (input) input.value = hours > 0 ? hours.toFixed(2) : '';
+    return hours;
+}
+
+function formatShiftTimeRange(shift) {
+    if (!shift?.start_time || !shift?.end_time) return '';
+    return `${shift.start_time}–${shift.end_time}`;
+}
+
 async function addShift() {
     const date = document.getElementById('shiftDate').value;
-    const hours = Number(document.getElementById('hoursInput').value);
+    const startTime = document.getElementById('shiftStartTime')?.value || '';
+    const endTime = document.getElementById('shiftEndTime')?.value || '';
+    const hours = updateShiftHoursFromTimes();
     const rate = Number(document.getElementById('hourlyRate').value);
     const isEditing = Boolean(editingShiftId);
 
-    if (!date || hours <= 0 || rate <= 0) {
-        showToast('Enter valid shift information.', 'error');
+    if (!date || !startTime || !endTime || hours <= 0 || rate <= 0) {
+        showToast('Enter the date, start time, end time, and rate.', 'error');
         return;
     }
 
@@ -5377,6 +5770,7 @@ async function addShift() {
             job: selectedJob ? selectedJob.name : 'Unknown Job',
             pay: hours * rate
         };
+        saveShiftTimeOverride({ id: editingShiftId, ...shiftPayload }, startTime, endTime);
         const query = editingShiftId && /^\d+$/.test(String(editingShiftId))
             ? supabaseClient.from('shifts').update(shiftPayload).eq('id', editingShiftId)
             : supabaseClient.from('shifts').insert(shiftPayload);
@@ -5393,6 +5787,8 @@ async function addShift() {
         const shiftPayload = {
             id: editingShiftId || createLocalId('shift'),
             date,
+            start_time: startTime,
+            end_time: endTime,
             hours,
             rate,
             job: selectedJob ? selectedJob.name : 'Unknown Job',
@@ -5445,6 +5841,8 @@ function editShift(id) {
 
     editingShiftId = shift.id;
     document.getElementById('shiftDate').value = shift.date || '';
+    document.getElementById('shiftStartTime').value = shift.start_time || '';
+    document.getElementById('shiftEndTime').value = shift.end_time || '';
     document.getElementById('hoursInput').value = Number(shift.hours || 0);
     document.getElementById('hourlyRate').value = Number(shift.rate || 0);
     const job = jobs.find(item => String(item.name).trim() === String(shift.job).trim());
@@ -5459,6 +5857,8 @@ function editShift(id) {
 
 function cancelShiftEdit() {
     editingShiftId = null;
+    document.getElementById('shiftStartTime').value = '';
+    document.getElementById('shiftEndTime').value = '';
     document.getElementById('hoursInput').value = '';
     document.getElementById('shiftSubmitButton').textContent = 'Add';
     document.getElementById('cancelShiftEditButton').style.display = 'none';
@@ -5467,14 +5867,6 @@ function cancelShiftEdit() {
 function renderShifts() {
     pruneExpiredLocalShifts();
 
-    const list = document.getElementById('shiftList');
-    if (!list) return;
-
-    list.innerHTML = '';
-
-    let totalHours = 0;
-    let totalPay = 0;
-    let takeHomePay = 0;
     let weekHours = 0;
     let biWeeklyPay = 0;
     const paycheckTotals = {};
@@ -5487,10 +5879,6 @@ function renderShifts() {
         const rate = Number(shift.rate) || 0;
         const pay = Number(shift.pay) || (hours * rate);
         const shiftDate = parseShiftDate(shift.date);
-
-        totalHours += hours;
-        totalPay += pay;
-        takeHomePay += pay * 0.85;
 
         if (shiftDate && shiftDate >= weekStart && shiftDate < weekEnd) {
             weekHours += hours;
@@ -5559,49 +5947,8 @@ function renderShifts() {
             }
         }
         // --- END NEW LOGIC ---
-
-        const card = document.createElement('div');
-        card.className = 'transaction-card';
-
-        card.innerHTML = `
-            <div class="transaction-card-content">
-	                <strong>${escapeHTML(shift.job || 'Job')}</strong>
-                <span class="transaction-date">${shiftDate ? shiftDate.toLocaleDateString() : 'No Date'}</span>
-                <span class="transaction-meta">${hours} hrs • $${rate}/hr</span>
-            </div>
-            <span class="transaction-amount" style="color:green;">$${pay.toFixed(2)}</span>
-            <div class="row-actions">
-                <button class="edit-btn" onclick="editShift(${escapeInlineJSString(shift.id)})" title="Edit shift">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 20h9"></path>
-                        <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
-                    </svg>
-                </button>
-                <button class="delete-btn" onclick="deleteShift(${escapeInlineJSString(shift.id)})">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"></polyline>
-                        <path d="M19 6l-1 14H6L5 6"></path>
-                        <path d="M10 11v6"></path>
-                        <path d="M14 11v6"></path>
-                        <path d="M9 6V4h6v2"></path>
-                    </svg>
-                </button>
-            </div>
-        `;
-
-        card.addEventListener('contextmenu', (event) => showContextMenu(event, [
-            { label: 'Edit', run: () => editShift(shift.id) },
-            { label: 'Delete', run: () => deleteShift(shift.id) }
-        ]));
-
-        list.appendChild(card);
     });
 
-    if (shifts.length === 0) {
-        setEmptyState(list, 'No shifts yet');
-    }
-
-    document.getElementById('hoursWorked').textContent = totalHours.toFixed(1);
     document.getElementById('weekHours').textContent = weekHours.toFixed(1);
     const biWeeklyPayElement = document.getElementById('nextPaycheckTotal');
     const paycheckBreakdown = document.getElementById('paycheckBreakdown');
@@ -5651,6 +5998,7 @@ function renderShifts() {
         biWeeklyPayElement.textContent = biWeeklyPay.toFixed(2);
     }
     latestPaycheckTotals = paycheckTotals;
+    renderShiftCalendar();
     updateDashboardInsights();
 }
 async function addSavings() {
@@ -6407,37 +6755,6 @@ function closeEditTransactionPanel() {
 
 }
 
-function closeSavedJobsPanel() {
-    const panel = document.getElementById('savedJobsPanel');
-    const content = document.getElementById('savedJobsPanelContent');
-    if (panel) {
-        panel.style.display = 'none';
-        panel.style.visibility = 'hidden';
-        panel.style.opacity = '0';
-        panel.style.pointerEvents = 'none';
-    }
-    if (content) {
-        content.style.position = '';
-        content.style.top = '';
-        content.style.left = '';
-        content.style.transform = '';
-        content.style.maxHeight = '';
-        content.style.margin = '';
-        content.style.visibility = '';
-    }
-    stopPopupViewportTracking('savedJobsPanel');
-    if (window.savedJobsScrollHandler) {
-        window.removeEventListener('scroll', window.savedJobsScrollHandler);
-        delete window.savedJobsScrollHandler;
-    }
-    try {
-        document.body.style.overflow = '';
-        document.body.classList.remove('modal-open', 'overlay-active', 'popup-open', 'blurred', 'dimmed');
-    } catch (e) {
-        console.error('Error restoring body state:', e);
-    }
-}
-
 function openEditTransactionPanel(transactionId, triggerElement) {
     const transaction = transactions.find((item) => sameId(item.id, transactionId));
     if (!transaction) return;
@@ -6568,9 +6885,8 @@ function renderTransactions(options = {}) {
     const fragment = document.createDocumentFragment();
 
     if (visible.length === 0) {
-        const empty = document.createElement('li');
-        empty.className = 'transaction-empty-state empty-state';
-        empty.textContent = 'No transactions found';
+        const empty = createEmptyStateElement('No transactions found', 'li');
+        empty.classList.add('transaction-empty-state');
         list.appendChild(empty);
         renderBudgets();
         return;
@@ -6963,12 +7279,10 @@ async function initializeApp() {
         'button[onclick*="transactionsContent"]'
     );
 
-    restoreSectionState(
-        'shiftListWrapper',
-        'button[onclick*="shiftListWrapper"]'
-    );
-
     openStartingPage();
+    if (shouldShowFirstRunSetup()) {
+        openFirstRunSetup();
+    }
 }
 
 initializeApp();
@@ -6998,36 +7312,6 @@ document.addEventListener('visibilitychange', () => {
     if (!document.hidden) refreshAppData();
 });
 </script>
-<div id="savedJobsPanel" onclick="if (event.target === this){ closeSavedJobsPanel(); }" style="display:none;visibility:hidden;opacity:0;pointer-events:none;position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:9999;">
-    <div id="savedJobsPanelContent" style="position:absolute;max-width:600px;width:min(600px,calc(100vw - 40px));max-height:85vh;overflow-y:auto;background:white;border-radius:24px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.2);border:1px solid #e5e7eb;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <h2 style="margin:0;font-size:28px;">💼 Saved Jobs</h2>
-            <button
-                type="button"
-                class="expense-btn"
-                style="width:auto;height:40px;margin-top:0;padding:0 14px;"
-                onclick="closeSavedJobsPanel()">
-                Close
-            </button>
-        </div>
-
-        <div id="savedJobsList" style="display:grid;gap:8px;margin-bottom:16px;"></div>
-
-        <div style="border-top:1px solid #e5e7eb;padding-top:16px;">
-            <input type="text" id="jobName" placeholder="Job Name">
-
-            <div class="input-with-dollar">
-                <span>$</span>
-                <input type="number" id="jobRate" placeholder="Hourly Rate" step="0.01">
-            </div>
-
-            <input type="date" id="jobPayDate" title="Last Paycheck Date">
-
-            <button class="income-btn" onclick="addJob()">Save Job</button>
-            <button type="button" class="secondary-btn" onclick="cancelJobEdit()">Cancel Edit</button>
-        </div>
-    </div>
-</div>
 <div id="editTransactionPanel" onclick="if (event.target === this){ closeEditTransactionPanel(); }" onkeydown="handleEditTransactionKeydown(event)" style="display:none;visibility:hidden;opacity:0;pointer-events:none;position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:9999;justify-content:center;align-items:center;">
     <div id="editTransactionPanelContent" style="max-width:600px;width:min(600px,calc(100vw - 40px));max-height:85vh;overflow-y:auto;background:white;border-radius:24px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.2);border:1px solid #e5e7eb;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
@@ -7064,7 +7348,7 @@ document.addEventListener('visibilitychange', () => {
     // Ensure all popups/overlays are hidden on initial load
     window.addEventListener("load", () => {
         document.querySelectorAll(
-            ".modal,.popup,.overlay,.backdrop,#editTransactionPanel,#savedJobsPanel,#editTransactionOverlay"
+            ".modal,.popup,.overlay,.backdrop,#editTransactionPanel,#editTransactionOverlay"
         ).forEach(el => {
             try {
                 el.style.display = 'none';
