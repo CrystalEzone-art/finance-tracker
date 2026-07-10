@@ -1919,7 +1919,7 @@
 
 
     </style>
-    <link rel="stylesheet" href="modern-off.css?v=1.7.28">
+    <link rel="stylesheet" href="modern-off.css?v=1.7.29">
     <script>
         function readStorageJSON(key, fallback) {
             try {
@@ -7165,6 +7165,72 @@ async function addTransaction() {
     pulseElement('#transactionHistoryCard');
 }
 
+function getShortcutTransactionFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const action = (params.get('shortcut') || params.get('action') || '').trim().toLowerCase();
+    if (!['transaction', 'add-transaction', 'add_transaction'].includes(action)) return null;
+
+    const description = (params.get('description') || params.get('desc') || params.get('name') || '').trim();
+    const amount = Number(params.get('amount') || params.get('total') || 0);
+    const rawType = (params.get('type') || 'expense').trim().toLowerCase();
+    const type = rawType === 'income' ? 'income' : 'expense';
+    const category = (params.get('category') || params.get('cat') || (type === 'income' ? 'Other' : 'Other')).trim();
+    const rawDate = (params.get('date') || '').trim();
+    const parsedDate = rawDate ? new Date(`${rawDate.slice(0, 10)}T12:00:00`) : null;
+    const created_at = parsedDate && !Number.isNaN(parsedDate.getTime())
+        ? parsedDate.toISOString()
+        : new Date().toISOString();
+
+    if (!description || amount <= 0) {
+        return { error: 'Shortcut needs a description and amount over $0.' };
+    }
+
+    return {
+        transaction: {
+            id: createLocalId('tx'),
+            description,
+            amount,
+            type,
+            category,
+            created_at
+        }
+    };
+}
+
+function clearShortcutTransactionURL() {
+    const url = new URL(window.location.href);
+    ['shortcut', 'action', 'description', 'desc', 'name', 'amount', 'total', 'type', 'category', 'cat', 'date'].forEach(key => {
+        url.searchParams.delete(key);
+    });
+    const next = `${url.pathname}${url.search}${url.hash}`;
+    window.history.replaceState({}, document.title, next);
+}
+
+async function handleShortcutTransactionURL() {
+    const shortcut = getShortcutTransactionFromURL();
+    if (!shortcut) return;
+
+    if (shortcut.error) {
+        showToast(shortcut.error, 'error');
+        clearShortcutTransactionURL();
+        return;
+    }
+
+    const { transaction } = shortcut;
+    const { error } = await recordTransaction(transaction);
+    if (error) {
+        showToast('Shortcut transaction failed: ' + error.message, 'error');
+        return;
+    }
+
+    await syncSavedMoneyFromTransactions();
+    renderSavingsTransactions();
+    updateDashboard({ animate: false });
+    clearShortcutTransactionURL();
+    showToast(`Shortcut added ${transaction.type}: $${Number(transaction.amount).toFixed(2)}`, 'success');
+    pulseElement('#transactionHistoryCard');
+}
+
 function setTodayDate() {
     const dateInput = document.getElementById('shiftDate');
 
@@ -7283,6 +7349,7 @@ async function initializeApp() {
     if (shouldShowFirstRunSetup()) {
         openFirstRunSetup();
     }
+    await handleShortcutTransactionURL();
 }
 
 initializeApp();
