@@ -5391,6 +5391,46 @@ function getFinanceHealthSnapshot() {
     };
 }
 
+function getMissingTransactionDateFallback(index = 0) {
+    return new Date(Date.now() - (index * 1000)).toISOString();
+}
+
+async function repairMissingTransactionDates() {
+    const missingDates = transactions.filter(transaction => !transaction.created_at && !transaction.date);
+    if (!missingDates.length) return 0;
+
+    const sortedMissingDates = missingDates
+        .slice()
+        .sort((a, b) => Number(b.id || 0) - Number(a.id || 0));
+
+    let repairedCount = 0;
+    for (const [index, transaction] of sortedMissingDates.entries()) {
+        const created_at = getMissingTransactionDateFallback(index);
+        transaction.created_at = created_at;
+
+        if (supabaseClient && transaction.id && /^\d+$/.test(String(transaction.id))) {
+            const { error } = await supabaseClient
+                .from('transactions')
+                .update({ created_at })
+                .eq('id', transaction.id);
+
+            if (error) {
+                console.error('Missing transaction date repair failed:', error);
+                transaction.created_at = null;
+                continue;
+            }
+        }
+
+        repairedCount += 1;
+    }
+
+    if (repairedCount) {
+        saveData();
+    }
+
+    return repairedCount;
+}
+
 function updateFinanceHealthCards(snapshot = getFinanceHealthSnapshot()) {
     setText('healthCalculatedBalance', formatMoney(snapshot.calculatedBalance));
     setText('healthTransactionCount', String(snapshot.transactionCount));
@@ -5398,14 +5438,18 @@ function updateFinanceHealthCards(snapshot = getFinanceHealthSnapshot()) {
     setText('healthPossibleIssues', String(snapshot.possibleIssues));
 }
 
-function runDataHealthCheck() {
+async function runDataHealthCheck() {
+    const repairedDates = await repairMissingTransactionDates();
     const snapshot = getFinanceHealthSnapshot();
     const results = document.getElementById('settingsHealthResults');
     updateFinanceHealthCards(snapshot);
+    renderTransactions({ refreshFilters: true, animate: false });
+    updateDashboard({ animate: false });
 
     if (results) {
         results.innerHTML = `
             <strong>Finance Health Check</strong><br>
+            Dates repaired: ${repairedDates}<br>
             Missing dates: ${snapshot.missingDates.length}<br>
             Invalid amounts: ${snapshot.invalidAmounts.length}<br>
             Duplicate savings transfer transactions: ${snapshot.duplicateSavingsCount}
@@ -5413,10 +5457,12 @@ function runDataHealthCheck() {
     }
 
     showToast(
-        snapshot.possibleIssues
+        repairedDates
+            ? `${repairedDates} missing date${repairedDates === 1 ? '' : 's'} repaired.`
+            : snapshot.possibleIssues
             ? 'Finance health check found issues.'
             : 'Finance health check passed.',
-        snapshot.possibleIssues ? 'info' : 'success'
+        repairedDates || snapshot.possibleIssues ? 'info' : 'success'
     );
 }
 
@@ -6340,6 +6386,7 @@ async function loadFromSupabase(options = {}) {
         created_at: t.created_at
     }));
 
+    await repairMissingTransactionDates();
     categories = mergeCategoryList(categories, loadCategoriesFromTransactions());
     saveCategories();
     await repairDuplicateSavingsMigrationTransactions();
