@@ -1919,7 +1919,7 @@
 
 
     </style>
-    <link rel="stylesheet" href="modern-off.css?v=1.7.2.1">
+    <link rel="stylesheet" href="modern-off.css?v=1.7.2.2">
     <script>
         function readStorageJSON(key, fallback) {
             try {
@@ -6722,6 +6722,7 @@ function closeEditTransactionPanel() {
     const panel = document.getElementById('editTransactionPanel');
     const content = document.getElementById('editTransactionPanelContent');
     if (panel) {
+        panel.classList.remove('edit-transaction-panel-open');
         panel.style.display = 'none';
         panel.style.visibility = 'hidden';
         panel.style.opacity = '0';
@@ -6782,6 +6783,9 @@ function openEditTransactionPanel(transactionId, triggerElement) {
     panel.style.pointerEvents = 'auto';
     panel.style.justifyContent = 'flex-start';
     panel.style.alignItems = 'flex-start';
+    panel.classList.remove('edit-transaction-panel-open');
+    void panel.offsetWidth;
+    panel.classList.add('edit-transaction-panel-open');
 
     if (content) {
         positionPopupInViewport(content, { verticalAnchor: triggerElement });
