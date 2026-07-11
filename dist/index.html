@@ -6898,9 +6898,7 @@ function renderTransactions(options = {}) {
         item.style.animation = shouldAnimate ? 'transactionFadeIn 0.32s ease both' : 'none';
         item.style.animationDelay = shouldAnimate ? `${Math.min(index * 25, 180)}ms` : '';
 
-        const transactionDate = t.created_at
-            ? new Date(t.created_at).toLocaleDateString()
-            : 'No Date';
+        const transactionDate = new Date(t.created_at || t.date || Date.now()).toLocaleDateString();
         item.innerHTML = `
     <div class="transaction-card-content">
         <div class="transaction-main">
