@@ -7532,6 +7532,165 @@ body.setup-open {
     }
 }
 
+/* Polished edit transaction modal. */
+#editTransactionPanel {
+    padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)) !important;
+}
+
+#editTransactionPanelContent.edit-transaction-modal {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 18px !important;
+    padding: 24px !important;
+    background: linear-gradient(180deg, #ffffff, #f8fbff) !important;
+    border: 1px solid rgba(148, 163, 184, 0.28) !important;
+    border-radius: 26px !important;
+    box-shadow: 0 26px 70px rgba(15, 23, 42, 0.22) !important;
+}
+
+.edit-transaction-header {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 18px !important;
+    padding-bottom: 16px !important;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
+}
+
+.edit-transaction-kicker {
+    margin: 0 0 4px !important;
+    color: #64748b !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0 !important;
+    text-transform: uppercase !important;
+}
+
+#editTransactionPanelContent .edit-transaction-header h2 {
+    margin: 0 !important;
+    color: #0f172a !important;
+    font-size: 28px !important;
+    line-height: 1.1 !important;
+    letter-spacing: 0 !important;
+}
+
+.edit-transaction-close {
+    width: auto !important;
+    min-width: 74px !important;
+    height: 40px !important;
+    margin: 0 !important;
+    padding: 0 14px !important;
+    border: 1px solid rgba(148, 163, 184, 0.32) !important;
+    border-radius: 999px !important;
+    background: rgba(241, 245, 249, 0.92) !important;
+    color: #334155 !important;
+    box-shadow: none !important;
+}
+
+.edit-transaction-fields {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px !important;
+}
+
+.edit-transaction-field {
+    display: flex !important;
+    min-width: 0 !important;
+    flex-direction: column !important;
+    gap: 7px !important;
+    color: #475569 !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0 !important;
+}
+
+.edit-transaction-field-full {
+    grid-column: 1 / -1 !important;
+}
+
+.edit-transaction-field input,
+.edit-transaction-field select,
+.edit-transaction-amount {
+    width: 100% !important;
+    margin-top: 0 !important;
+}
+
+.edit-transaction-field input,
+.edit-transaction-field select {
+    height: 48px !important;
+    border: 1px solid #dbe3ef !important;
+    border-radius: 15px !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+}
+
+.edit-transaction-amount span {
+    left: 14px !important;
+    width: 24px !important;
+    height: 24px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 8px !important;
+    background: color-mix(in srgb, var(--app-primary, #2563eb) 12%, white) !important;
+    color: var(--app-primary, #2563eb) !important;
+}
+
+.edit-transaction-amount input {
+    padding-left: 50px !important;
+}
+
+.edit-transaction-actions {
+    display: flex !important;
+    justify-content: flex-end !important;
+    padding-top: 4px !important;
+}
+
+#saveTransactionEditButton {
+    width: auto !important;
+    min-width: 158px !important;
+    height: 48px !important;
+    margin: 0 !important;
+    padding: 0 22px !important;
+    border-radius: 999px !important;
+    box-shadow: 0 12px 28px rgba(37, 99, 235, 0.2) !important;
+}
+
+@media (max-width: 768px) {
+    #editTransactionPanelContent.edit-transaction-modal {
+        width: min(100%, 430px) !important;
+        max-height: calc(100dvh - 28px) !important;
+        margin: auto !important;
+        padding: 18px !important;
+        border-radius: 24px !important;
+        gap: 16px !important;
+    }
+
+    .edit-transaction-header {
+        align-items: center !important;
+        padding-bottom: 14px !important;
+    }
+
+    #editTransactionPanelContent .edit-transaction-header h2 {
+        font-size: 24px !important;
+    }
+
+    .edit-transaction-fields {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 12px !important;
+    }
+
+    .edit-transaction-field input,
+    .edit-transaction-field select {
+        height: 46px !important;
+    }
+
+    .edit-transaction-actions,
+    #saveTransactionEditButton {
+        width: 100% !important;
+    }
+}
+
 /* Absolute final fix for the Add Transaction amount marker on mobile. */
 @media (max-width: 768px) {
     #transactionAmountField {

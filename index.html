@@ -1919,7 +1919,7 @@
 
 
     </style>
-    <link rel="stylesheet" href="modern-off.css?v=1.7.2">
+    <link rel="stylesheet" href="modern-off.css?v=1.7.2.1">
     <script>
         function readStorageJSON(key, fallback) {
             try {
@@ -7386,13 +7386,15 @@ document.addEventListener('visibilitychange', () => {
 });
 </script>
 <div id="editTransactionPanel" onclick="if (event.target === this){ closeEditTransactionPanel(); }" onkeydown="handleEditTransactionKeydown(event)" style="display:none;visibility:hidden;opacity:0;pointer-events:none;position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:9999;justify-content:center;align-items:center;">
-    <div id="editTransactionPanelContent" style="max-width:600px;width:min(600px,calc(100vw - 40px));max-height:85vh;overflow-y:auto;background:white;border-radius:24px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.2);border:1px solid #e5e7eb;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-            <h2 style="margin:0;font-size:28px;">✏️ Edit Transaction</h2>
+    <div id="editTransactionPanelContent" class="edit-transaction-modal" style="max-width:600px;width:min(600px,calc(100vw - 40px));max-height:85vh;overflow-y:auto;background:white;border-radius:24px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.2);border:1px solid #e5e7eb;">
+        <div class="edit-transaction-header">
+            <div>
+                <p class="edit-transaction-kicker">Transaction</p>
+                <h2>Edit Transaction</h2>
+            </div>
             <button
                 type="button"
-                class="expense-btn"
-                style="width:auto;height:40px;margin-top:0;padding:0 14px;"
+                class="edit-transaction-close"
                 onclick="closeEditTransactionPanel()">
                 Close
             </button>
@@ -7400,21 +7402,37 @@ document.addEventListener('visibilitychange', () => {
 
         <input type="hidden" id="editTransactionIndex">
         <input type="hidden" id="editTransactionId">
-        <input type="text" id="editTransactionDescription" placeholder="Description" onkeydown="handleEditTransactionKeydown(event)">
+        <div class="edit-transaction-fields">
+            <label class="edit-transaction-field edit-transaction-field-full">
+                <span>Description</span>
+                <input type="text" id="editTransactionDescription" placeholder="Description" onkeydown="handleEditTransactionKeydown(event)">
+            </label>
 
-        <div class="input-with-dollar">
-            <span>$</span>
-            <input type="number" id="editTransactionAmount" placeholder="Amount" step="0.01" onkeydown="handleEditTransactionKeydown(event)">
+            <label class="edit-transaction-field">
+                <span>Amount</span>
+                <div class="input-with-dollar edit-transaction-amount">
+                    <span>$</span>
+                    <input type="number" id="editTransactionAmount" placeholder="Amount" step="0.01" onkeydown="handleEditTransactionKeydown(event)">
+                </div>
+            </label>
+
+            <label class="edit-transaction-field">
+                <span>Category</span>
+                <select id="editTransactionCategory" onkeydown="handleEditTransactionKeydown(event)"></select>
+            </label>
+
+            <label class="edit-transaction-field edit-transaction-field-full">
+                <span>Type</span>
+                <select id="editTransactionType" onkeydown="handleEditTransactionKeydown(event)">
+                    <option value="income">Income</option>
+                    <option value="expense">Expense</option>
+                </select>
+            </label>
         </div>
 
-        <select id="editTransactionCategory" onkeydown="handleEditTransactionKeydown(event)"></select>
-
-        <select id="editTransactionType" onkeydown="handleEditTransactionKeydown(event)">
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-        </select>
-
-        <button id="saveTransactionEditButton" class="income-btn" onclick="saveTransactionEdit()">Save Changes</button>
+        <div class="edit-transaction-actions">
+            <button id="saveTransactionEditButton" class="income-btn" onclick="saveTransactionEdit()">Save Changes</button>
+        </div>
     </div>
 </div>
     <script>
