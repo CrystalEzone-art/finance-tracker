@@ -7802,6 +7802,209 @@ body.setup-open {
     }
 }
 
+/* Whole-app motion polish. */
+.container {
+    animation: appShellEnter 360ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+.dashboard-row > .card,
+.dashboard-row > .form,
+.dashboard-row > .transactions,
+.insight-card,
+.mini-card,
+#savingsCard,
+#transactionHistoryCard,
+#subscriptionsCard,
+#hoursTrackerCard {
+    animation: appSurfaceEnter 420ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
+    transform-origin: center top !important;
+}
+
+.dashboard-row > :nth-child(1),
+.cards > :nth-child(1) {
+    animation-delay: 20ms !important;
+}
+
+.dashboard-row > :nth-child(2),
+.cards > :nth-child(2) {
+    animation-delay: 55ms !important;
+}
+
+.dashboard-row > :nth-child(3),
+.cards > :nth-child(3) {
+    animation-delay: 90ms !important;
+}
+
+.dashboard-row > :nth-child(4),
+.cards > :nth-child(4) {
+    animation-delay: 125ms !important;
+}
+
+.transaction-card,
+.subscription-item,
+.job-row,
+.subscription-row,
+.savings-row,
+.paycheck-row,
+.calendar-day,
+.settings-list > *,
+.category-card,
+.budget-row {
+    transition: transform 190ms ease, box-shadow 190ms ease, border-color 190ms ease, background 190ms ease, opacity 190ms ease !important;
+}
+
+.transaction-card:hover,
+.subscription-item:hover,
+.job-row:hover,
+.subscription-row:hover,
+.savings-row:hover,
+.paycheck-row:hover,
+.settings-list > *:hover,
+.category-card:hover,
+.budget-row:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.1) !important;
+}
+
+.calendar-day:hover {
+    transform: translateY(-2px) scale(1.01) !important;
+}
+
+button,
+.edit-btn,
+.delete-btn,
+.custom-select-trigger,
+.settings-nav-btn,
+.compact-action {
+    transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease, background 180ms ease, border-color 180ms ease !important;
+}
+
+button:active,
+.edit-btn:active,
+.delete-btn:active,
+.custom-select-trigger:active,
+.settings-nav-btn:active,
+.compact-action:active {
+    transform: scale(0.98) !important;
+}
+
+input,
+select,
+textarea,
+.custom-select-trigger {
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.custom-select.open .custom-select-trigger {
+    transform: translateY(-1px) !important;
+}
+
+.stat-value,
+#balance,
+#income,
+#expenses,
+#savedMoney,
+#weeklyHours,
+#threeWeekHours,
+#monthlyTotal {
+    transition: transform 220ms ease, color 220ms ease, text-shadow 220ms ease !important;
+}
+
+.stat-value:hover,
+#balance:hover,
+#income:hover,
+#expenses:hover,
+#savedMoney:hover,
+#weeklyHours:hover,
+#threeWeekHours:hover,
+#monthlyTotal:hover {
+    transform: translateY(-1px) scale(1.015) !important;
+}
+
+.progress-fill {
+    transition: width 420ms cubic-bezier(0.16, 1, 0.3, 1), filter 220ms ease !important;
+}
+
+.progress-fill:hover {
+    filter: brightness(1.05) saturate(1.06) !important;
+}
+
+.toast,
+.toast-message {
+    animation: appToastIn 240ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
+}
+
+@keyframes appShellEnter {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.992);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes appSurfaceEnter {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.985);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes appToastIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .container,
+    .dashboard-row > .card,
+    .dashboard-row > .form,
+    .dashboard-row > .transactions,
+    .insight-card,
+    .mini-card,
+    #savingsCard,
+    #transactionHistoryCard,
+    #subscriptionsCard,
+    #hoursTrackerCard,
+    .toast,
+    .toast-message {
+        animation: none !important;
+    }
+
+    .transaction-card,
+    .subscription-item,
+    .job-row,
+    .subscription-row,
+    .savings-row,
+    .paycheck-row,
+    .calendar-day,
+    button,
+    input,
+    select,
+    textarea,
+    .custom-select-trigger,
+    .settings-nav-btn,
+    .compact-action,
+    .progress-fill {
+        transition: none !important;
+    }
+}
+
 /* Absolute final fix for the Add Transaction amount marker on mobile. */
 @media (max-width: 768px) {
     #transactionAmountField {
