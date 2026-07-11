@@ -6976,6 +6976,14 @@ function getFilteredTransactions(){
     }).sort((a, b) => {
         const dateA = new Date(a.created_at || a.date || 0).getTime();
         const dateB = new Date(b.created_at || b.date || 0).getTime();
+        const hasDateA = Boolean(a.created_at || a.date);
+        const hasDateB = Boolean(b.created_at || b.date);
+        if (hasDateA !== hasDateB) {
+            return Number(b.id || 0) - Number(a.id || 0);
+        }
+        if (!hasDateA && !hasDateB) {
+            return Number(b.id || 0) - Number(a.id || 0);
+        }
         return dateB - dateA;
     });
 }
