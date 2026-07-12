@@ -8005,6 +8005,14 @@ textarea:focus,
     }
 }
 
+body.refresh-silent *,
+body.refresh-silent *::before,
+body.refresh-silent *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+}
+
 /* Absolute final fix for the Add Transaction amount marker on mobile. */
 @media (max-width: 768px) {
     #transactionAmountField {

@@ -1919,7 +1919,7 @@
 
 
     </style>
-    <link rel="stylesheet" href="modern-off.css?v=2.0">
+    <link rel="stylesheet" href="modern-off.css?v=2.0.1">
     <script>
         function readStorageJSON(key, fallback) {
             try {
@@ -7416,6 +7416,7 @@ async function refreshAppData() {
     if (refreshInProgress || document.hidden) return;
     refreshInProgress = true;
     suppressRefreshAnimation = true;
+    document.body.classList.add('refresh-silent');
     try {
         await loadSettings();
         await loadFromSupabase({ showSkeleton: false });
@@ -7427,6 +7428,7 @@ async function refreshAppData() {
         ]);
     } finally {
         suppressRefreshAnimation = false;
+        document.body.classList.remove('refresh-silent');
         refreshInProgress = false;
     }
 }
