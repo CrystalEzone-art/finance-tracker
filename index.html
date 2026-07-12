@@ -1919,7 +1919,7 @@
 
 
     </style>
-    <link rel="stylesheet" href="modern-off.css?v=2.0.9">
+    <link rel="stylesheet" href="modern-off.css?v=2.0.6">
     <script>
         function readStorageJSON(key, fallback) {
             try {
@@ -2875,11 +2875,11 @@
                     <input type="date" id="shiftDate" onfocus="setTodayDate()" style="margin-top:0;">
                     <label class="time-field" for="shiftStartTime">
                         <span>Start</span>
-                        <select id="shiftStartTime" aria-label="Shift start time" title="Start time" onchange="updateShiftHoursFromTimes()" style="margin-top:0;"></select>
+                        <input type="time" id="shiftStartTime" aria-label="Shift start time" title="Start time" step="900" onchange="updateShiftHoursFromTimes()" oninput="updateShiftHoursFromTimes()" style="margin-top:0;">
                     </label>
                     <label class="time-field" for="shiftEndTime">
                         <span>End</span>
-                        <select id="shiftEndTime" aria-label="Shift end time" title="End time" onchange="updateShiftHoursFromTimes()" style="margin-top:0;"></select>
+                        <input type="time" id="shiftEndTime" aria-label="Shift end time" title="End time" step="900" onchange="updateShiftHoursFromTimes()" oninput="updateShiftHoursFromTimes()" style="margin-top:0;">
                     </label>
                     <input type="number" id="hoursInput" placeholder="Calculated hours" step="0.1" readonly style="margin-top:0;">
                     <div class="input-with-dollar" style="margin-top:0;">
@@ -5774,41 +5774,6 @@ function updateRateFromJob() {
     }
 }
 
-function formatTimeOptionLabel(value) {
-    const minutes = parseTimeToMinutes(value);
-    if (minutes === null) return value || '';
-    const hour24 = Math.floor(minutes / 60);
-    const minute = minutes % 60;
-    const suffix = hour24 >= 12 ? 'PM' : 'AM';
-    const hour12 = hour24 % 12 || 12;
-    return `${hour12}:${String(minute).padStart(2, '0')} ${suffix}`;
-}
-
-function ensureShiftTimeOption(select, value) {
-    if (!select || !value || Array.from(select.options).some(option => option.value === value)) return;
-    const option = document.createElement('option');
-    option.value = value;
-    option.textContent = formatTimeOptionLabel(value);
-    select.appendChild(option);
-}
-
-function populateShiftTimeSelects() {
-    ['shiftStartTime', 'shiftEndTime'].forEach((selectId) => {
-        const select = document.getElementById(selectId);
-        if (!select || select.dataset.populated === 'true') return;
-
-        select.innerHTML = '<option value="">Select time</option>';
-        for (let minutes = 0; minutes < 24 * 60; minutes += 15) {
-            const value = `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
-            const option = document.createElement('option');
-            option.value = value;
-            option.textContent = formatTimeOptionLabel(value);
-            select.appendChild(option);
-        }
-        select.dataset.populated = 'true';
-    });
-}
-
 function parseTimeToMinutes(value) {
     const match = String(value || '').match(/^(\d{1,2}):(\d{2})$/);
     if (!match) return null;
@@ -5934,8 +5899,6 @@ function editShift(id) {
 
     editingShiftId = shift.id;
     document.getElementById('shiftDate').value = shift.date || '';
-    ensureShiftTimeOption(document.getElementById('shiftStartTime'), shift.start_time || '');
-    ensureShiftTimeOption(document.getElementById('shiftEndTime'), shift.end_time || '');
     document.getElementById('shiftStartTime').value = shift.start_time || '';
     document.getElementById('shiftEndTime').value = shift.end_time || '';
     document.getElementById('hoursInput').value = Number(shift.hours || 0);
@@ -7422,7 +7385,6 @@ async function initializeApp() {
     await loadShiftsFromSupabase();
 
     setTodayDate();
-    populateShiftTimeSelects();
     applyCustomCategoriesToDropdowns();
     renderJobs();
     renderTransactions({ refreshFilters: true, animate: true });
