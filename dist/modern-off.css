@@ -8016,7 +8016,13 @@ body.refresh-silent *::after {
 /* Keep work-day calendar cells the same size while showing totals clearly. */
 .shift-calendar-pay,
 .shift-calendar-hours {
-    margin-top: 2px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin-top: 1px !important;
+    overflow: visible !important;
+    text-align: center !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
 }
 
 .shift-calendar-pay {
@@ -8031,9 +8037,14 @@ body.refresh-silent *::after {
 }
 
 @media (max-width: 768px) {
+    #hoursTrackerCard .shift-calendar-day {
+        align-content: start !important;
+        justify-items: stretch !important;
+    }
+
     #hoursTrackerCard .shift-calendar-pay,
     #hoursTrackerCard .shift-calendar-hours {
-        font-size: 9px !important;
+        font-size: 8.5px !important;
         line-height: 1.05 !important;
     }
 }

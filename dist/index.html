@@ -1919,7 +1919,7 @@
 
 
     </style>
-    <link rel="stylesheet" href="modern-off.css?v=2.0.4">
+    <link rel="stylesheet" href="modern-off.css?v=2.0.5">
     <script>
         function readStorageJSON(key, fallback) {
             try {
@@ -3548,6 +3548,20 @@ function getShiftsForCalendarDay(year, month, day) {
     });
 }
 
+function formatShiftCalendarPay(amount) {
+    const value = Number(amount || 0);
+    const absValue = Math.abs(value);
+    const sign = value < 0 ? '-' : '';
+    if (absValue >= 1000000) return `${sign}$${(absValue / 1000000).toFixed(1).replace(/\.0$/, '')}m`;
+    if (absValue >= 1000) return `${sign}$${(absValue / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+    return `${sign}$${Math.round(absValue)}`;
+}
+
+function formatShiftCalendarHours(hours) {
+    const value = Math.round(Number(hours || 0) * 10) / 10;
+    return `${Number.isInteger(value) ? value.toFixed(0) : value.toFixed(1)}h`;
+}
+
 function renderShiftCalendar() {
     const calendar = document.getElementById('shiftCalendar');
     const title = document.getElementById('shiftCalendarTitle');
@@ -3586,11 +3600,14 @@ function renderShiftCalendar() {
         if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
             cell.classList.add('today');
         }
+        if (dayShifts.length) {
+            cell.setAttribute('aria-label', `${month + 1}/${day}/${year}: ${formatShiftCalendarPay(totalPay)}, ${formatShiftCalendarHours(totalHours)}`);
+        }
         cell.onclick = () => showShiftCalendarDayDetails(year, month, day);
         cell.innerHTML = `
             <span class="calendar-day-number">${day}</span>
-            ${dayShifts.length ? `<span class="shift-calendar-pay">$${totalPay.toFixed(0)}</span>` : ''}
-            ${dayShifts.length ? `<span class="shift-calendar-hours">${totalHours.toFixed(1)}h</span>` : ''}
+            ${dayShifts.length ? `<span class="shift-calendar-pay">${formatShiftCalendarPay(totalPay)}</span>` : ''}
+            ${dayShifts.length ? `<span class="shift-calendar-hours">${formatShiftCalendarHours(totalHours)}</span>` : ''}
         `;
         calendar.appendChild(cell);
     }
