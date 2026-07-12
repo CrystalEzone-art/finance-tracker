@@ -6032,7 +6032,8 @@ body.setup-open {
     line-height: 1 !important;
 }
 
-#hoursTrackerCard .time-field input {
+#hoursTrackerCard .time-field input,
+#hoursTrackerCard .time-field select {
     width: 100% !important;
 }
 
@@ -6666,7 +6667,8 @@ body.setup-open {
         font-size: 10px !important;
     }
 
-    #hoursTrackerCard .time-field input {
+    #hoursTrackerCard .time-field input,
+    #hoursTrackerCard .time-field select {
         margin-top: 0 !important;
     }
 
@@ -7497,6 +7499,7 @@ body.setup-open {
     }
 
     #hoursTrackerCard .time-field input,
+    #hoursTrackerCard .time-field select,
     #hoursTrackerCard .hours-grid input,
     #hoursTrackerCard .hours-grid button,
     #hoursTrackerCard .hours-grid .input-with-dollar {
@@ -7507,7 +7510,9 @@ body.setup-open {
         box-sizing: border-box !important;
     }
 
-    #hoursTrackerCard input[type="time"] {
+    #hoursTrackerCard input[type="time"],
+    #shiftStartTime,
+    #shiftEndTime {
         min-inline-size: 0 !important;
         -webkit-appearance: none !important;
         appearance: none !important;
