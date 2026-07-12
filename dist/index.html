@@ -7431,7 +7431,7 @@ async function refreshAppData() {
     }
 }
 
-setInterval(refreshAppData, 15000);
+setInterval(refreshAppData, 5000);
 document.addEventListener('visibilitychange', () => {
     if (!document.hidden) refreshAppData();
 });
