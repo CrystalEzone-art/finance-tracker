@@ -8020,7 +8020,7 @@ body.refresh-silent *::after {
     min-width: 0 !important;
     margin-top: 1px !important;
     overflow: visible !important;
-    text-align: center !important;
+    text-align: left !important;
     text-overflow: clip !important;
     white-space: nowrap !important;
 }
@@ -8039,7 +8039,7 @@ body.refresh-silent *::after {
 @media (max-width: 768px) {
     #hoursTrackerCard .shift-calendar-day {
         align-content: start !important;
-        justify-items: stretch !important;
+        justify-items: start !important;
     }
 
     #hoursTrackerCard .shift-calendar-pay,
