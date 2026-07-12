@@ -2875,11 +2875,11 @@
                     <input type="date" id="shiftDate" onfocus="setTodayDate()" style="margin-top:0;">
                     <label class="time-field" for="shiftStartTime">
                         <span>Start</span>
-                        <input type="time" id="shiftStartTime" aria-label="Shift start time" title="Start time" onchange="updateShiftHoursFromTimes()" oninput="updateShiftHoursFromTimes()" style="margin-top:0;">
+                        <input type="time" id="shiftStartTime" aria-label="Shift start time" title="Start time" step="900" onchange="updateShiftHoursFromTimes()" oninput="updateShiftHoursFromTimes()" style="margin-top:0;">
                     </label>
                     <label class="time-field" for="shiftEndTime">
                         <span>End</span>
-                        <input type="time" id="shiftEndTime" aria-label="Shift end time" title="End time" onchange="updateShiftHoursFromTimes()" oninput="updateShiftHoursFromTimes()" style="margin-top:0;">
+                        <input type="time" id="shiftEndTime" aria-label="Shift end time" title="End time" step="900" onchange="updateShiftHoursFromTimes()" oninput="updateShiftHoursFromTimes()" style="margin-top:0;">
                     </label>
                     <input type="number" id="hoursInput" placeholder="Calculated hours" step="0.1" readonly style="margin-top:0;">
                     <div class="input-with-dollar" style="margin-top:0;">
