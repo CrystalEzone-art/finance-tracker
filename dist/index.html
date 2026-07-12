@@ -6840,15 +6840,20 @@ function openEditTransactionPanel(transactionId, triggerElement) {
     panel.style.visibility = 'visible';
     panel.style.opacity = '1';
     panel.style.pointerEvents = 'auto';
-    panel.style.justifyContent = 'flex-start';
-    panel.style.alignItems = 'flex-start';
+    panel.style.justifyContent = 'center';
+    panel.style.alignItems = 'center';
     panel.classList.remove('edit-transaction-panel-open');
     void panel.offsetWidth;
     panel.classList.add('edit-transaction-panel-open');
 
     if (content) {
-        positionPopupInViewport(content, { verticalAnchor: triggerElement });
-        trackPopupInViewport('editTransactionPanel', content, { verticalAnchor: triggerElement });
+        content.style.position = '';
+        content.style.top = '';
+        content.style.left = '';
+        content.style.transform = '';
+        content.style.margin = 'auto';
+        content.style.visibility = 'visible';
+        stopPopupViewportTracking('editTransactionPanel');
     }
 
     try { document.body.classList.add('modal-open'); } catch (e) {}
