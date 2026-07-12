@@ -8013,6 +8013,39 @@ body.refresh-silent *::after {
     scroll-behavior: auto !important;
 }
 
+/* Keep mobile shift calendar cells focused on time and pay. */
+.shift-calendar-hours {
+    display: none !important;
+}
+
+.shift-calendar-pay {
+    margin-top: 2px !important;
+}
+
+@media (max-width: 768px) {
+    #hoursTrackerCard .shift-calendar-day.has-events {
+        min-height: 56px !important;
+        padding: 4px !important;
+    }
+
+    #hoursTrackerCard .shift-calendar-times {
+        gap: 1px !important;
+        margin-top: 3px !important;
+    }
+
+    #hoursTrackerCard .shift-calendar-times b {
+        padding: 1px 2px !important;
+        font-size: 8.5px !important;
+        line-height: 1.05 !important;
+    }
+
+    #hoursTrackerCard .shift-calendar-pay {
+        display: block !important;
+        font-size: 10px !important;
+        line-height: 1.05 !important;
+    }
+}
+
 /* Absolute final fix for the Add Transaction amount marker on mobile. */
 @media (max-width: 768px) {
     #transactionAmountField {
