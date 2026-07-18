@@ -2773,8 +2773,8 @@
                 <div class="insight-value" id="savingsRateInsight">0%</div>
             </div>
             <div class="insight-card">
-                <div class="insight-label">Largest Expense</div>
-                <div class="insight-value" id="largestExpenseInsight">$0.00</div>
+                <div class="insight-label">Recent Spending · 7 Days</div>
+                <div class="insight-value" id="recentSpendingInsight">$0.00</div>
             </div>
             <div class="insight-card">
                 <div class="insight-label">Next Payday</div>
@@ -6575,9 +6575,9 @@ function updateDashboard(options = {}) {
 
 function updateDashboardInsights() {
     const savingsRateEl = document.getElementById('savingsRateInsight');
-    const largestExpenseEl = document.getElementById('largestExpenseInsight');
+    const recentSpendingEl = document.getElementById('recentSpendingInsight');
     const nextPaydayEl = document.getElementById('nextPaydayInsight');
-    if (!savingsRateEl || !largestExpenseEl || !nextPaydayEl) return;
+    if (!savingsRateEl || !recentSpendingEl || !nextPaydayEl) return;
 
     const totalIncome = transactions
         .filter(t => t.type === 'income')
@@ -6585,12 +6585,14 @@ function updateDashboardInsights() {
     const savingsRate = totalIncome > 0 ? Math.max(0, (savedMoney / totalIncome) * 100) : 0;
     savingsRateEl.textContent = `${savingsRate.toFixed(0)}%`;
 
-    const largestExpense = transactions
+    const recentSpendingStart = new Date();
+    recentSpendingStart.setHours(0, 0, 0, 0);
+    recentSpendingStart.setDate(recentSpendingStart.getDate() - 6);
+    const recentSpending = transactions
         .filter(isSpendingExpense)
-        .sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))[0];
-    largestExpenseEl.textContent = largestExpense
-        ? `${largestExpense.description || 'Expense'} $${Number(largestExpense.amount || 0).toFixed(2)}`
-        : '$0.00';
+        .filter(transaction => getTransactionDate(transaction) >= recentSpendingStart)
+        .reduce((sum, transaction) => sum + Number(transaction.amount || 0), 0);
+    recentSpendingEl.textContent = `$${recentSpending.toFixed(2)}`;
 
     const nextPaycheck = Object.values(latestPaycheckTotals || {})
         .sort((a, b) => a.payDate - b.payDate)[0];
