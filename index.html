@@ -2833,7 +2833,7 @@
 
                 <div class="savings-activity">
                     <h3 style="margin-top:24px;margin-bottom:12px;color:#334155;">Savings Activity</h3>
-                    <div id="savingsList" style="max-height:220px;overflow-y:auto;padding-right:4px;border-top:1px solid #e5e7eb;padding-top:10px;"></div>
+                    <div id="savingsList" style="height:110px!important;min-height:110px!important;max-height:110px!important;flex:0 0 110px!important;overflow-y:auto!important;overscroll-behavior:contain;scrollbar-gutter:stable;padding-right:4px;border-top:1px solid #e5e7eb;padding-top:10px;"></div>
                 </div>
             </div>
         </div>
@@ -3791,7 +3791,7 @@ let editingJobId = null;
 let latestPaycheckTotals = {};
 let suppressRefreshAnimation = false;
 let editTransactionScrollPosition = { x: 0, y: 0 };
-const SHIFT_RETENTION_DAYS = 21;
+const SHIFT_RETENTION_DAYS = 3650;
 const defaultTrackerSettings = {
     profile: {
         displayName: '',
@@ -5214,7 +5214,8 @@ function sanitizeBackupJob(job, index = 0) {
         id: sanitizeBackupId(job?.id || `job-import-${index}`, 'job'),
         name: sanitizeBackupText(job?.name || 'Imported job', 100),
         rate: Math.max(0, sanitizeBackupNumber(job?.rate, 0)),
-        pay_date: sanitizeBackupText(job?.pay_date || '', 20)
+        pay_date: sanitizeBackupText(job?.pay_date || '', 20),
+        cutoff_days: Math.min(13, Math.max(0, Math.round(sanitizeBackupNumber(job?.cutoff_days, 0))))
     };
 }
 
@@ -5719,6 +5720,73 @@ function cancelJobEdit() {
     document.getElementById('jobCutoffDate').value = '';
 }
 
+function getPaycheckCycleForShift(job, shiftDateValue) {
+    if (!job?.pay_date || !shiftDateValue) return null;
+
+    const shiftDate = new Date(shiftDateValue);
+    shiftDate.setHours(12, 0, 0, 0);
+    const payDate = new Date(job.pay_date + 'T12:00:00');
+    if (Number.isNaN(shiftDate.getTime()) || Number.isNaN(payDate.getTime())) return null;
+
+    const cutoffDays = Number(job.cutoff_days || 0);
+    const periodEnd = new Date(payDate);
+    periodEnd.setDate(periodEnd.getDate() - cutoffDays);
+    periodEnd.setHours(23, 59, 59, 999);
+
+    while (shiftDate > periodEnd) {
+        payDate.setDate(payDate.getDate() + 14);
+        periodEnd.setDate(periodEnd.getDate() + 14);
+    }
+
+    const periodStart = new Date(periodEnd);
+    periodStart.setDate(periodStart.getDate() - 13);
+    periodStart.setHours(0, 0, 0, 0);
+
+    while (shiftDate < periodStart) {
+        payDate.setDate(payDate.getDate() - 14);
+        periodEnd.setDate(periodEnd.getDate() - 14);
+        periodStart.setDate(periodStart.getDate() - 14);
+    }
+
+    return { payDate, cutoffDate: periodEnd };
+}
+
+function getJobPaycheckHistory(job) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const history = {};
+
+    shifts.forEach(shift => {
+        const belongsToJob = shift.job_id
+            ? sameId(shift.job_id, job.id)
+            : String(shift.job || '').trim() === String(job.name || '').trim();
+        if (!belongsToJob) return;
+
+        const shiftDate = parseShiftDate(shift.date);
+        const cycle = getPaycheckCycleForShift(job, shiftDate);
+        if (!cycle || cycle.payDate >= today) return;
+
+        const key = cycle.payDate.toISOString().slice(0, 10);
+        if (!history[key]) {
+            history[key] = {
+                payDate: cycle.payDate,
+                cutoffDate: cycle.cutoffDate,
+                hours: 0,
+                gross: 0,
+                takeHome: 0
+            };
+        }
+
+        const hours = Number(shift.hours || 0);
+        const gross = Number(shift.pay) || (hours * Number(shift.rate || job.rate || 0));
+        history[key].hours += hours;
+        history[key].gross += gross;
+        history[key].takeHome += gross * 0.85;
+    });
+
+    return Object.values(history).sort((a, b) => b.payDate - a.payDate);
+}
+
 function renderJobs() {
     const select = document.getElementById('jobSelect');
     if (!select) return;
@@ -5748,11 +5816,24 @@ function renderJobs() {
             const cutoffDate = job.pay_date ? new Date(job.pay_date + 'T12:00:00') : null;
             if (cutoffDate) cutoffDate.setDate(cutoffDate.getDate() - Number(job.cutoff_days || 0));
             const cutoffLabel = cutoffDate ? cutoffDate.toLocaleDateString() : 'unset';
+            const paycheckHistory = getJobPaycheckHistory(job);
+            const historyMarkup = paycheckHistory.length
+                ? paycheckHistory.map(paycheck => `
+                    <div style="display:flex;justify-content:space-between;gap:16px;padding:7px 0;border-top:1px solid #e5e7eb;">
+                        <span><strong>${paycheck.payDate.toLocaleDateString()}</strong><br><small>${paycheck.hours.toFixed(1)} hours</small></span>
+                        <span style="text-align:right;">$${paycheck.gross.toFixed(2)} gross<br><small>$${paycheck.takeHome.toFixed(2)} est. take-home • Cutoff ${paycheck.cutoffDate.toLocaleDateString()}</small></span>
+                    </div>
+                `).join('')
+                : '<div style="padding-top:7px;color:#64748b;font-size:12px;">No previous paychecks recorded.</div>';
 
             row.innerHTML = `
-<div>
+<div style="flex:1;min-width:0;">
 	    <div style="font-weight:600;">${escapeHTML(job.name)}</div>
     <div style="font-size:12px;color:#64748b;">$${job.rate}/hr • Paycheck ${job.pay_date || 'unset'} • Cutoff ${cutoffLabel}</div>
+    <details style="margin-top:8px;">
+        <summary style="cursor:pointer;font-size:12px;font-weight:600;color:#475569;">Paycheck history (${paycheckHistory.length})</summary>
+        <div style="margin-top:7px;">${historyMarkup}</div>
+    </details>
 </div>
 <div class="row-actions">
     <button class="edit-btn" onclick="editJob(${escapeInlineJSString(job.id)})" title="Edit job">
