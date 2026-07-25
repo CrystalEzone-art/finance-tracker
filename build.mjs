@@ -6,6 +6,7 @@ const publicFiles = [
   "index.html",
   "modern-off.css",
   "site.webmanifest",
+  "assets/supabase.min.js",
   "assets/app-icon.svg",
   "assets/apple-touch-icon.png",
   "assets/icon-192.png",
@@ -18,6 +19,7 @@ const contentTypes = {
   ".json": "application/json; charset=utf-8",
   ".png": "image/png",
   ".svg": "image/svg+xml; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
   ".webmanifest": "application/manifest+json; charset=utf-8"
 };
 

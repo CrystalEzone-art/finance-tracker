@@ -1498,6 +1498,73 @@
             margin-top: 18px;
         }
 
+        .auth-gate {
+            position: fixed;
+            inset: 0;
+            z-index: 20000;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            background:
+                radial-gradient(circle at top left, rgba(59,130,246,.22), transparent 42%),
+                linear-gradient(145deg, #eff6ff, #f8fafc 55%, #eef2ff);
+        }
+
+        .auth-gate[hidden] {
+            display: none;
+        }
+
+        .auth-card {
+            width: min(430px, 100%);
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,.8);
+            border-radius: 28px;
+            background: rgba(255,255,255,.94);
+            box-shadow: 0 28px 80px rgba(15,23,42,.18);
+        }
+
+        .auth-card h1 {
+            margin: 0 0 8px;
+            color: #0f172a;
+            font-size: 28px;
+        }
+
+        .auth-card p {
+            margin: 0 0 20px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .auth-card label {
+            display: block;
+            margin: 14px 0 7px;
+            color: #334155;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .auth-card input {
+            margin: 0;
+        }
+
+        .auth-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .auth-actions button {
+            margin: 0;
+        }
+
+        .auth-status {
+            min-height: 22px;
+            margin: 14px 0 0;
+            color: #475569;
+            font-size: 13px;
+        }
+
         .settings-list-row,
         .budget-row {
             display: grid;
@@ -2257,6 +2324,21 @@
 <body>
     <div id="toastContainer" aria-live="polite" aria-atomic="true"></div>
     <div id="contextMenu"></div>
+    <div id="authGate" class="auth-gate" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+        <form class="auth-card" onsubmit="signIn(event)">
+            <h1 id="authTitle">Tyler's Finance Tracker</h1>
+            <p>Sign in to securely sync the same finance data between your iPhone and the website.</p>
+            <label for="authEmail">Email</label>
+            <input id="authEmail" type="email" autocomplete="email" required placeholder="you@example.com">
+            <label for="authPassword">Password</label>
+            <input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="At least 6 characters">
+            <div class="auth-actions">
+                <button id="authSignInButton" type="submit" class="income-btn">Sign In</button>
+                <button id="authSignUpButton" type="button" class="secondary-btn" onclick="signUp()">Create Account</button>
+            </div>
+            <div id="authStatus" class="auth-status" aria-live="polite"></div>
+        </form>
+    </div>
     <div id="settingsPanel" onclick="if (event.target === this) closeSettingsPanel()">
         <div class="settings-content" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
             <div class="settings-header">
@@ -2493,6 +2575,12 @@
             <div id="settingsPageSecurity" class="settings-page">
                 <div class="settings-grid">
                     <div class="settings-toggle">
+                        <div>
+                            <label>Sync account</label>
+                            <strong id="syncAccountEmail">Signed out</strong>
+                        </div>
+                    </div>
+                    <div class="settings-toggle">
                         <label for="settingsPinLock">PIN lock</label>
                         <input type="checkbox" id="settingsPinLock">
                     </div>
@@ -2507,6 +2595,7 @@
                 </div>
                 <div class="settings-actions">
                     <button type="button" class="income-btn" onclick="saveSecuritySettings()">Save Security</button>
+                    <button type="button" class="secondary-btn" onclick="signOut()">Sign Out</button>
                 </div>
             </div>
 
@@ -2962,7 +3051,7 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/supabase.min.js"></script>
 
     <script>
 function toggleSection(sectionId, button) {
@@ -3045,8 +3134,126 @@ const SUPABASE_URL = 'https://ptqdxxtvhimmbozagofp.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_hEpPK61rvIpHhbTtY4dn2g_Ee2JNVYI';
 const supabaseClient = window.supabase?.createClient(
     SUPABASE_URL,
-    SUPABASE_ANON_KEY
+    SUPABASE_ANON_KEY,
+    {
+        auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true
+        }
+    }
 );
+let activeSession = null;
+let appInitialized = false;
+
+function setAuthStatus(message, isError = false) {
+    const status = document.getElementById('authStatus');
+    if (!status) return;
+    status.textContent = message || '';
+    status.style.color = isError ? '#dc2626' : '#475569';
+}
+
+function setAuthBusy(isBusy) {
+    ['authSignInButton', 'authSignUpButton'].forEach(id => {
+        const button = document.getElementById(id);
+        if (button) button.disabled = isBusy;
+    });
+}
+
+function showAuthGate() {
+    document.getElementById('authGate')?.removeAttribute('hidden');
+}
+
+function hideAuthGate() {
+    document.getElementById('authGate')?.setAttribute('hidden', '');
+}
+
+async function signIn(event) {
+    event?.preventDefault();
+    if (!supabaseClient) {
+        setAuthStatus('Sync is unavailable. Please update or reinstall the app.', true);
+        return;
+    }
+
+    const email = document.getElementById('authEmail')?.value.trim();
+    const password = document.getElementById('authPassword')?.value || '';
+    setAuthBusy(true);
+    setAuthStatus('Signing in…');
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    setAuthBusy(false);
+    if (error) setAuthStatus(error.message, true);
+}
+
+async function signUp() {
+    if (!supabaseClient) {
+        setAuthStatus('Sync is unavailable. Please update or reinstall the app.', true);
+        return;
+    }
+
+    const email = document.getElementById('authEmail')?.value.trim();
+    const password = document.getElementById('authPassword')?.value || '';
+    if (!email || password.length < 6) {
+        setAuthStatus('Enter your email and a password with at least 6 characters.', true);
+        return;
+    }
+
+    setAuthBusy(true);
+    setAuthStatus('Creating your account…');
+    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+    setAuthBusy(false);
+    if (error) {
+        setAuthStatus(error.message, true);
+    } else if (!data.session) {
+        setAuthStatus('Check your email to confirm the account, then come back and sign in.');
+    } else {
+        setAuthStatus('Account created. Loading your synced tracker…');
+    }
+}
+
+async function signOut() {
+    if (!supabaseClient) return;
+    closeSettingsPanel();
+    await supabaseClient.auth.signOut();
+}
+
+async function handleAuthenticatedSession(session) {
+    activeSession = session;
+    const accountEmail = document.getElementById('syncAccountEmail');
+    if (accountEmail) accountEmail.textContent = session.user.email || 'Signed in';
+    hideAuthGate();
+    if (!appInitialized) {
+        appInitialized = true;
+        await initializeApp();
+    } else {
+        await refreshAppData();
+    }
+}
+
+async function initializeAuthentication() {
+    if (!supabaseClient) {
+        setAuthStatus('Sync is unavailable. Please update or reinstall the app.', true);
+        return;
+    }
+
+    const { data, error } = await supabaseClient.auth.getSession();
+    if (error) setAuthStatus(error.message, true);
+    if (data?.session) await handleAuthenticatedSession(data.session);
+    else showAuthGate();
+
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        setTimeout(async () => {
+            if (session) {
+                await handleAuthenticatedSession(session);
+            } else {
+                activeSession = null;
+                const accountEmail = document.getElementById('syncAccountEmail');
+                if (accountEmail) accountEmail.textContent = 'Signed out';
+                showAuthGate();
+                if (event === 'SIGNED_OUT') setAuthStatus('Signed out.');
+            }
+        }, 0);
+    });
+}
 
 function showToast(message, type = 'info') {
     const container = document.getElementById('toastContainer');
@@ -7560,11 +7767,11 @@ async function initializeApp() {
     await handleShortcutTransactionURL();
 }
 
-initializeApp();
+initializeAuthentication();
 
 let refreshInProgress = false;
 async function refreshAppData() {
-    if (refreshInProgress || document.hidden) return;
+    if (!activeSession || refreshInProgress || document.hidden) return;
     refreshInProgress = true;
     suppressRefreshAnimation = true;
     document.body.classList.add('refresh-silent');
