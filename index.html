@@ -2336,6 +2336,7 @@
                 <button id="authSignInButton" type="submit" class="income-btn">Sign In</button>
                 <button id="authSignUpButton" type="button" class="secondary-btn" onclick="signUp()">Create Account</button>
             </div>
+            <button id="authResendButton" type="button" class="secondary-btn" style="width:100%;margin-top:10px;" onclick="resendConfirmation()">Resend Confirmation Email</button>
             <div id="authStatus" class="auth-status" aria-live="polite"></div>
         </form>
     </div>
@@ -3154,7 +3155,7 @@ function setAuthStatus(message, isError = false) {
 }
 
 function setAuthBusy(isBusy) {
-    ['authSignInButton', 'authSignUpButton'].forEach(id => {
+    ['authSignInButton', 'authSignUpButton', 'authResendButton'].forEach(id => {
         const button = document.getElementById(id);
         if (button) button.disabled = isBusy;
     });
@@ -3199,7 +3200,13 @@ async function signUp() {
 
     setAuthBusy(true);
     setAuthStatus('Creating your account…');
-    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+    const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+            emailRedirectTo: 'https://tylers-finance-tracker.crystalezone.chatgpt.site'
+        }
+    });
     setAuthBusy(false);
     if (error) {
         setAuthStatus(error.message, true);
@@ -3208,6 +3215,28 @@ async function signUp() {
     } else {
         setAuthStatus('Account created. Loading your synced tracker…');
     }
+}
+
+async function resendConfirmation() {
+    if (!supabaseClient) return;
+    const email = document.getElementById('authEmail')?.value.trim();
+    if (!email) {
+        setAuthStatus('Enter your email first, then tap Resend Confirmation Email.', true);
+        return;
+    }
+
+    setAuthBusy(true);
+    setAuthStatus('Sending a fresh confirmation email…');
+    const { error } = await supabaseClient.auth.resend({
+        type: 'signup',
+        email,
+        options: {
+            emailRedirectTo: 'https://tylers-finance-tracker.crystalezone.chatgpt.site'
+        }
+    });
+    setAuthBusy(false);
+    if (error) setAuthStatus(error.message, true);
+    else setAuthStatus('Fresh email sent. Open the newest message and tap its confirmation link.');
 }
 
 async function signOut() {
